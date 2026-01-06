@@ -35,10 +35,17 @@ src/
 │   ├── publisher/          # Publisher-facing routes
 │   │   └── onboarding/     # Multi-step publisher registration
 │   └── advertiser/         # Department-facing routes
+│       ├── discover/       # Publisher discovery map
 │       └── onboarding/     # Campaign creation wizard
 ├── components/
+│   ├── map/                # SFNeighborhoodMap, ExpandableLegend
+│   ├── advertiser/         # PublisherDiscoveryMap
+│   ├── publisher/          # AudienceDemographicsView
 │   └── shared/             # Reusable UI components (Nav, Button, Footer, etc.)
 ├── lib/
+│   ├── census/             # Census Bureau API integration
+│   ├── datasf/             # DataSF API (evictions, etc.)
+│   ├── geo/                # SF geography & GeoJSON boundaries
 │   ├── matching/           # Core matching algorithm
 │   └── integrations/       # External system integrations
 └── types/                  # TypeScript type definitions
@@ -145,11 +152,57 @@ Uses Mapbox GL JS via `react-map-gl` for interactive maps.
 - `src/lib/geo/sf-neighborhoods.geojson.ts` - GeoJSON polygon boundaries for all 45 SF neighborhoods
 
 **SFNeighborhoodMap Features:**
-- Four color schemes: `audience`, `income`, `language`, `coverage`
+- Seven `colorBy` modes: `audience`, `income`, `language`, `coverage`, `evictions`, `ethnicity`, `age`
+- Single-select demographic filters with per-category color scales:
+  - Languages (orange): Spanish, Chinese, Tagalog, Vietnamese, Korean, Russian
+  - Ethnicities (purple): White, Asian, Hispanic, Black, Pacific Islander, Multiracial
+  - Ages (teal): Under 18, 18-24, 25-34, 35-44, 45-54, 55-64, 65+
+  - Income brackets (green): Extremely Low, Very Low, Low, Moderate, Above Moderate AMI
+- Expandable legend that transforms into data card on neighborhood selection
 - Hover popups with census data (population, income, renters, LEP rate)
-- Click-to-select neighborhoods with multi-select support
-- Data-driven Mapbox styling expressions
-- Legend and selection indicators
+- Click-to-pin neighborhood for detailed statistics
+- Data-driven Mapbox styling expressions with calibrated color scales
+
+## DataSF Integration
+
+The platform integrates with San Francisco's open data portal for real-time civic data.
+
+### Key Files
+
+- `src/lib/datasf/client.ts` - Generic DataSF API client with caching
+- `src/lib/datasf/types.ts` - TypeScript types for eviction records
+- `src/lib/datasf/evictions.ts` - Eviction data fetching and aggregation
+- `src/lib/datasf/zip-to-neighborhood.ts` - Maps SF zip codes to Analysis Neighborhoods
+
+### Evictions Data
+
+Fetches from DataSF Eviction Notices dataset (`5cei-gny5`):
+
+```typescript
+// Get eviction stats for last 12 months
+const stats = await getEvictionStats({ timeRange: '12mo' });
+
+// Returns city-wide statistics and per-neighborhood breakdown:
+{
+  totalEvictions: 1234,
+  averageRate: 8.5,  // per 1,000 rental units
+  rankings: [...],   // neighborhoods ranked by rate
+  byNeighborhood: {
+    mission: { total: 89, rate: 12.4, topCauses: [...] },
+    tenderloin: { total: 156, rate: 18.2, topCauses: [...] },
+  }
+}
+```
+
+### Eviction Cause Types
+
+The dataset includes 20 boolean cause flags:
+- `non_payment` - Non-payment of rent
+- `breach` - Lease violation
+- `nuisance` - Nuisance behavior
+- `owner_move_in` - Owner/relative move-in (Ellis Act related)
+- `ellis_act_withdrawal` - Building withdrawal from rental market
+- `demolition`, `capital_improvement`, `substantial_rehab`, etc.
 
 ### Publisher Annotations
 
@@ -165,12 +218,16 @@ Publishers can add community notes to supplement census data:
 - [x] Core type system with comprehensive matching profiles (geographic, demographic, economic, cultural)
 - [x] 5-dimension matching algorithm with configurable weights
 - [x] Census overlay system for demographic inference
-- [x] SF neighborhood GeoJSON boundaries (45 neighborhoods)
+- [x] SF neighborhood GeoJSON boundaries (41 neighborhoods)
 - [x] Mapbox GL integration with choropleth visualization
 - [x] Publisher demographics dashboard with annotations
-- [x] Department publisher discovery map
+- [x] Department publisher discovery map with 3-column layout
 - [x] City systems integration stubs
 - [x] Real ACS census data integration via Census Bureau API
+- [x] DataSF eviction data integration with time-range filtering (30d/12mo)
+- [x] Expandable legend with neighborhood detail cards
+- [x] Single-select demographic filters (languages, ethnicities, ages, income brackets)
+- [x] Per-category calibrated color scales for meaningful differentiation
 
 ### Pending
 - [ ] Publisher onboarding flow completion
@@ -178,3 +235,4 @@ Publishers can add community notes to supplement census data:
 - [ ] Order/procurement workflow
 - [ ] Platform OAuth connections for audience data
 - [ ] City vendor system API integration
+- [ ] Additional DataSF datasets (traffic crashes, fire/EMS dispatch)
