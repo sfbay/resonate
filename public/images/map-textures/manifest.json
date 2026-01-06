@@ -1,0 +1,46 @@
+{
+  "source": "Thomas Bros. Map of San Francisco, 1938",
+  "attribution": "David Rumsey Map Collection",
+  "punchouts": [
+    {
+      "name": "downtown",
+      "description": "Downtown",
+      "path": "/images/map-textures/downtown.jpg"
+    },
+    {
+      "name": "mission",
+      "description": "The Mission",
+      "path": "/images/map-textures/mission.jpg"
+    },
+    {
+      "name": "sunset",
+      "description": "The Sunset",
+      "path": "/images/map-textures/sunset.jpg"
+    },
+    {
+      "name": "richmond",
+      "description": "The Richmond",
+      "path": "/images/map-textures/richmond.jpg"
+    },
+    {
+      "name": "castro",
+      "description": "The Castro",
+      "path": "/images/map-textures/castro.jpg"
+    },
+    {
+      "name": "bayview",
+      "description": "Bayview-Hunters Point",
+      "path": "/images/map-textures/bayview.jpg"
+    },
+    {
+      "name": "presidio",
+      "description": "The Presidio",
+      "path": "/images/map-textures/presidio.jpg"
+    },
+    {
+      "name": "golden-gate-park",
+      "description": "Golden Gate Park",
+      "path": "/images/map-textures/golden-gate-park.jpg"
+    }
+  ]
+}
