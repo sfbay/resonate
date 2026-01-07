@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import type { Publisher, SFNeighborhood, Language, Ethnicity, IncomeLevel, AgeRange } from '@/types';
+import type { Publisher, SFNeighborhood, Language, Ethnicity, IncomeLevel, AgeRange, Badge, BadgeType, GrowthTrend } from '@/types';
 import { SFNeighborhoodMap } from '../map/SFNeighborhoodMap';
 import { SF_NEIGHBORHOODS } from '@/lib/geo/sf-geography';
 import { getEvictionStats, getEvictionMapData } from '@/lib/datasf/evictions';
@@ -22,6 +22,19 @@ interface FilterState {
   incomelevels: IncomeLevel[];
   ageRanges: AgeRange[];
   neighborhoods: SFNeighborhood[];
+  risingStarsOnly: boolean;
+  verifiedOnly: boolean;
+}
+
+// Extended publisher type with growth metrics
+interface PublisherWithGrowth extends Publisher {
+  growth?: {
+    rate30d: number;
+    trend: GrowthTrend;
+    badges: Badge[];
+    isRisingStar: boolean;
+    verificationLevel: 'self_reported' | 'partial' | 'verified';
+  };
 }
 
 type DemoFilterTab = 'languages' | 'communities' | 'income' | 'age' | 'housing';
@@ -157,6 +170,8 @@ export function PublisherDiscoveryMap({
     incomelevels: [],
     ageRanges: [],
     neighborhoods: [],
+    risingStarsOnly: false,
+    verifiedOnly: false,
   });
   const [activeDemoTab, setActiveDemoTab] = useState<DemoFilterTab>('languages');
   const [activePublisherTab, setActivePublisherTab] = useState<PublisherTab>('neighborhood');
@@ -234,19 +249,20 @@ export function PublisherDiscoveryMap({
     }
   }, [activeDemoTab, evictionTimeRange]);
 
-  // Toggle filter
-  const toggleFilter = <K extends keyof FilterState>(key: K, value: FilterState[K][number]) => {
+  // Toggle filter (for array fields only)
+  type ArrayFilterKey = 'languages' | 'ethnicities' | 'incomelevels' | 'ageRanges' | 'neighborhoods';
+  const toggleFilter = <K extends ArrayFilterKey>(key: K, value: FilterState[K][number]) => {
     setFilters((prev) => ({
       ...prev,
-      [key]: prev[key].includes(value)
-        ? prev[key].filter((v) => v !== value)
-        : [...prev[key], value],
+      [key]: (prev[key] as FilterState[K]).includes(value)
+        ? (prev[key] as FilterState[K]).filter((v) => v !== value)
+        : [...(prev[key] as FilterState[K]), value],
     }));
   };
 
   // Clear all filters
   const clearAllFilters = () => {
-    setFilters({ languages: [], ethnicities: [], incomelevels: [], ageRanges: [], neighborhoods: [] });
+    setFilters({ languages: [], ethnicities: [], incomelevels: [], ageRanges: [], neighborhoods: [], risingStarsOnly: false, verifiedOnly: false });
     setSelectedEvictionPercentiles([]);
     setSelectedMapLanguage(null);
     setSelectedMapEthnicity(null);
@@ -261,7 +277,9 @@ export function PublisherDiscoveryMap({
     (selectedMapAge ? 1 : 0) + // Single-select age for map
     (selectedMapIncome ? 1 : 0) + // Single-select income for map
     filters.neighborhoods.length +
-    selectedEvictionPercentiles.length;
+    selectedEvictionPercentiles.length +
+    (filters.risingStarsOnly ? 1 : 0) +
+    (filters.verifiedOnly ? 1 : 0);
 
   // Get demo tab filter count
   const getDemoTabCount = (tab: DemoFilterTab) => {
@@ -277,7 +295,7 @@ export function PublisherDiscoveryMap({
 
   // Filter publishers
   const filteredPublishers = useMemo(() => {
-    return publishers.filter((pub) => {
+    return (publishers as PublisherWithGrowth[]).filter((pub) => {
       if (filters.languages.length > 0) {
         if (!filters.languages.some((l) => pub.audienceProfile.demographic.languages.includes(l))) return false;
       }
@@ -299,6 +317,10 @@ export function PublisherDiscoveryMap({
         if (pub.audienceProfile.geographic.citywide) return true;
         if (!evictionFilteredNeighborhoods.some((n) => pub.audienceProfile.geographic.neighborhoods.includes(n))) return false;
       }
+      // Filter by rising stars
+      if (filters.risingStarsOnly && !pub.growth?.isRisingStar) return false;
+      // Filter by verified
+      if (filters.verifiedOnly && pub.growth?.verificationLevel !== 'verified') return false;
       return true;
     });
   }, [publishers, filters, evictionFilteredNeighborhoods]);
@@ -679,11 +701,38 @@ export function PublisherDiscoveryMap({
 
         {/* Right: Publisher List */}
         <div className="w-80 flex-shrink-0 flex flex-col border-l border-[var(--color-mist)] bg-white rounded-br-2xl overflow-hidden">
-          {/* Header */}
+          {/* Header with Growth Filters */}
           <div className="px-4 py-2 border-b border-[var(--color-mist)] bg-slate-50">
-            <span className="text-xs font-semibold text-[var(--color-charcoal)] uppercase tracking-wide">
-              Publications ({filteredPublishers.length})
-            </span>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-[var(--color-charcoal)] uppercase tracking-wide">
+                Publications ({filteredPublishers.length})
+              </span>
+            </div>
+            {/* Growth filter toggles */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setFilters(prev => ({ ...prev, risingStarsOnly: !prev.risingStarsOnly }))}
+                className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium transition-all ${
+                  filters.risingStarsOnly
+                    ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-sm'
+                    : 'bg-white border border-slate-200 text-slate-600 hover:border-amber-300'
+                }`}
+              >
+                <span>⭐</span>
+                Rising Stars
+              </button>
+              <button
+                onClick={() => setFilters(prev => ({ ...prev, verifiedOnly: !prev.verifiedOnly }))}
+                className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium transition-all ${
+                  filters.verifiedOnly
+                    ? 'bg-emerald-500 text-white shadow-sm'
+                    : 'bg-white border border-slate-200 text-slate-600 hover:border-emerald-300'
+                }`}
+              >
+                <span>✓</span>
+                Verified
+              </button>
+            </div>
           </div>
           {/* Publisher Tabs */}
           <div className="flex border-b border-[var(--color-mist)]">
@@ -813,6 +862,7 @@ function PublisherCard({
 }) {
   const reach = publisher.platforms.reduce((sum, p) => sum + p.followerCount, 0);
   const logoPath = (publisher as Publisher & { logo?: string }).logo;
+  const growth = (publisher as PublisherWithGrowth).growth;
 
   const neighborhoods = publisher.audienceProfile.geographic.citywide
     ? []
@@ -832,8 +882,9 @@ function PublisherCard({
       }`}
       style={{
         borderColor: isSelected ? color : undefined,
-        ringColor: isSelected ? color : undefined,
+        // Ring color set via Tailwind class
         backgroundColor: isHovered ? `${color}06` : 'white',
+        ...(isSelected ? { '--tw-ring-color': color } as React.CSSProperties : {}),
       }}
     >
       {/* Color bar */}
@@ -842,22 +893,53 @@ function PublisherCard({
       <div className="p-3">
         {/* Logo or Name - larger */}
         <div className="mb-2">
-          {logoPath ? (
-            <img
-              src={logoPath}
-              alt={publisher.name}
-              className="h-7 max-w-[160px] object-contain object-left"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.nextElementSibling?.classList.remove('hidden');
-              }}
-            />
-          ) : null}
-          <span
-            className={`text-base font-semibold text-[var(--color-charcoal)] leading-tight ${logoPath ? 'hidden' : ''}`}
-          >
-            {publisher.name}
-          </span>
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex-1 min-w-0">
+              {logoPath ? (
+                <img
+                  src={logoPath}
+                  alt={publisher.name}
+                  className="h-7 max-w-[140px] object-contain object-left"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+              ) : null}
+              <span
+                className={`text-base font-semibold text-[var(--color-charcoal)] leading-tight ${logoPath ? 'hidden' : ''}`}
+              >
+                {publisher.name}
+              </span>
+            </div>
+            {/* Growth indicators */}
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {growth?.isRisingStar && (
+                <div
+                  className="w-5 h-5 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-sm"
+                  title={`Rising Star: +${growth.rate30d.toFixed(0)}% growth`}
+                >
+                  <span className="text-[10px]">⭐</span>
+                </div>
+              )}
+              {growth?.verificationLevel === 'verified' && (
+                <div
+                  className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-sm"
+                  title="Verified Publisher"
+                >
+                  <span className="text-[10px] text-white">✓</span>
+                </div>
+              )}
+              {growth?.trend === 'accelerating' && !growth.isRisingStar && (
+                <div
+                  className="w-5 h-5 rounded-full bg-sky-100 flex items-center justify-center"
+                  title={`Growing: +${growth.rate30d.toFixed(0)}%`}
+                >
+                  <span className="text-[10px]">📈</span>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Reach and Tags Row */}
@@ -884,6 +966,33 @@ function PublisherCard({
         {isSelected && (
           <div className="mt-3 pt-3 border-t border-slate-100">
             <p className="text-sm text-slate-600 mb-3 line-clamp-2">{publisher.description}</p>
+
+            {/* Growth stats */}
+            {growth && (
+              <div className="flex items-center gap-3 mb-3 p-2 bg-slate-50 rounded-lg">
+                <div className="text-center">
+                  <p className="text-sm font-bold text-[var(--color-charcoal)]">
+                    {growth.rate30d > 0 ? '+' : ''}{growth.rate30d.toFixed(1)}%
+                  </p>
+                  <p className="text-[10px] text-slate-500">30d growth</p>
+                </div>
+                <div className="w-px h-8 bg-slate-200" />
+                <div className="text-center">
+                  <p className="text-sm font-bold text-[var(--color-charcoal)]">
+                    {growth.trend === 'accelerating' ? '📈' : growth.trend === 'declining' ? '📉' : '➡️'}
+                  </p>
+                  <p className="text-[10px] text-slate-500">{growth.trend}</p>
+                </div>
+                <div className="w-px h-8 bg-slate-200" />
+                <div className="text-center">
+                  <p className="text-sm font-bold text-[var(--color-charcoal)]">
+                    {growth.verificationLevel === 'verified' ? '✓' : growth.verificationLevel === 'partial' ? '◐' : '○'}
+                  </p>
+                  <p className="text-[10px] text-slate-500">{growth.verificationLevel}</p>
+                </div>
+              </div>
+            )}
+
             <div className="flex flex-wrap gap-1.5 mb-3">
               {publisher.platforms.slice(0, 4).map((p) => (
                 <span key={p.platform} className="text-[11px] px-2 py-1 rounded-md bg-slate-100 text-slate-600 font-medium">

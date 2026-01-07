@@ -78,6 +78,17 @@ export type SocialPlatform =
   | 'website'
   | 'other';
 
+// Messaging platforms (emerging channels)
+export type MessagingPlatform =
+  | 'whatsapp'
+  | 'telegram'
+  | 'signal'
+  | 'sms'
+  | 'weibo';
+
+// Combined platform type for all distribution channels
+export type Platform = SocialPlatform | MessagingPlatform | 'mailchimp' | 'substack';
+
 // =============================================================================
 // AUDIENCE PROFILE - The core of matching
 // =============================================================================
@@ -803,4 +814,152 @@ export interface CityPurchaseOrder {
   description: string;
   createdAt: Date;
   // Additional fields TBD based on SF procurement system
+}
+
+// =============================================================================
+// GROWTH & ANALYTICS TYPES
+// =============================================================================
+
+export type BadgeType =
+  | 'rising_star'           // Rapid audience growth (20%+ in 30 days)
+  | 'growth_champion'       // Sustained growth (50%+ in 90 days)
+  | 'engagement_leader'     // Top 10% engagement rate
+  | 'verified_publisher'    // All platforms connected
+  | 'emerging_channel'      // Active on messaging platforms
+  | 'community_builder';    // Strong local community engagement
+
+export type BadgeTier = 'bronze' | 'silver' | 'gold';
+
+export interface Badge {
+  type: BadgeType;
+  tier?: BadgeTier;
+  awardedAt: Date;
+  expiresAt?: Date;
+  platform?: Platform;       // Which platform earned this badge
+  criteriaMet?: {
+    metric: string;
+    value: number;
+    threshold: number;
+  }[];
+}
+
+export type GrowthTrend = 'accelerating' | 'steady' | 'declining';
+
+export interface GrowthMetrics {
+  // Current snapshot
+  totalFollowers: number;
+  totalEngagement: number;
+  averageEngagementRate: number;
+
+  // Growth over time
+  growth7d: {
+    followersGained: number;
+    growthRate: number;      // Percentage
+  };
+  growth30d: {
+    followersGained: number;
+    growthRate: number;
+  };
+  growth90d: {
+    followersGained: number;
+    growthRate: number;
+  };
+
+  // Trend analysis
+  trend: GrowthTrend;
+  trendConfidence: number;   // 0-100
+
+  // Platform breakdown
+  byPlatform: Record<Platform, {
+    followers: number;
+    engagementRate: number;
+    growth30d: number;
+    lastSynced: Date | null;
+  }>;
+
+  // Badges earned
+  badges: Badge[];
+
+  // Data quality
+  verificationLevel: 'self_reported' | 'partial' | 'verified';
+  lastUpdated: Date;
+}
+
+// =============================================================================
+// PLATFORM CONNECTION TYPES
+// =============================================================================
+
+export type ConnectionStatus = 'active' | 'expired' | 'revoked' | 'pending';
+
+export interface PlatformConnection {
+  id: string;
+  publisherId: string;
+  platform: Platform;
+
+  // Account info
+  handle?: string;           // @username
+  url?: string;              // Profile URL
+  platformUserId?: string;   // Platform's internal user ID
+
+  // OAuth tokens (stored encrypted)
+  accessToken?: string;
+  refreshToken?: string;
+  tokenExpiresAt?: Date;
+  scopes?: string[];
+
+  // Status
+  status: ConnectionStatus;
+  verified: boolean;
+  connectedAt: Date;
+  lastSyncedAt?: Date;
+}
+
+export interface MetricsSnapshot {
+  id: string;
+  publisherId: string;
+  platform: Platform;
+  recordedAt: Date;
+
+  // Core metrics
+  followerCount?: number;
+  followingCount?: number;
+  postCount?: number;
+
+  // Engagement
+  engagementRate?: number;
+  avgLikes?: number;
+  avgComments?: number;
+  avgShares?: number;
+  avgSaves?: number;
+
+  // Newsletter-specific
+  subscriberCount?: number;
+  openRate?: number;
+  clickRate?: number;
+
+  // Platform-provided demographics
+  demographics?: {
+    ageRanges?: { range: AgeRange; percentage: number }[];
+    genderSplit?: { male: number; female: number; other: number };
+    topCities?: { city: string; percentage: number }[];
+    topCountries?: { country: string; percentage: number }[];
+  };
+}
+
+// =============================================================================
+// ENHANCED MATCH RESULT (with growth data)
+// =============================================================================
+
+export interface EnhancedMatchResult extends MatchResult {
+  // Growth trajectory for advertisers
+  growthTrajectory: {
+    trend: GrowthTrend;
+    growthRate30d: number;
+    badges: Badge[];
+    isRisingStar: boolean;
+  };
+
+  // Data quality for advertiser confidence
+  dataQuality: 'verified' | 'partial' | 'self_reported';
+  verifiedPlatforms: Platform[];
 }
