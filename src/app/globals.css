@@ -339,6 +339,41 @@ h1, h2, h3, h4, h5, h6 {
 .stagger-4 { animation-delay: 0.4s; }
 .stagger-5 { animation-delay: 0.5s; }
 
+/* ============================================
+   RESONANCE BEACON ANIMATIONS
+   Liquid, fluid, whisper-soft background effects
+   ============================================ */
+
+/* Liquid ring expansion - glacial, meditative pace */
+@keyframes resonanceRing {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(3.5);
+    opacity: 0;
+  }
+}
+
+.animate-resonance-ring {
+  animation: resonanceRing 14s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+}
+
+/* Gentle breathing for the core glow - slow, hypnotic */
+@keyframes beaconBreathe {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+}
+
+.animate-beacon-breathe {
+  animation: beaconBreathe 10s ease-in-out infinite;
+}
+
 /* Stat Counter Style */
 .stat-number {
   font-family: var(--font-display);

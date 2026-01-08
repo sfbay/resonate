@@ -1,6 +1,9 @@
+'use client';
+
 import Link from "next/link";
 import { Nav, Testimonial, FloatingMockup, Footer } from "@/components/shared";
 import { SFMapTexture } from "@/components/SFMapTexture";
+import { ResonanceBeacon } from "@/components/ResonanceBeacon";
 
 export default function PublisherPortal() {
   return (
@@ -9,14 +12,14 @@ export default function PublisherPortal() {
 
       {/* Hero - Coral themed */}
       <section className="relative min-h-[90vh] pt-32 pb-20 overflow-hidden">
-        {/* Full coral background on left */}
-        <div className="absolute inset-0 bg-[var(--color-coral)]" style={{ clipPath: 'polygon(0 0, 65% 0, 55% 100%, 0 100%)' }} />
-        <div className="absolute inset-0" style={{ clipPath: 'polygon(0 0, 65% 0, 55% 100%, 0 100%)' }}>
+        {/* Animated beacon elements - behind map layer */}
+        <ResonanceBeacon color="marigold" size="xl" intensity="subtle" className="bottom-10 right-10 z-0" delay={0} />
+        <ResonanceBeacon color="coral" size="lg" intensity="whisper" className="top-32 right-1/3 z-0" delay={2000} />
+        {/* Full coral background on left - above beacons */}
+        <div className="absolute inset-0 z-[1] bg-[var(--color-coral)]" style={{ clipPath: 'polygon(0 0, 65% 0, 55% 100%, 0 100%)' }} />
+        <div className="absolute inset-0 z-[1]" style={{ clipPath: 'polygon(0 0, 65% 0, 55% 100%, 0 100%)' }}>
           <SFMapTexture variant="coral" />
         </div>
-        {/* Decorative elements */}
-        <div className="absolute bottom-20 right-20 w-40 h-40 bg-[var(--color-marigold)] rounded-full opacity-30 blur-3xl" />
-        <div className="absolute top-40 right-1/3 w-24 h-24 bg-[var(--color-coral-light)] rounded-full opacity-40 blur-2xl" />
 
         <div className="relative max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-[5fr_4fr] gap-8 items-center min-h-[70vh]">
@@ -233,8 +236,8 @@ export default function PublisherPortal() {
 
       {/* CTA */}
       <section className="py-24 px-6 bg-[var(--color-charcoal)] relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--color-coral)] rounded-full opacity-10 blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-[var(--color-marigold)] rounded-full opacity-10 blur-3xl" />
+        <ResonanceBeacon color="coral" size="xl" intensity="subtle" className="-top-20 -right-20 z-0" delay={500} />
+        <ResonanceBeacon color="marigold" size="lg" intensity="whisper" className="-bottom-10 -left-10 z-0" delay={1500} />
 
         <div className="max-w-3xl mx-auto text-center relative z-10">
           <h2 className="display-lg font-[family-name:var(--font-fraunces)] text-white mb-6">

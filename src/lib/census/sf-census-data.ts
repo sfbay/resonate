@@ -1,796 +1,780 @@
 /**
- * San Francisco Census Data
+ * San Francisco Census Data (Sample Data)
  *
- * Provides census data for SF neighborhoods from two sources:
- * 1. Real-time ACS data from Census Bureau API (async)
- * 2. Sample/fallback data for SSR and when API is unavailable (sync)
+ * This module provides census demographics for SF neighborhoods.
+ * Data is based on ACS 5-year estimates with some approximations.
  *
- * Components should prefer the async version when possible for accurate data.
+ * In production, this would be fetched from the Census Bureau API
+ * and cached locally.
  */
 
 import type { SFNeighborhood } from '@/types';
-import type { NeighborhoodCensusData } from './types';
-import { getNeighborhoodCensusData as fetchLiveCensusData, type CensusApiConfig } from './census-aggregator';
 
 // =============================================================================
-// LIVE DATA (ASYNC) - Fetches real ACS data from Census Bureau API
+// TYPES
 // =============================================================================
 
-/**
- * Fetch live census data from Census Bureau API
- * Returns real ACS 5-year estimates aggregated to neighborhood level
- *
- * @param config - Optional API configuration (API key, year, dataset)
- * @param forceRefresh - Force a fresh fetch, bypassing cache
- */
-export async function fetchSFCensusData(
-  config: CensusApiConfig = {},
-  forceRefresh = false
-): Promise<Record<SFNeighborhood, NeighborhoodCensusData>> {
-  try {
-    return await fetchLiveCensusData(config, forceRefresh);
-  } catch (error) {
-    console.warn('Failed to fetch live census data, falling back to sample data:', error);
-    return SF_CENSUS_DATA;
-  }
+export interface NeighborhoodCensusData {
+  population: {
+    total: number;
+  };
+  economic: {
+    medianHouseholdIncome: number;
+    amiDistribution: {
+      extremelyLow: number;  // <30% AMI
+      veryLow: number;       // 30-50% AMI
+      low: number;           // 50-80% AMI
+      moderate: number;      // 80-120% AMI
+      aboveModerate: number; // >120% AMI
+    };
+  };
+  housing: {
+    renterOccupied: number;  // Percentage
+  };
+  language: {
+    limitedEnglishProficiency: number;  // Percentage
+    languagesSpoken: {
+      chinese: number;
+      spanish: number;
+      tagalog: number;
+      vietnamese: number;
+      korean: number;
+      russian: number;
+    };
+  };
+  ethnicity: {
+    distribution: {
+      white: number;
+      asian: number;
+      hispanic: number;
+      black: number;
+      pacific: number;
+      multiracial: number;
+    };
+  };
+  age: {
+    under18: number;
+    seniors: number;  // 65+
+    distribution: {
+      '18-24': number;
+      '25-34': number;
+      '35-44': number;
+      '45-54': number;
+      '55-64': number;
+    };
+  };
 }
 
-/**
- * Fetch live census data for a specific neighborhood
- */
-export async function fetchNeighborhoodCensusData(
-  neighborhood: SFNeighborhood,
-  config: CensusApiConfig = {}
-): Promise<NeighborhoodCensusData> {
-  try {
-    const allData = await fetchLiveCensusData(config);
-    return allData[neighborhood] ?? SF_CENSUS_DATA[neighborhood];
-  } catch (error) {
-    console.warn('Failed to fetch live census data, falling back to sample data:', error);
-    return SF_CENSUS_DATA[neighborhood];
-  }
-}
+export type SFCensusDataMap = Record<SFNeighborhood, NeighborhoodCensusData>;
 
 // =============================================================================
-// SAMPLE DATA (SYNC) - For SSR, fallback, and development
+// SAMPLE CENSUS DATA
 // =============================================================================
 
 /**
- * Get sample census data for all SF neighborhoods (synchronous)
- * Use this for SSR or when async data is not available
+ * Sample census data for SF neighborhoods
+ * Values are approximations based on ACS 5-year estimates and neighborhood characteristics
  */
-export function getSFCensusData(): Record<SFNeighborhood, NeighborhoodCensusData> {
+const SF_CENSUS_DATA: SFCensusDataMap = {
+  bayview_hunters_point: {
+    population: { total: 36580 },
+    economic: {
+      medianHouseholdIncome: 52000,
+      amiDistribution: { extremelyLow: 28, veryLow: 18, low: 22, moderate: 18, aboveModerate: 14 },
+    },
+    housing: { renterOccupied: 58 },
+    language: {
+      limitedEnglishProficiency: 22,
+      languagesSpoken: { chinese: 12, spanish: 14, tagalog: 8, vietnamese: 3, korean: 1, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 8, asian: 35, hispanic: 22, black: 28, pacific: 3, multiracial: 4 } },
+    age: { under18: 22, seniors: 14, distribution: { '18-24': 9, '25-34': 18, '35-44': 16, '45-54': 12, '55-64': 9 } },
+  },
+  bernal_heights: {
+    population: { total: 26200 },
+    economic: {
+      medianHouseholdIncome: 128000,
+      amiDistribution: { extremelyLow: 8, veryLow: 6, low: 12, moderate: 22, aboveModerate: 52 },
+    },
+    housing: { renterOccupied: 42 },
+    language: {
+      limitedEnglishProficiency: 12,
+      languagesSpoken: { chinese: 5, spanish: 18, tagalog: 2, vietnamese: 1, korean: 1, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 52, asian: 12, hispanic: 28, black: 3, pacific: 1, multiracial: 4 } },
+    age: { under18: 16, seniors: 12, distribution: { '18-24': 5, '25-34': 22, '35-44': 25, '45-54': 12, '55-64': 8 } },
+  },
+  castro: {
+    population: { total: 18500 },
+    economic: {
+      medianHouseholdIncome: 145000,
+      amiDistribution: { extremelyLow: 6, veryLow: 5, low: 10, moderate: 18, aboveModerate: 61 },
+    },
+    housing: { renterOccupied: 62 },
+    language: {
+      limitedEnglishProficiency: 6,
+      languagesSpoken: { chinese: 3, spanish: 8, tagalog: 1, vietnamese: 0, korean: 1, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 72, asian: 10, hispanic: 10, black: 3, pacific: 1, multiracial: 4 } },
+    age: { under18: 4, seniors: 14, distribution: { '18-24': 6, '25-34': 28, '35-44': 22, '45-54': 14, '55-64': 12 } },
+  },
+  chinatown: {
+    population: { total: 15780 },
+    economic: {
+      medianHouseholdIncome: 28000,
+      amiDistribution: { extremelyLow: 48, veryLow: 22, low: 15, moderate: 10, aboveModerate: 5 },
+    },
+    housing: { renterOccupied: 92 },
+    language: {
+      limitedEnglishProficiency: 72,
+      languagesSpoken: { chinese: 85, spanish: 2, tagalog: 0, vietnamese: 2, korean: 0, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 4, asian: 90, hispanic: 3, black: 1, pacific: 0, multiracial: 2 } },
+    age: { under18: 12, seniors: 28, distribution: { '18-24': 8, '25-34': 15, '35-44': 14, '45-54': 12, '55-64': 11 } },
+  },
+  civic_center: {
+    population: { total: 8200 },
+    economic: {
+      medianHouseholdIncome: 45000,
+      amiDistribution: { extremelyLow: 38, veryLow: 18, low: 18, moderate: 14, aboveModerate: 12 },
+    },
+    housing: { renterOccupied: 88 },
+    language: {
+      limitedEnglishProficiency: 28,
+      languagesSpoken: { chinese: 12, spanish: 15, tagalog: 3, vietnamese: 5, korean: 2, russian: 1 },
+    },
+    ethnicity: { distribution: { white: 38, asian: 28, hispanic: 18, black: 10, pacific: 2, multiracial: 4 } },
+    age: { under18: 6, seniors: 18, distribution: { '18-24': 10, '25-34': 24, '35-44': 18, '45-54': 14, '55-64': 10 } },
+  },
+  cole_valley: {
+    population: { total: 8900 },
+    economic: {
+      medianHouseholdIncome: 158000,
+      amiDistribution: { extremelyLow: 5, veryLow: 4, low: 8, moderate: 16, aboveModerate: 67 },
+    },
+    housing: { renterOccupied: 48 },
+    language: {
+      limitedEnglishProficiency: 5,
+      languagesSpoken: { chinese: 4, spanish: 5, tagalog: 1, vietnamese: 0, korean: 1, russian: 1 },
+    },
+    ethnicity: { distribution: { white: 75, asian: 12, hispanic: 6, black: 2, pacific: 1, multiracial: 4 } },
+    age: { under18: 12, seniors: 10, distribution: { '18-24': 6, '25-34': 26, '35-44': 24, '45-54': 14, '55-64': 8 } },
+  },
+  diamond_heights: {
+    population: { total: 6200 },
+    economic: {
+      medianHouseholdIncome: 125000,
+      amiDistribution: { extremelyLow: 8, veryLow: 6, low: 12, moderate: 22, aboveModerate: 52 },
+    },
+    housing: { renterOccupied: 35 },
+    language: {
+      limitedEnglishProficiency: 10,
+      languagesSpoken: { chinese: 8, spanish: 6, tagalog: 2, vietnamese: 1, korean: 1, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 55, asian: 22, hispanic: 12, black: 5, pacific: 1, multiracial: 5 } },
+    age: { under18: 10, seniors: 18, distribution: { '18-24': 5, '25-34': 18, '35-44': 20, '45-54': 16, '55-64': 13 } },
+  },
+  dogpatch: {
+    population: { total: 4800 },
+    economic: {
+      medianHouseholdIncome: 165000,
+      amiDistribution: { extremelyLow: 4, veryLow: 4, low: 8, moderate: 18, aboveModerate: 66 },
+    },
+    housing: { renterOccupied: 55 },
+    language: {
+      limitedEnglishProficiency: 6,
+      languagesSpoken: { chinese: 5, spanish: 4, tagalog: 1, vietnamese: 0, korean: 1, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 62, asian: 18, hispanic: 10, black: 4, pacific: 1, multiracial: 5 } },
+    age: { under18: 8, seniors: 8, distribution: { '18-24': 6, '25-34': 32, '35-44': 28, '45-54': 12, '55-64': 6 } },
+  },
+  downtown: {
+    population: { total: 12400 },
+    economic: {
+      medianHouseholdIncome: 68000,
+      amiDistribution: { extremelyLow: 22, veryLow: 14, low: 16, moderate: 20, aboveModerate: 28 },
+    },
+    housing: { renterOccupied: 85 },
+    language: {
+      limitedEnglishProficiency: 25,
+      languagesSpoken: { chinese: 18, spanish: 8, tagalog: 2, vietnamese: 3, korean: 2, russian: 1 },
+    },
+    ethnicity: { distribution: { white: 42, asian: 32, hispanic: 12, black: 8, pacific: 2, multiracial: 4 } },
+    age: { under18: 4, seniors: 16, distribution: { '18-24': 10, '25-34': 28, '35-44': 20, '45-54': 12, '55-64': 10 } },
+  },
+  excelsior: {
+    population: { total: 41500 },
+    economic: {
+      medianHouseholdIncome: 72000,
+      amiDistribution: { extremelyLow: 14, veryLow: 12, low: 22, moderate: 28, aboveModerate: 24 },
+    },
+    housing: { renterOccupied: 45 },
+    language: {
+      limitedEnglishProficiency: 35,
+      languagesSpoken: { chinese: 22, spanish: 18, tagalog: 12, vietnamese: 4, korean: 1, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 15, asian: 42, hispanic: 32, black: 5, pacific: 2, multiracial: 4 } },
+    age: { under18: 20, seniors: 16, distribution: { '18-24': 8, '25-34': 16, '35-44': 18, '45-54': 14, '55-64': 8 } },
+  },
+  financial_district: {
+    population: { total: 4200 },
+    economic: {
+      medianHouseholdIncome: 148000,
+      amiDistribution: { extremelyLow: 6, veryLow: 4, low: 8, moderate: 16, aboveModerate: 66 },
+    },
+    housing: { renterOccupied: 78 },
+    language: {
+      limitedEnglishProficiency: 12,
+      languagesSpoken: { chinese: 10, spanish: 4, tagalog: 1, vietnamese: 1, korean: 2, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 52, asian: 32, hispanic: 8, black: 3, pacific: 1, multiracial: 4 } },
+    age: { under18: 3, seniors: 10, distribution: { '18-24': 8, '25-34': 38, '35-44': 25, '45-54': 10, '55-64': 6 } },
+  },
+  glen_park: {
+    population: { total: 9800 },
+    economic: {
+      medianHouseholdIncome: 152000,
+      amiDistribution: { extremelyLow: 5, veryLow: 4, low: 9, moderate: 18, aboveModerate: 64 },
+    },
+    housing: { renterOccupied: 32 },
+    language: {
+      limitedEnglishProficiency: 8,
+      languagesSpoken: { chinese: 6, spanish: 8, tagalog: 2, vietnamese: 1, korean: 1, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 62, asian: 16, hispanic: 14, black: 3, pacific: 1, multiracial: 4 } },
+    age: { under18: 14, seniors: 14, distribution: { '18-24': 5, '25-34': 20, '35-44': 24, '45-54': 14, '55-64': 9 } },
+  },
+  haight_ashbury: {
+    population: { total: 16200 },
+    economic: {
+      medianHouseholdIncome: 118000,
+      amiDistribution: { extremelyLow: 10, veryLow: 8, low: 14, moderate: 22, aboveModerate: 46 },
+    },
+    housing: { renterOccupied: 68 },
+    language: {
+      limitedEnglishProficiency: 7,
+      languagesSpoken: { chinese: 4, spanish: 6, tagalog: 1, vietnamese: 0, korean: 1, russian: 1 },
+    },
+    ethnicity: { distribution: { white: 68, asian: 12, hispanic: 10, black: 5, pacific: 1, multiracial: 4 } },
+    age: { under18: 8, seniors: 10, distribution: { '18-24': 12, '25-34': 30, '35-44': 20, '45-54': 12, '55-64': 8 } },
+  },
+  hayes_valley: {
+    population: { total: 10800 },
+    economic: {
+      medianHouseholdIncome: 135000,
+      amiDistribution: { extremelyLow: 8, veryLow: 6, low: 11, moderate: 20, aboveModerate: 55 },
+    },
+    housing: { renterOccupied: 72 },
+    language: {
+      limitedEnglishProficiency: 9,
+      languagesSpoken: { chinese: 5, spanish: 7, tagalog: 2, vietnamese: 1, korean: 1, russian: 1 },
+    },
+    ethnicity: { distribution: { white: 58, asian: 16, hispanic: 12, black: 8, pacific: 1, multiracial: 5 } },
+    age: { under18: 6, seniors: 10, distribution: { '18-24': 8, '25-34': 32, '35-44': 24, '45-54': 12, '55-64': 8 } },
+  },
+  ingleside: {
+    population: { total: 28400 },
+    economic: {
+      medianHouseholdIncome: 85000,
+      amiDistribution: { extremelyLow: 12, veryLow: 10, low: 18, moderate: 28, aboveModerate: 32 },
+    },
+    housing: { renterOccupied: 38 },
+    language: {
+      limitedEnglishProficiency: 28,
+      languagesSpoken: { chinese: 18, spanish: 14, tagalog: 10, vietnamese: 3, korean: 1, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 18, asian: 45, hispanic: 22, black: 8, pacific: 3, multiracial: 4 } },
+    age: { under18: 18, seniors: 18, distribution: { '18-24': 7, '25-34': 15, '35-44': 18, '45-54': 14, '55-64': 10 } },
+  },
+  inner_richmond: {
+    population: { total: 25600 },
+    economic: {
+      medianHouseholdIncome: 108000,
+      amiDistribution: { extremelyLow: 10, veryLow: 8, low: 14, moderate: 24, aboveModerate: 44 },
+    },
+    housing: { renterOccupied: 58 },
+    language: {
+      limitedEnglishProficiency: 28,
+      languagesSpoken: { chinese: 32, spanish: 5, tagalog: 2, vietnamese: 2, korean: 3, russian: 4 },
+    },
+    ethnicity: { distribution: { white: 38, asian: 48, hispanic: 8, black: 2, pacific: 1, multiracial: 3 } },
+    age: { under18: 12, seniors: 18, distribution: { '18-24': 8, '25-34': 22, '35-44': 18, '45-54': 12, '55-64': 10 } },
+  },
+  inner_sunset: {
+    population: { total: 28900 },
+    economic: {
+      medianHouseholdIncome: 115000,
+      amiDistribution: { extremelyLow: 8, veryLow: 7, low: 13, moderate: 24, aboveModerate: 48 },
+    },
+    housing: { renterOccupied: 52 },
+    language: {
+      limitedEnglishProficiency: 22,
+      languagesSpoken: { chinese: 25, spanish: 4, tagalog: 2, vietnamese: 2, korean: 2, russian: 2 },
+    },
+    ethnicity: { distribution: { white: 42, asian: 45, hispanic: 7, black: 2, pacific: 1, multiracial: 3 } },
+    age: { under18: 14, seniors: 16, distribution: { '18-24': 10, '25-34': 22, '35-44': 18, '45-54': 12, '55-64': 8 } },
+  },
+  japantown: {
+    population: { total: 4600 },
+    economic: {
+      medianHouseholdIncome: 92000,
+      amiDistribution: { extremelyLow: 14, veryLow: 10, low: 16, moderate: 24, aboveModerate: 36 },
+    },
+    housing: { renterOccupied: 72 },
+    language: {
+      limitedEnglishProficiency: 18,
+      languagesSpoken: { chinese: 8, spanish: 5, tagalog: 3, vietnamese: 2, korean: 4, russian: 2 },
+    },
+    ethnicity: { distribution: { white: 42, asian: 38, hispanic: 10, black: 5, pacific: 2, multiracial: 3 } },
+    age: { under18: 6, seniors: 22, distribution: { '18-24': 8, '25-34': 22, '35-44': 18, '45-54': 14, '55-64': 10 } },
+  },
+  lakeshore: {
+    population: { total: 12800 },
+    economic: {
+      medianHouseholdIncome: 95000,
+      amiDistribution: { extremelyLow: 10, veryLow: 8, low: 16, moderate: 28, aboveModerate: 38 },
+    },
+    housing: { renterOccupied: 42 },
+    language: {
+      limitedEnglishProficiency: 25,
+      languagesSpoken: { chinese: 22, spanish: 8, tagalog: 8, vietnamese: 2, korean: 2, russian: 1 },
+    },
+    ethnicity: { distribution: { white: 28, asian: 48, hispanic: 14, black: 5, pacific: 2, multiracial: 3 } },
+    age: { under18: 14, seniors: 20, distribution: { '18-24': 10, '25-34': 16, '35-44': 16, '45-54': 14, '55-64': 10 } },
+  },
+  laurel_heights: {
+    population: { total: 8400 },
+    economic: {
+      medianHouseholdIncome: 165000,
+      amiDistribution: { extremelyLow: 5, veryLow: 4, low: 8, moderate: 16, aboveModerate: 67 },
+    },
+    housing: { renterOccupied: 45 },
+    language: {
+      limitedEnglishProficiency: 12,
+      languagesSpoken: { chinese: 10, spanish: 4, tagalog: 2, vietnamese: 1, korean: 2, russian: 2 },
+    },
+    ethnicity: { distribution: { white: 62, asian: 24, hispanic: 6, black: 3, pacific: 1, multiracial: 4 } },
+    age: { under18: 12, seniors: 16, distribution: { '18-24': 5, '25-34': 20, '35-44': 22, '45-54': 14, '55-64': 11 } },
+  },
+  marina: {
+    population: { total: 24200 },
+    economic: {
+      medianHouseholdIncome: 175000,
+      amiDistribution: { extremelyLow: 4, veryLow: 4, low: 7, moderate: 14, aboveModerate: 71 },
+    },
+    housing: { renterOccupied: 68 },
+    language: {
+      limitedEnglishProficiency: 6,
+      languagesSpoken: { chinese: 4, spanish: 5, tagalog: 1, vietnamese: 0, korean: 1, russian: 1 },
+    },
+    ethnicity: { distribution: { white: 78, asian: 12, hispanic: 5, black: 1, pacific: 0, multiracial: 4 } },
+    age: { under18: 6, seniors: 12, distribution: { '18-24': 8, '25-34': 35, '35-44': 22, '45-54': 10, '55-64': 7 } },
+  },
+  mission: {
+    population: { total: 58200 },
+    economic: {
+      medianHouseholdIncome: 88000,
+      amiDistribution: { extremelyLow: 18, veryLow: 12, low: 16, moderate: 22, aboveModerate: 32 },
+    },
+    housing: { renterOccupied: 72 },
+    language: {
+      limitedEnglishProficiency: 32,
+      languagesSpoken: { chinese: 6, spanish: 42, tagalog: 3, vietnamese: 2, korean: 1, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 38, asian: 12, hispanic: 42, black: 3, pacific: 1, multiracial: 4 } },
+    age: { under18: 14, seniors: 10, distribution: { '18-24': 10, '25-34': 28, '35-44': 20, '45-54': 10, '55-64': 8 } },
+  },
+  mission_bay: {
+    population: { total: 12600 },
+    economic: {
+      medianHouseholdIncome: 185000,
+      amiDistribution: { extremelyLow: 4, veryLow: 3, low: 6, moderate: 14, aboveModerate: 73 },
+    },
+    housing: { renterOccupied: 65 },
+    language: {
+      limitedEnglishProficiency: 8,
+      languagesSpoken: { chinese: 8, spanish: 4, tagalog: 1, vietnamese: 1, korean: 1, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 52, asian: 32, hispanic: 8, black: 3, pacific: 1, multiracial: 4 } },
+    age: { under18: 8, seniors: 6, distribution: { '18-24': 6, '25-34': 38, '35-44': 28, '45-54': 10, '55-64': 4 } },
+  },
+  nob_hill: {
+    population: { total: 18900 },
+    economic: {
+      medianHouseholdIncome: 125000,
+      amiDistribution: { extremelyLow: 10, veryLow: 8, low: 12, moderate: 18, aboveModerate: 52 },
+    },
+    housing: { renterOccupied: 75 },
+    language: {
+      limitedEnglishProficiency: 18,
+      languagesSpoken: { chinese: 15, spanish: 6, tagalog: 2, vietnamese: 2, korean: 2, russian: 2 },
+    },
+    ethnicity: { distribution: { white: 55, asian: 28, hispanic: 8, black: 4, pacific: 1, multiracial: 4 } },
+    age: { under18: 5, seniors: 18, distribution: { '18-24': 8, '25-34': 26, '35-44': 20, '45-54': 13, '55-64': 10 } },
+  },
+  noe_valley: {
+    population: { total: 22400 },
+    economic: {
+      medianHouseholdIncome: 195000,
+      amiDistribution: { extremelyLow: 4, veryLow: 3, low: 6, moderate: 12, aboveModerate: 75 },
+    },
+    housing: { renterOccupied: 35 },
+    language: {
+      limitedEnglishProficiency: 6,
+      languagesSpoken: { chinese: 5, spanish: 6, tagalog: 1, vietnamese: 0, korean: 1, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 72, asian: 12, hispanic: 10, black: 2, pacific: 0, multiracial: 4 } },
+    age: { under18: 18, seniors: 10, distribution: { '18-24': 4, '25-34': 20, '35-44': 28, '45-54': 12, '55-64': 8 } },
+  },
+  north_beach: {
+    population: { total: 14800 },
+    economic: {
+      medianHouseholdIncome: 118000,
+      amiDistribution: { extremelyLow: 10, veryLow: 8, low: 12, moderate: 20, aboveModerate: 50 },
+    },
+    housing: { renterOccupied: 72 },
+    language: {
+      limitedEnglishProficiency: 22,
+      languagesSpoken: { chinese: 25, spanish: 6, tagalog: 2, vietnamese: 2, korean: 1, russian: 1 },
+    },
+    ethnicity: { distribution: { white: 52, asian: 32, hispanic: 8, black: 3, pacific: 1, multiracial: 4 } },
+    age: { under18: 6, seniors: 18, distribution: { '18-24': 8, '25-34': 25, '35-44': 20, '45-54': 13, '55-64': 10 } },
+  },
+  oceanview: {
+    population: { total: 15200 },
+    economic: {
+      medianHouseholdIncome: 68000,
+      amiDistribution: { extremelyLow: 16, veryLow: 12, low: 20, moderate: 26, aboveModerate: 26 },
+    },
+    housing: { renterOccupied: 42 },
+    language: {
+      limitedEnglishProficiency: 38,
+      languagesSpoken: { chinese: 25, spanish: 16, tagalog: 14, vietnamese: 4, korean: 1, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 10, asian: 48, hispanic: 25, black: 10, pacific: 3, multiracial: 4 } },
+    age: { under18: 20, seniors: 16, distribution: { '18-24': 8, '25-34': 16, '35-44': 18, '45-54': 13, '55-64': 9 } },
+  },
+  outer_mission: {
+    population: { total: 22800 },
+    economic: {
+      medianHouseholdIncome: 72000,
+      amiDistribution: { extremelyLow: 14, veryLow: 12, low: 20, moderate: 28, aboveModerate: 26 },
+    },
+    housing: { renterOccupied: 45 },
+    language: {
+      limitedEnglishProficiency: 35,
+      languagesSpoken: { chinese: 15, spanish: 28, tagalog: 10, vietnamese: 3, korean: 1, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 15, asian: 35, hispanic: 40, black: 4, pacific: 2, multiracial: 4 } },
+    age: { under18: 18, seniors: 14, distribution: { '18-24': 9, '25-34': 18, '35-44': 18, '45-54': 14, '55-64': 9 } },
+  },
+  outer_richmond: {
+    population: { total: 45200 },
+    economic: {
+      medianHouseholdIncome: 95000,
+      amiDistribution: { extremelyLow: 12, veryLow: 10, low: 16, moderate: 26, aboveModerate: 36 },
+    },
+    housing: { renterOccupied: 52 },
+    language: {
+      limitedEnglishProficiency: 35,
+      languagesSpoken: { chinese: 42, spanish: 4, tagalog: 3, vietnamese: 3, korean: 3, russian: 6 },
+    },
+    ethnicity: { distribution: { white: 32, asian: 55, hispanic: 6, black: 2, pacific: 1, multiracial: 4 } },
+    age: { under18: 14, seniors: 22, distribution: { '18-24': 7, '25-34': 18, '35-44': 16, '45-54': 13, '55-64': 10 } },
+  },
+  outer_sunset: {
+    population: { total: 72400 },
+    economic: {
+      medianHouseholdIncome: 98000,
+      amiDistribution: { extremelyLow: 10, veryLow: 9, low: 16, moderate: 28, aboveModerate: 37 },
+    },
+    housing: { renterOccupied: 42 },
+    language: {
+      limitedEnglishProficiency: 32,
+      languagesSpoken: { chinese: 38, spanish: 5, tagalog: 4, vietnamese: 3, korean: 2, russian: 2 },
+    },
+    ethnicity: { distribution: { white: 32, asian: 55, hispanic: 7, black: 2, pacific: 1, multiracial: 3 } },
+    age: { under18: 16, seniors: 20, distribution: { '18-24': 8, '25-34': 16, '35-44': 18, '45-54': 13, '55-64': 9 } },
+  },
+  pacific_heights: {
+    population: { total: 21800 },
+    economic: {
+      medianHouseholdIncome: 210000,
+      amiDistribution: { extremelyLow: 4, veryLow: 3, low: 5, moderate: 10, aboveModerate: 78 },
+    },
+    housing: { renterOccupied: 55 },
+    language: {
+      limitedEnglishProficiency: 8,
+      languagesSpoken: { chinese: 6, spanish: 5, tagalog: 2, vietnamese: 1, korean: 1, russian: 2 },
+    },
+    ethnicity: { distribution: { white: 78, asian: 12, hispanic: 4, black: 2, pacific: 0, multiracial: 4 } },
+    age: { under18: 10, seniors: 16, distribution: { '18-24': 6, '25-34': 22, '35-44': 22, '45-54': 14, '55-64': 10 } },
+  },
+  parkside: {
+    population: { total: 28600 },
+    economic: {
+      medianHouseholdIncome: 105000,
+      amiDistribution: { extremelyLow: 9, veryLow: 8, low: 14, moderate: 28, aboveModerate: 41 },
+    },
+    housing: { renterOccupied: 38 },
+    language: {
+      limitedEnglishProficiency: 28,
+      languagesSpoken: { chinese: 32, spanish: 5, tagalog: 4, vietnamese: 2, korean: 2, russian: 2 },
+    },
+    ethnicity: { distribution: { white: 35, asian: 52, hispanic: 7, black: 2, pacific: 1, multiracial: 3 } },
+    age: { under18: 16, seniors: 20, distribution: { '18-24': 7, '25-34': 16, '35-44': 18, '45-54': 13, '55-64': 10 } },
+  },
+  portola: {
+    population: { total: 15800 },
+    economic: {
+      medianHouseholdIncome: 78000,
+      amiDistribution: { extremelyLow: 14, veryLow: 10, low: 18, moderate: 28, aboveModerate: 30 },
+    },
+    housing: { renterOccupied: 42 },
+    language: {
+      limitedEnglishProficiency: 32,
+      languagesSpoken: { chinese: 18, spanish: 20, tagalog: 12, vietnamese: 4, korean: 1, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 15, asian: 42, hispanic: 32, black: 5, pacific: 2, multiracial: 4 } },
+    age: { under18: 18, seniors: 16, distribution: { '18-24': 8, '25-34': 16, '35-44': 18, '45-54': 14, '55-64': 10 } },
+  },
+  potrero_hill: {
+    population: { total: 14200 },
+    economic: {
+      medianHouseholdIncome: 155000,
+      amiDistribution: { extremelyLow: 6, veryLow: 5, low: 9, moderate: 18, aboveModerate: 62 },
+    },
+    housing: { renterOccupied: 48 },
+    language: {
+      limitedEnglishProficiency: 8,
+      languagesSpoken: { chinese: 5, spanish: 8, tagalog: 2, vietnamese: 1, korean: 1, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 58, asian: 18, hispanic: 14, black: 5, pacific: 1, multiracial: 4 } },
+    age: { under18: 10, seniors: 10, distribution: { '18-24': 6, '25-34': 28, '35-44': 26, '45-54': 12, '55-64': 8 } },
+  },
+  presidio: {
+    population: { total: 3800 },
+    economic: {
+      medianHouseholdIncome: 145000,
+      amiDistribution: { extremelyLow: 6, veryLow: 5, low: 10, moderate: 18, aboveModerate: 61 },
+    },
+    housing: { renterOccupied: 62 },
+    language: {
+      limitedEnglishProficiency: 5,
+      languagesSpoken: { chinese: 4, spanish: 4, tagalog: 2, vietnamese: 0, korean: 1, russian: 1 },
+    },
+    ethnicity: { distribution: { white: 68, asian: 16, hispanic: 8, black: 4, pacific: 1, multiracial: 3 } },
+    age: { under18: 14, seniors: 8, distribution: { '18-24': 8, '25-34': 28, '35-44': 24, '45-54': 12, '55-64': 6 } },
+  },
+  russian_hill: {
+    population: { total: 16400 },
+    economic: {
+      medianHouseholdIncome: 155000,
+      amiDistribution: { extremelyLow: 6, veryLow: 5, low: 9, moderate: 16, aboveModerate: 64 },
+    },
+    housing: { renterOccupied: 72 },
+    language: {
+      limitedEnglishProficiency: 10,
+      languagesSpoken: { chinese: 8, spanish: 5, tagalog: 1, vietnamese: 1, korean: 1, russian: 3 },
+    },
+    ethnicity: { distribution: { white: 72, asian: 16, hispanic: 6, black: 2, pacific: 0, multiracial: 4 } },
+    age: { under18: 4, seniors: 14, distribution: { '18-24': 8, '25-34': 32, '35-44': 22, '45-54': 12, '55-64': 8 } },
+  },
+  sea_cliff: {
+    population: { total: 2800 },
+    economic: {
+      medianHouseholdIncome: 250000,
+      amiDistribution: { extremelyLow: 3, veryLow: 2, low: 4, moderate: 8, aboveModerate: 83 },
+    },
+    housing: { renterOccupied: 22 },
+    language: {
+      limitedEnglishProficiency: 12,
+      languagesSpoken: { chinese: 12, spanish: 3, tagalog: 2, vietnamese: 1, korean: 1, russian: 2 },
+    },
+    ethnicity: { distribution: { white: 62, asian: 28, hispanic: 4, black: 1, pacific: 1, multiracial: 4 } },
+    age: { under18: 16, seniors: 18, distribution: { '18-24': 5, '25-34': 14, '35-44': 22, '45-54': 14, '55-64': 11 } },
+  },
+  soma: {
+    population: { total: 32800 },
+    economic: {
+      medianHouseholdIncome: 95000,
+      amiDistribution: { extremelyLow: 18, veryLow: 12, low: 14, moderate: 18, aboveModerate: 38 },
+    },
+    housing: { renterOccupied: 78 },
+    language: {
+      limitedEnglishProficiency: 18,
+      languagesSpoken: { chinese: 10, spanish: 10, tagalog: 5, vietnamese: 3, korean: 2, russian: 1 },
+    },
+    ethnicity: { distribution: { white: 45, asian: 28, hispanic: 14, black: 8, pacific: 2, multiracial: 3 } },
+    age: { under18: 5, seniors: 12, distribution: { '18-24': 10, '25-34': 35, '35-44': 22, '45-54': 10, '55-64': 6 } },
+  },
+  south_beach: {
+    population: { total: 8600 },
+    economic: {
+      medianHouseholdIncome: 175000,
+      amiDistribution: { extremelyLow: 4, veryLow: 4, low: 7, moderate: 15, aboveModerate: 70 },
+    },
+    housing: { renterOccupied: 65 },
+    language: {
+      limitedEnglishProficiency: 8,
+      languagesSpoken: { chinese: 8, spanish: 4, tagalog: 1, vietnamese: 1, korean: 1, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 55, asian: 30, hispanic: 7, black: 3, pacific: 1, multiracial: 4 } },
+    age: { under18: 6, seniors: 8, distribution: { '18-24': 6, '25-34': 38, '35-44': 26, '45-54': 10, '55-64': 6 } },
+  },
+  stonestown: {
+    population: { total: 8200 },
+    economic: {
+      medianHouseholdIncome: 85000,
+      amiDistribution: { extremelyLow: 12, veryLow: 10, low: 16, moderate: 26, aboveModerate: 36 },
+    },
+    housing: { renterOccupied: 55 },
+    language: {
+      limitedEnglishProficiency: 22,
+      languagesSpoken: { chinese: 22, spanish: 6, tagalog: 6, vietnamese: 2, korean: 2, russian: 1 },
+    },
+    ethnicity: { distribution: { white: 32, asian: 50, hispanic: 10, black: 3, pacific: 2, multiracial: 3 } },
+    age: { under18: 10, seniors: 18, distribution: { '18-24': 14, '25-34': 18, '35-44': 16, '45-54': 14, '55-64': 10 } },
+  },
+  tenderloin: {
+    population: { total: 27600 },
+    economic: {
+      medianHouseholdIncome: 28000,
+      amiDistribution: { extremelyLow: 52, veryLow: 18, low: 14, moderate: 10, aboveModerate: 6 },
+    },
+    housing: { renterOccupied: 94 },
+    language: {
+      limitedEnglishProficiency: 42,
+      languagesSpoken: { chinese: 12, spanish: 18, tagalog: 5, vietnamese: 15, korean: 2, russian: 2 },
+    },
+    ethnicity: { distribution: { white: 28, asian: 35, hispanic: 20, black: 12, pacific: 2, multiracial: 3 } },
+    age: { under18: 8, seniors: 16, distribution: { '18-24': 10, '25-34': 22, '35-44': 20, '45-54': 14, '55-64': 10 } },
+  },
+  treasure_island: {
+    population: { total: 3200 },
+    economic: {
+      medianHouseholdIncome: 55000,
+      amiDistribution: { extremelyLow: 22, veryLow: 16, low: 20, moderate: 24, aboveModerate: 18 },
+    },
+    housing: { renterOccupied: 72 },
+    language: {
+      limitedEnglishProficiency: 15,
+      languagesSpoken: { chinese: 8, spanish: 10, tagalog: 5, vietnamese: 2, korean: 1, russian: 1 },
+    },
+    ethnicity: { distribution: { white: 35, asian: 25, hispanic: 20, black: 12, pacific: 4, multiracial: 4 } },
+    age: { under18: 18, seniors: 8, distribution: { '18-24': 12, '25-34': 26, '35-44': 20, '45-54': 10, '55-64': 6 } },
+  },
+  twin_peaks: {
+    population: { total: 5200 },
+    economic: {
+      medianHouseholdIncome: 145000,
+      amiDistribution: { extremelyLow: 6, veryLow: 5, low: 10, moderate: 18, aboveModerate: 61 },
+    },
+    housing: { renterOccupied: 32 },
+    language: {
+      limitedEnglishProficiency: 10,
+      languagesSpoken: { chinese: 8, spanish: 6, tagalog: 2, vietnamese: 1, korean: 1, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 58, asian: 22, hispanic: 12, black: 3, pacific: 1, multiracial: 4 } },
+    age: { under18: 10, seniors: 18, distribution: { '18-24': 5, '25-34': 18, '35-44': 22, '45-54': 16, '55-64': 11 } },
+  },
+  visitacion_valley: {
+    population: { total: 18400 },
+    economic: {
+      medianHouseholdIncome: 62000,
+      amiDistribution: { extremelyLow: 18, veryLow: 14, low: 22, moderate: 26, aboveModerate: 20 },
+    },
+    housing: { renterOccupied: 48 },
+    language: {
+      limitedEnglishProficiency: 42,
+      languagesSpoken: { chinese: 28, spanish: 14, tagalog: 16, vietnamese: 5, korean: 1, russian: 0 },
+    },
+    ethnicity: { distribution: { white: 8, asian: 55, hispanic: 22, black: 8, pacific: 4, multiracial: 3 } },
+    age: { under18: 20, seniors: 16, distribution: { '18-24': 8, '25-34': 16, '35-44': 18, '45-54': 13, '55-64': 9 } },
+  },
+  west_portal: {
+    population: { total: 8800 },
+    economic: {
+      medianHouseholdIncome: 145000,
+      amiDistribution: { extremelyLow: 6, veryLow: 5, low: 10, moderate: 18, aboveModerate: 61 },
+    },
+    housing: { renterOccupied: 32 },
+    language: {
+      limitedEnglishProficiency: 12,
+      languagesSpoken: { chinese: 12, spanish: 5, tagalog: 3, vietnamese: 1, korean: 1, russian: 1 },
+    },
+    ethnicity: { distribution: { white: 55, asian: 28, hispanic: 10, black: 2, pacific: 1, multiracial: 4 } },
+    age: { under18: 16, seniors: 16, distribution: { '18-24': 5, '25-34': 18, '35-44': 22, '45-54': 14, '55-64': 9 } },
+  },
+  western_addition: {
+    population: { total: 24800 },
+    economic: {
+      medianHouseholdIncome: 78000,
+      amiDistribution: { extremelyLow: 20, veryLow: 12, low: 16, moderate: 22, aboveModerate: 30 },
+    },
+    housing: { renterOccupied: 72 },
+    language: {
+      limitedEnglishProficiency: 14,
+      languagesSpoken: { chinese: 6, spanish: 8, tagalog: 3, vietnamese: 2, korean: 2, russian: 2 },
+    },
+    ethnicity: { distribution: { white: 42, asian: 18, hispanic: 12, black: 22, pacific: 2, multiracial: 4 } },
+    age: { under18: 10, seniors: 16, distribution: { '18-24': 10, '25-34': 26, '35-44': 18, '45-54': 12, '55-64': 8 } },
+  },
+};
+
+// =============================================================================
+// EXPORT FUNCTIONS
+// =============================================================================
+
+/**
+ * Get census data for all SF neighborhoods
+ * Returns a map keyed by neighborhood ID
+ */
+export function getSFCensusData(): SFCensusDataMap {
   return SF_CENSUS_DATA;
 }
 
 /**
- * Get sample census data for a specific neighborhood (synchronous)
+ * Get census data for a specific neighborhood
  */
 export function getNeighborhoodCensusData(neighborhood: SFNeighborhood): NeighborhoodCensusData | undefined {
   return SF_CENSUS_DATA[neighborhood];
 }
 
-// =============================================================================
-// RE-EXPORT TYPES
-// =============================================================================
-
-export type { CensusApiConfig } from './census-aggregator';
-
-// Helper to create base census data with defaults
-function createCensusData(
-  neighborhood: SFNeighborhood,
-  name: string,
-  overrides: Partial<NeighborhoodCensusData>
-): NeighborhoodCensusData {
-  const base: NeighborhoodCensusData = {
-    geoId: `sf-${neighborhood}`,
-    geoType: 'neighborhood',
-    name,
-    neighborhood,
-    tractCount: 3,
-    tracts: [],
-    dataYear: 2022,
-    population: {
-      total: 15000,
-      density: 20000,
-    },
-    economic: {
-      medianHouseholdIncome: 120000,
-      medianFamilyIncome: 140000,
-      perCapitaIncome: 65000,
-      incomeDistribution: {
-        under25k: 12,
-        from25kTo50k: 10,
-        from50kTo75k: 12,
-        from75kTo100k: 14,
-        from100kTo150k: 22,
-        over150k: 30,
-      },
-      amiDistribution: {
-        extremelyLow: 10,
-        veryLow: 8,
-        low: 12,
-        moderate: 20,
-        aboveModerate: 50,
-      },
-      povertyRate: 10,
-      childPovertyRate: 12,
-      seniorPovertyRate: 14,
-      unemploymentRate: 4,
-      laborForceParticipation: 70,
-      publicAssistanceRate: 8,
-      snapRate: 6,
-      medicaidRate: 15,
-    },
-    housing: {
-      ownerOccupied: 38,
-      renterOccupied: 62,
-      vacancyRate: 8,
-      rentBurdenedRate: 35,
-      severelyRentBurdened: 15,
-      medianRent: 2800,
-      medianHomeValue: 1400000,
-      singleFamily: 25,
-      multiFamily: 70,
-      mobileHome: 0,
-    },
-    language: {
-      englishOnly: 55,
-      limitedEnglishProficiency: 22,
-      languagesSpoken: {
-        english: 55,
-        spanish: 12,
-        chinese: 20,
-        tagalog: 4,
-        vietnamese: 2,
-        korean: 1,
-        russian: 2,
-        arabic: 0.5,
-        other: 3.5,
-      },
-      linguisticallyIsolatedHouseholds: 8,
-    },
-    ethnicity: {
-      distribution: {
-        white: 40,
-        black: 5,
-        asian: 35,
-        hispanic: 15,
-        nativeAmerican: 0.3,
-        pacificIslander: 0.4,
-        multiracial: 4,
-        other: 0.3,
-      },
-      foreignBorn: 35,
-      recentImmigrants: 8,
-      naturalizedCitizens: 20,
-    },
-    age: {
-      medianAge: 38,
-      distribution: {
-        under5: 4,
-        age5To17: 8,
-        age18To24: 8,
-        age25To34: 22,
-        age35To44: 18,
-        age45To54: 14,
-        age55To64: 12,
-        age65To74: 8,
-        age75Plus: 6,
-      },
-      under18: 12,
-      workingAge: 74,
-      seniors: 14,
-    },
-    education: {
-      distribution: {
-        lessThanHighSchool: 8,
-        highSchool: 12,
-        someCollege: 15,
-        associates: 5,
-        bachelors: 32,
-        graduate: 28,
-      },
-      highSchoolOrHigher: 92,
-      bachelorsOrHigher: 60,
-    },
-    household: {
-      totalHouseholds: 6000,
-      averageHouseholdSize: 2.3,
-      averageFamilySize: 3.1,
-      types: {
-        marriedCouple: 35,
-        marriedWithChildren: 15,
-        singleParent: 8,
-        livingAlone: 35,
-        nonFamilyHousehold: 7,
-      },
-      multigenerationalHouseholds: 5,
-      householdsWithSeniors: 22,
-      seniorsLivingAlone: 10,
-      householdsWithChildren: 20,
-    },
-  };
-
-  return { ...base, ...overrides } as NeighborhoodCensusData;
+/**
+ * Get neighborhoods by income level
+ */
+export function getNeighborhoodsByIncome(minIncome: number, maxIncome: number): SFNeighborhood[] {
+  return (Object.entries(SF_CENSUS_DATA) as [SFNeighborhood, NeighborhoodCensusData][])
+    .filter(([, data]) =>
+      data.economic.medianHouseholdIncome >= minIncome &&
+      data.economic.medianHouseholdIncome <= maxIncome
+    )
+    .map(([id]) => id);
 }
 
-// =============================================================================
-// NEIGHBORHOOD-SPECIFIC DATA
-// =============================================================================
+/**
+ * Get neighborhoods with high concentration of a specific language
+ */
+export function getNeighborhoodsByLanguage(
+  language: keyof NeighborhoodCensusData['language']['languagesSpoken'],
+  minPercentage: number = 10
+): SFNeighborhood[] {
+  return (Object.entries(SF_CENSUS_DATA) as [SFNeighborhood, NeighborhoodCensusData][])
+    .filter(([, data]) => data.language.languagesSpoken[language] >= minPercentage)
+    .sort((a, b) => b[1].language.languagesSpoken[language] - a[1].language.languagesSpoken[language])
+    .map(([id]) => id);
+}
 
-const SF_CENSUS_DATA: Record<SFNeighborhood, NeighborhoodCensusData> = {
-  // MISSION - Latino working-class, gentrifying
-  mission: createCensusData('mission', 'Mission', {
-    population: { total: 45000, density: 35000 },
-    economic: {
-      medianHouseholdIncome: 85000,
-      medianFamilyIncome: 75000,
-      perCapitaIncome: 45000,
-      incomeDistribution: { under25k: 18, from25kTo50k: 15, from50kTo75k: 14, from75kTo100k: 12, from100kTo150k: 18, over150k: 23 },
-      amiDistribution: { extremelyLow: 15, veryLow: 12, low: 18, moderate: 22, aboveModerate: 33 },
-      povertyRate: 14,
-      childPovertyRate: 18,
-      seniorPovertyRate: 20,
-      unemploymentRate: 5,
-      laborForceParticipation: 72,
-      publicAssistanceRate: 12,
-      snapRate: 10,
-      medicaidRate: 22,
-    },
-    housing: {
-      ownerOccupied: 22,
-      renterOccupied: 78,
-      vacancyRate: 4,
-      rentBurdenedRate: 45,
-      severelyRentBurdened: 22,
-      medianRent: 2400,
-      medianHomeValue: 1300000,
-      singleFamily: 15,
-      multiFamily: 82,
-      mobileHome: 0,
-      estimatedRentControlled: 65,
-    },
-    language: {
-      englishOnly: 35,
-      limitedEnglishProficiency: 32,
-      languagesSpoken: { english: 35, spanish: 45, chinese: 8, tagalog: 3, vietnamese: 1, korean: 0.5, russian: 0.5, arabic: 0.5, other: 6.5 },
-      linguisticallyIsolatedHouseholds: 15,
-    },
-    ethnicity: {
-      distribution: { white: 28, black: 4, asian: 12, hispanic: 50, nativeAmerican: 0.5, pacificIslander: 0.5, multiracial: 4, other: 1 },
-      hispanicBreakdown: { mexican: 55, centralAmerican: 30, southAmerican: 8, caribbean: 2, other: 5 },
-      foreignBorn: 42,
-      recentImmigrants: 12,
-      naturalizedCitizens: 22,
-    },
-    age: {
-      medianAge: 34,
-      distribution: { under5: 5, age5To17: 10, age18To24: 10, age25To34: 28, age35To44: 18, age45To54: 12, age55To64: 9, age65To74: 5, age75Plus: 3 },
-      under18: 15,
-      workingAge: 77,
-      seniors: 8,
-    },
-  }),
-
-  // CHINATOWN - Dense, older Chinese immigrant population
-  chinatown: createCensusData('chinatown', 'Chinatown', {
-    population: { total: 15000, density: 80000 },
-    economic: {
-      medianHouseholdIncome: 32000,
-      medianFamilyIncome: 38000,
-      perCapitaIncome: 18000,
-      incomeDistribution: { under25k: 45, from25kTo50k: 25, from50kTo75k: 12, from75kTo100k: 8, from100kTo150k: 6, over150k: 4 },
-      amiDistribution: { extremelyLow: 40, veryLow: 20, low: 18, moderate: 12, aboveModerate: 10 },
-      povertyRate: 32,
-      childPovertyRate: 35,
-      seniorPovertyRate: 38,
-      unemploymentRate: 6,
-      laborForceParticipation: 58,
-      publicAssistanceRate: 28,
-      snapRate: 25,
-      medicaidRate: 45,
-    },
-    housing: {
-      ownerOccupied: 12,
-      renterOccupied: 88,
-      vacancyRate: 3,
-      rentBurdenedRate: 55,
-      severelyRentBurdened: 32,
-      medianRent: 1200,
-      medianHomeValue: 800000,
-      singleFamily: 5,
-      multiFamily: 92,
-      mobileHome: 0,
-      estimatedRentControlled: 85,
-    },
-    language: {
-      englishOnly: 8,
-      limitedEnglishProficiency: 65,
-      languagesSpoken: { english: 8, spanish: 2, chinese: 85, tagalog: 1, vietnamese: 1, korean: 0.5, russian: 0, arabic: 0, other: 2.5 },
-      linguisticallyIsolatedHouseholds: 42,
-    },
-    ethnicity: {
-      distribution: { white: 5, black: 1, asian: 88, hispanic: 3, nativeAmerican: 0, pacificIslander: 0.5, multiracial: 2, other: 0.5 },
-      asianBreakdown: { chinese: 92, filipino: 2, vietnamese: 2, korean: 1, japanese: 1, indian: 0.5, other: 1.5 },
-      foreignBorn: 72,
-      recentImmigrants: 15,
-      naturalizedCitizens: 38,
-    },
-    age: {
-      medianAge: 48,
-      distribution: { under5: 3, age5To17: 8, age18To24: 6, age25To34: 12, age35To44: 14, age45To54: 16, age55To64: 15, age65To74: 14, age75Plus: 12 },
-      under18: 11,
-      workingAge: 63,
-      seniors: 26,
-    },
-    household: {
-      totalHouseholds: 5500,
-      averageHouseholdSize: 2.8,
-      averageFamilySize: 3.4,
-      types: { marriedCouple: 40, marriedWithChildren: 18, singleParent: 10, livingAlone: 25, nonFamilyHousehold: 7 },
-      multigenerationalHouseholds: 18,
-      householdsWithSeniors: 35,
-      seniorsLivingAlone: 18,
-      householdsWithChildren: 25,
-    },
-  }),
-
-  // BAYVIEW-HUNTERS POINT - Black community, working class
-  bayview_hunters_point: createCensusData('bayview_hunters_point', 'Bayview-Hunters Point', {
-    population: { total: 38000, density: 12000 },
-    economic: {
-      medianHouseholdIncome: 52000,
-      medianFamilyIncome: 58000,
-      perCapitaIncome: 28000,
-      incomeDistribution: { under25k: 28, from25kTo50k: 22, from50kTo75k: 18, from75kTo100k: 12, from100kTo150k: 12, over150k: 8 },
-      amiDistribution: { extremelyLow: 25, veryLow: 18, low: 22, moderate: 18, aboveModerate: 17 },
-      povertyRate: 24,
-      childPovertyRate: 32,
-      seniorPovertyRate: 22,
-      unemploymentRate: 9,
-      laborForceParticipation: 62,
-      publicAssistanceRate: 22,
-      snapRate: 20,
-      medicaidRate: 35,
-    },
-    housing: {
-      ownerOccupied: 35,
-      renterOccupied: 65,
-      vacancyRate: 6,
-      rentBurdenedRate: 48,
-      severelyRentBurdened: 25,
-      medianRent: 1800,
-      medianHomeValue: 750000,
-      singleFamily: 45,
-      multiFamily: 50,
-      mobileHome: 2,
-      publicHousingUnits: 1200,
-      section8Vouchers: 800,
-    },
-    language: {
-      englishOnly: 62,
-      limitedEnglishProficiency: 18,
-      languagesSpoken: { english: 62, spanish: 12, chinese: 10, tagalog: 6, vietnamese: 2, korean: 0.5, russian: 0.5, arabic: 1, other: 6 },
-      linguisticallyIsolatedHouseholds: 8,
-    },
-    ethnicity: {
-      distribution: { white: 12, black: 32, asian: 28, hispanic: 20, nativeAmerican: 0.5, pacificIslander: 3, multiracial: 4, other: 0.5 },
-      foreignBorn: 32,
-      recentImmigrants: 8,
-      naturalizedCitizens: 18,
-    },
-    age: {
-      medianAge: 36,
-      distribution: { under5: 6, age5To17: 14, age18To24: 10, age25To34: 18, age35To44: 16, age45To54: 14, age55To64: 10, age65To74: 7, age75Plus: 5 },
-      under18: 20,
-      workingAge: 68,
-      seniors: 12,
-    },
-  }),
-
-  // EXCELSIOR - Working-class immigrant families
-  excelsior: createCensusData('excelsior', 'Excelsior', {
-    population: { total: 42000, density: 22000 },
-    economic: {
-      medianHouseholdIncome: 72000,
-      medianFamilyIncome: 78000,
-      perCapitaIncome: 32000,
-      incomeDistribution: { under25k: 15, from25kTo50k: 18, from50kTo75k: 20, from75kTo100k: 18, from100kTo150k: 18, over150k: 11 },
-      amiDistribution: { extremelyLow: 12, veryLow: 14, low: 22, moderate: 28, aboveModerate: 24 },
-      povertyRate: 12,
-      childPovertyRate: 15,
-      seniorPovertyRate: 18,
-      unemploymentRate: 5,
-      laborForceParticipation: 68,
-      publicAssistanceRate: 14,
-      snapRate: 12,
-      medicaidRate: 28,
-    },
-    housing: {
-      ownerOccupied: 48,
-      renterOccupied: 52,
-      vacancyRate: 3,
-      rentBurdenedRate: 42,
-      severelyRentBurdened: 20,
-      medianRent: 2200,
-      medianHomeValue: 950000,
-      singleFamily: 55,
-      multiFamily: 42,
-      mobileHome: 1,
-    },
-    language: {
-      englishOnly: 28,
-      limitedEnglishProficiency: 38,
-      languagesSpoken: { english: 28, spanish: 25, chinese: 22, tagalog: 15, vietnamese: 3, korean: 1, russian: 0.5, arabic: 0.5, other: 5 },
-      linguisticallyIsolatedHouseholds: 18,
-    },
-    ethnicity: {
-      distribution: { white: 12, black: 4, asian: 42, hispanic: 35, nativeAmerican: 0.3, pacificIslander: 2, multiracial: 4, other: 0.7 },
-      asianBreakdown: { chinese: 45, filipino: 35, vietnamese: 8, korean: 3, japanese: 2, indian: 2, other: 5 },
-      hispanicBreakdown: { mexican: 40, centralAmerican: 45, southAmerican: 8, caribbean: 2, other: 5 },
-      foreignBorn: 52,
-      recentImmigrants: 12,
-      naturalizedCitizens: 28,
-    },
-    age: {
-      medianAge: 40,
-      distribution: { under5: 5, age5To17: 14, age18To24: 8, age25To34: 14, age35To44: 16, age45To54: 16, age55To64: 12, age65To74: 9, age75Plus: 6 },
-      under18: 19,
-      workingAge: 66,
-      seniors: 15,
-    },
-    household: {
-      totalHouseholds: 14000,
-      averageHouseholdSize: 3.0,
-      averageFamilySize: 3.6,
-      types: { marriedCouple: 45, marriedWithChildren: 28, singleParent: 12, livingAlone: 18, nonFamilyHousehold: 5 },
-      multigenerationalHouseholds: 15,
-      householdsWithSeniors: 28,
-      seniorsLivingAlone: 8,
-      householdsWithChildren: 35,
-    },
-  }),
-
-  // TENDERLOIN - Very low income, high need
-  tenderloin: createCensusData('tenderloin', 'Tenderloin', {
-    population: { total: 28000, density: 65000 },
-    economic: {
-      medianHouseholdIncome: 28000,
-      medianFamilyIncome: 32000,
-      perCapitaIncome: 22000,
-      incomeDistribution: { under25k: 52, from25kTo50k: 22, from50kTo75k: 10, from75kTo100k: 6, from100kTo150k: 5, over150k: 5 },
-      amiDistribution: { extremelyLow: 48, veryLow: 18, low: 14, moderate: 10, aboveModerate: 10 },
-      povertyRate: 38,
-      childPovertyRate: 45,
-      seniorPovertyRate: 35,
-      unemploymentRate: 12,
-      laborForceParticipation: 52,
-      publicAssistanceRate: 35,
-      snapRate: 32,
-      medicaidRate: 52,
-    },
-    housing: {
-      ownerOccupied: 5,
-      renterOccupied: 95,
-      vacancyRate: 5,
-      rentBurdenedRate: 58,
-      severelyRentBurdened: 38,
-      medianRent: 1100,
-      medianHomeValue: 650000,
-      singleFamily: 2,
-      multiFamily: 95,
-      mobileHome: 0,
-      estimatedRentControlled: 75,
-      publicHousingUnits: 800,
-      section8Vouchers: 1500,
-    },
-    language: {
-      englishOnly: 45,
-      limitedEnglishProficiency: 28,
-      languagesSpoken: { english: 45, spanish: 15, chinese: 12, tagalog: 5, vietnamese: 8, korean: 2, russian: 3, arabic: 3, other: 7 },
-      linguisticallyIsolatedHouseholds: 15,
-    },
-    ethnicity: {
-      distribution: { white: 32, black: 18, asian: 28, hispanic: 15, nativeAmerican: 1, pacificIslander: 1, multiracial: 4, other: 1 },
-      foreignBorn: 38,
-      recentImmigrants: 12,
-      naturalizedCitizens: 18,
-    },
-    age: {
-      medianAge: 42,
-      distribution: { under5: 4, age5To17: 8, age18To24: 8, age25To34: 18, age35To44: 16, age45To54: 18, age55To64: 14, age65To74: 8, age75Plus: 6 },
-      under18: 12,
-      workingAge: 74,
-      seniors: 14,
-    },
-  }),
-
-  // PACIFIC HEIGHTS - Affluent
-  pacific_heights: createCensusData('pacific_heights', 'Pacific Heights', {
-    population: { total: 22000, density: 18000 },
-    economic: {
-      medianHouseholdIncome: 185000,
-      medianFamilyIncome: 220000,
-      perCapitaIncome: 125000,
-      incomeDistribution: { under25k: 5, from25kTo50k: 5, from50kTo75k: 6, from75kTo100k: 8, from100kTo150k: 18, over150k: 58 },
-      amiDistribution: { extremelyLow: 4, veryLow: 3, low: 5, moderate: 10, aboveModerate: 78 },
-      povertyRate: 5,
-      childPovertyRate: 3,
-      seniorPovertyRate: 6,
-      unemploymentRate: 2,
-      laborForceParticipation: 68,
-      publicAssistanceRate: 2,
-      snapRate: 1,
-      medicaidRate: 4,
-    },
-    housing: {
-      ownerOccupied: 52,
-      renterOccupied: 48,
-      vacancyRate: 8,
-      rentBurdenedRate: 18,
-      severelyRentBurdened: 8,
-      medianRent: 3800,
-      medianHomeValue: 3500000,
-      singleFamily: 35,
-      multiFamily: 62,
-      mobileHome: 0,
-    },
-    language: {
-      englishOnly: 75,
-      limitedEnglishProficiency: 8,
-      languagesSpoken: { english: 75, spanish: 5, chinese: 8, tagalog: 2, vietnamese: 0.5, korean: 1, russian: 2, arabic: 0.5, other: 6 },
-      linguisticallyIsolatedHouseholds: 3,
-    },
-    ethnicity: {
-      distribution: { white: 72, black: 2, asian: 18, hispanic: 4, nativeAmerican: 0.2, pacificIslander: 0.2, multiracial: 3, other: 0.6 },
-      foreignBorn: 22,
-      recentImmigrants: 5,
-      naturalizedCitizens: 12,
-    },
-    age: {
-      medianAge: 45,
-      distribution: { under5: 4, age5To17: 10, age18To24: 5, age25To34: 12, age35To44: 18, age45To54: 18, age55To64: 14, age65To74: 10, age75Plus: 9 },
-      under18: 14,
-      workingAge: 67,
-      seniors: 19,
-    },
-  }),
-
-  // CASTRO - LGBTQ+ community
-  castro: createCensusData('castro', 'Castro', {
-    population: { total: 18000, density: 28000 },
-    economic: {
-      medianHouseholdIncome: 125000,
-      medianFamilyIncome: 145000,
-      perCapitaIncome: 85000,
-      incomeDistribution: { under25k: 8, from25kTo50k: 8, from50kTo75k: 10, from75kTo100k: 14, from100kTo150k: 25, over150k: 35 },
-      amiDistribution: { extremelyLow: 6, veryLow: 5, low: 10, moderate: 18, aboveModerate: 61 },
-      povertyRate: 8,
-      childPovertyRate: 5,
-      seniorPovertyRate: 12,
-      unemploymentRate: 3,
-      laborForceParticipation: 74,
-      publicAssistanceRate: 5,
-      snapRate: 4,
-      medicaidRate: 10,
-    },
-    housing: {
-      ownerOccupied: 35,
-      renterOccupied: 65,
-      vacancyRate: 5,
-      rentBurdenedRate: 32,
-      severelyRentBurdened: 14,
-      medianRent: 2900,
-      medianHomeValue: 1600000,
-      singleFamily: 22,
-      multiFamily: 75,
-      mobileHome: 0,
-      estimatedRentControlled: 55,
-    },
-    language: {
-      englishOnly: 78,
-      limitedEnglishProficiency: 8,
-      languagesSpoken: { english: 78, spanish: 8, chinese: 5, tagalog: 2, vietnamese: 0.5, korean: 0.5, russian: 1, arabic: 0.5, other: 4.5 },
-      linguisticallyIsolatedHouseholds: 3,
-    },
-    ethnicity: {
-      distribution: { white: 68, black: 4, asian: 12, hispanic: 10, nativeAmerican: 0.3, pacificIslander: 0.3, multiracial: 5, other: 0.4 },
-      foreignBorn: 18,
-      recentImmigrants: 4,
-      naturalizedCitizens: 10,
-    },
-    age: {
-      medianAge: 42,
-      distribution: { under5: 2, age5To17: 4, age18To24: 6, age25To34: 22, age35To44: 20, age45To54: 18, age55To64: 14, age65To74: 8, age75Plus: 6 },
-      under18: 6,
-      workingAge: 80,
-      seniors: 14,
-    },
-    household: {
-      totalHouseholds: 9000,
-      averageHouseholdSize: 1.8,
-      averageFamilySize: 2.5,
-      types: { marriedCouple: 25, marriedWithChildren: 5, singleParent: 3, livingAlone: 52, nonFamilyHousehold: 15 },
-      multigenerationalHouseholds: 2,
-      householdsWithSeniors: 18,
-      seniorsLivingAlone: 12,
-      householdsWithChildren: 8,
-    },
-  }),
-
-  // Fill in remaining neighborhoods with reasonable defaults
-  // In production, each would have accurate ACS data
-
-  bernal_heights: createCensusData('bernal_heights', 'Bernal Heights', {
-    economic: { ...createCensusData('bernal_heights', '', {}).economic, medianHouseholdIncome: 115000 },
-    ethnicity: { distribution: { white: 45, black: 3, asian: 15, hispanic: 30, nativeAmerican: 0.3, pacificIslander: 0.4, multiracial: 5, other: 1.3 }, foreignBorn: 28, recentImmigrants: 6, naturalizedCitizens: 16 },
-  }),
-
-  civic_center: createCensusData('civic_center', 'Civic Center', {
-    economic: { ...createCensusData('civic_center', '', {}).economic, medianHouseholdIncome: 45000, povertyRate: 28 },
-  }),
-
-  cole_valley: createCensusData('cole_valley', 'Cole Valley', {
-    economic: { ...createCensusData('cole_valley', '', {}).economic, medianHouseholdIncome: 145000 },
-  }),
-
-  diamond_heights: createCensusData('diamond_heights', 'Diamond Heights', {
-    economic: { ...createCensusData('diamond_heights', '', {}).economic, medianHouseholdIncome: 135000 },
-  }),
-
-  dogpatch: createCensusData('dogpatch', 'Dogpatch', {
-    economic: { ...createCensusData('dogpatch', '', {}).economic, medianHouseholdIncome: 155000 },
-  }),
-
-  downtown: createCensusData('downtown', 'Downtown/Union Square', {
-    economic: { ...createCensusData('downtown', '', {}).economic, medianHouseholdIncome: 95000 },
-  }),
-
-  financial_district: createCensusData('financial_district', 'Financial District', {
-    economic: { ...createCensusData('financial_district', '', {}).economic, medianHouseholdIncome: 165000 },
-  }),
-
-  glen_park: createCensusData('glen_park', 'Glen Park', {
-    economic: { ...createCensusData('glen_park', '', {}).economic, medianHouseholdIncome: 155000 },
-  }),
-
-  haight_ashbury: createCensusData('haight_ashbury', 'Haight-Ashbury', {
-    economic: { ...createCensusData('haight_ashbury', '', {}).economic, medianHouseholdIncome: 105000 },
-  }),
-
-  hayes_valley: createCensusData('hayes_valley', 'Hayes Valley', {
-    economic: { ...createCensusData('hayes_valley', '', {}).economic, medianHouseholdIncome: 125000 },
-  }),
-
-  ingleside: createCensusData('ingleside', 'Ingleside', {
-    economic: { ...createCensusData('ingleside', '', {}).economic, medianHouseholdIncome: 78000 },
-    ethnicity: { distribution: { white: 15, black: 8, asian: 35, hispanic: 35, nativeAmerican: 0.3, pacificIslander: 2, multiracial: 4, other: 0.7 }, foreignBorn: 45, recentImmigrants: 10, naturalizedCitizens: 25 },
-  }),
-
-  inner_richmond: createCensusData('inner_richmond', 'Inner Richmond', {
-    economic: { ...createCensusData('inner_richmond', '', {}).economic, medianHouseholdIncome: 105000 },
-    ethnicity: { distribution: { white: 42, black: 2, asian: 42, hispanic: 8, nativeAmerican: 0.2, pacificIslander: 0.3, multiracial: 5, other: 0.5 }, foreignBorn: 38, recentImmigrants: 8, naturalizedCitizens: 22 },
-  }),
-
-  inner_sunset: createCensusData('inner_sunset', 'Inner Sunset', {
-    economic: { ...createCensusData('inner_sunset', '', {}).economic, medianHouseholdIncome: 115000 },
-    ethnicity: { distribution: { white: 45, black: 2, asian: 40, hispanic: 7, nativeAmerican: 0.2, pacificIslander: 0.3, multiracial: 5, other: 0.5 }, foreignBorn: 35, recentImmigrants: 7, naturalizedCitizens: 20 },
-  }),
-
-  japantown: createCensusData('japantown', 'Japantown', {
-    economic: { ...createCensusData('japantown', '', {}).economic, medianHouseholdIncome: 85000 },
-    ethnicity: { distribution: { white: 35, black: 8, asian: 38, hispanic: 12, nativeAmerican: 0.3, pacificIslander: 0.7, multiracial: 5, other: 1 }, foreignBorn: 32, recentImmigrants: 6, naturalizedCitizens: 18 },
-  }),
-
-  lakeshore: createCensusData('lakeshore', 'Lakeshore', {
-    economic: { ...createCensusData('lakeshore', '', {}).economic, medianHouseholdIncome: 95000 },
-  }),
-
-  laurel_heights: createCensusData('laurel_heights', 'Laurel Heights', {
-    economic: { ...createCensusData('laurel_heights', '', {}).economic, medianHouseholdIncome: 165000 },
-  }),
-
-  marina: createCensusData('marina', 'Marina', {
-    economic: { ...createCensusData('marina', '', {}).economic, medianHouseholdIncome: 155000 },
-    ethnicity: { distribution: { white: 75, black: 2, asian: 12, hispanic: 6, nativeAmerican: 0.2, pacificIslander: 0.2, multiracial: 4, other: 0.6 }, foreignBorn: 18, recentImmigrants: 5, naturalizedCitizens: 10 },
-  }),
-
-  mission_bay: createCensusData('mission_bay', 'Mission Bay', {
-    economic: { ...createCensusData('mission_bay', '', {}).economic, medianHouseholdIncome: 175000 },
-  }),
-
-  nob_hill: createCensusData('nob_hill', 'Nob Hill', {
-    economic: { ...createCensusData('nob_hill', '', {}).economic, medianHouseholdIncome: 125000 },
-  }),
-
-  noe_valley: createCensusData('noe_valley', 'Noe Valley', {
-    economic: { ...createCensusData('noe_valley', '', {}).economic, medianHouseholdIncome: 185000 },
-    household: { ...createCensusData('noe_valley', '', {}).household, householdsWithChildren: 35 },
-  }),
-
-  north_beach: createCensusData('north_beach', 'North Beach', {
-    economic: { ...createCensusData('north_beach', '', {}).economic, medianHouseholdIncome: 105000 },
-    ethnicity: { distribution: { white: 55, black: 2, asian: 28, hispanic: 10, nativeAmerican: 0.2, pacificIslander: 0.3, multiracial: 4, other: 0.5 }, foreignBorn: 32, recentImmigrants: 6, naturalizedCitizens: 18 },
-  }),
-
-  oceanview: createCensusData('oceanview', 'Oceanview', {
-    economic: { ...createCensusData('oceanview', '', {}).economic, medianHouseholdIncome: 68000 },
-    ethnicity: { distribution: { white: 10, black: 12, asian: 38, hispanic: 32, nativeAmerican: 0.3, pacificIslander: 3, multiracial: 4, other: 0.7 }, foreignBorn: 48, recentImmigrants: 12, naturalizedCitizens: 25 },
-  }),
-
-  outer_mission: createCensusData('outer_mission', 'Outer Mission', {
-    economic: { ...createCensusData('outer_mission', '', {}).economic, medianHouseholdIncome: 72000 },
-    ethnicity: { distribution: { white: 12, black: 5, asian: 35, hispanic: 42, nativeAmerican: 0.3, pacificIslander: 1.5, multiracial: 3.5, other: 0.7 }, foreignBorn: 50, recentImmigrants: 12, naturalizedCitizens: 26 },
-  }),
-
-  outer_richmond: createCensusData('outer_richmond', 'Outer Richmond', {
-    economic: { ...createCensusData('outer_richmond', '', {}).economic, medianHouseholdIncome: 95000 },
-    ethnicity: { distribution: { white: 38, black: 2, asian: 48, hispanic: 6, nativeAmerican: 0.2, pacificIslander: 0.3, multiracial: 5, other: 0.5 }, foreignBorn: 42, recentImmigrants: 9, naturalizedCitizens: 24 },
-  }),
-
-  outer_sunset: createCensusData('outer_sunset', 'Outer Sunset', {
-    economic: { ...createCensusData('outer_sunset', '', {}).economic, medianHouseholdIncome: 98000 },
-    ethnicity: { distribution: { white: 35, black: 2, asian: 50, hispanic: 7, nativeAmerican: 0.2, pacificIslander: 0.3, multiracial: 5, other: 0.5 }, foreignBorn: 45, recentImmigrants: 10, naturalizedCitizens: 26 },
-  }),
-
-  parkside: createCensusData('parkside', 'Parkside', {
-    economic: { ...createCensusData('parkside', '', {}).economic, medianHouseholdIncome: 105000 },
-    ethnicity: { distribution: { white: 38, black: 2, asian: 48, hispanic: 6, nativeAmerican: 0.2, pacificIslander: 0.3, multiracial: 5, other: 0.5 }, foreignBorn: 40, recentImmigrants: 8, naturalizedCitizens: 24 },
-  }),
-
-  portola: createCensusData('portola', 'Portola', {
-    economic: { ...createCensusData('portola', '', {}).economic, medianHouseholdIncome: 75000 },
-    ethnicity: { distribution: { white: 15, black: 6, asian: 40, hispanic: 32, nativeAmerican: 0.3, pacificIslander: 2, multiracial: 4, other: 0.7 }, foreignBorn: 48, recentImmigrants: 11, naturalizedCitizens: 26 },
-  }),
-
-  potrero_hill: createCensusData('potrero_hill', 'Potrero Hill', {
-    economic: { ...createCensusData('potrero_hill', '', {}).economic, medianHouseholdIncome: 145000 },
-  }),
-
-  presidio: createCensusData('presidio', 'Presidio', {
-    economic: { ...createCensusData('presidio', '', {}).economic, medianHouseholdIncome: 135000 },
-  }),
-
-  russian_hill: createCensusData('russian_hill', 'Russian Hill', {
-    economic: { ...createCensusData('russian_hill', '', {}).economic, medianHouseholdIncome: 145000 },
-  }),
-
-  sea_cliff: createCensusData('sea_cliff', 'Sea Cliff', {
-    economic: { ...createCensusData('sea_cliff', '', {}).economic, medianHouseholdIncome: 250000 },
-  }),
-
-  soma: createCensusData('soma', 'SoMa', {
-    economic: { ...createCensusData('soma', '', {}).economic, medianHouseholdIncome: 115000 },
-  }),
-
-  south_beach: createCensusData('south_beach', 'South Beach', {
-    economic: { ...createCensusData('south_beach', '', {}).economic, medianHouseholdIncome: 175000 },
-  }),
-
-  stonestown: createCensusData('stonestown', 'Stonestown', {
-    economic: { ...createCensusData('stonestown', '', {}).economic, medianHouseholdIncome: 85000 },
-  }),
-
-  treasure_island: createCensusData('treasure_island', 'Treasure Island', {
-    economic: { ...createCensusData('treasure_island', '', {}).economic, medianHouseholdIncome: 55000 },
-  }),
-
-  twin_peaks: createCensusData('twin_peaks', 'Twin Peaks', {
-    economic: { ...createCensusData('twin_peaks', '', {}).economic, medianHouseholdIncome: 145000 },
-  }),
-
-  visitacion_valley: createCensusData('visitacion_valley', 'Visitacion Valley', {
-    economic: { ...createCensusData('visitacion_valley', '', {}).economic, medianHouseholdIncome: 62000 },
-    ethnicity: { distribution: { white: 8, black: 15, asian: 45, hispanic: 25, nativeAmerican: 0.3, pacificIslander: 3, multiracial: 3, other: 0.7 }, foreignBorn: 52, recentImmigrants: 14, naturalizedCitizens: 26 },
-  }),
-
-  west_portal: createCensusData('west_portal', 'West Portal', {
-    economic: { ...createCensusData('west_portal', '', {}).economic, medianHouseholdIncome: 145000 },
-  }),
-
-  western_addition: createCensusData('western_addition', 'Western Addition', {
-    economic: { ...createCensusData('western_addition', '', {}).economic, medianHouseholdIncome: 75000 },
-    ethnicity: { distribution: { white: 35, black: 22, asian: 20, hispanic: 12, nativeAmerican: 0.5, pacificIslander: 1, multiracial: 8, other: 1.5 }, foreignBorn: 28, recentImmigrants: 6, naturalizedCitizens: 15 },
-  }),
-};
+/**
+ * Get neighborhoods with high concentration of a specific ethnicity
+ */
+export function getNeighborhoodsByEthnicity(
+  ethnicity: keyof NeighborhoodCensusData['ethnicity']['distribution'],
+  minPercentage: number = 20
+): SFNeighborhood[] {
+  return (Object.entries(SF_CENSUS_DATA) as [SFNeighborhood, NeighborhoodCensusData][])
+    .filter(([, data]) => data.ethnicity.distribution[ethnicity] >= minPercentage)
+    .sort((a, b) => b[1].ethnicity.distribution[ethnicity] - a[1].ethnicity.distribution[ethnicity])
+    .map(([id]) => id);
+}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Nav, StatBlock, Testimonial, StepBlock, FloatingMockup, Footer } from "@/components/shared";
 import { SFMapTexture } from "@/components/SFMapTexture";
+import { ResonanceBeacon } from "@/components/ResonanceBeacon";
 
 export default function Home() {
   return (
@@ -14,10 +15,28 @@ export default function Home() {
         <div className="absolute inset-0" style={{ clipPath: 'polygon(45% 0, 100% 0, 100% 100%, 35% 100%)' }}>
           <SFMapTexture variant="coral" />
         </div>
-        {/* Decorative elements */}
-        <div className="absolute bottom-40 left-10 w-32 h-32 bg-[var(--color-marigold)] rounded-full opacity-40 blur-2xl" />
-        <div className="absolute top-60 left-1/4 w-20 h-20 bg-[var(--color-teal-light)] rounded-full opacity-30 blur-xl" />
-        <div className="absolute top-32 right-20 w-24 h-24 bg-[var(--color-marigold)] rounded-full opacity-30 blur-2xl" />
+        {/* Resonance Beacons - whisper-soft background pulses */}
+        <ResonanceBeacon
+          color="marigold"
+          size="xl"
+          intensity="whisper"
+          className="bottom-20 -left-20 z-0"
+          delay={0}
+        />
+        <ResonanceBeacon
+          color="teal"
+          size="md"
+          intensity="whisper"
+          className="top-40 left-[20%] z-0"
+          delay={2000}
+        />
+        <ResonanceBeacon
+          color="coral"
+          size="lg"
+          intensity="whisper"
+          className="bottom-40 left-[8%] z-0"
+          delay={4000}
+        />
 
         <div className="relative max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
@@ -278,8 +297,20 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-24 px-6 bg-[var(--color-navy)] relative overflow-hidden">
         <div className="absolute inset-0 bg-noise" />
-        <div className="absolute top-10 right-10 w-64 h-64 bg-[var(--color-coral)] rounded-full opacity-10 blur-3xl" />
-        <div className="absolute bottom-10 left-10 w-48 h-48 bg-[var(--color-teal)] rounded-full opacity-10 blur-3xl" />
+        <ResonanceBeacon
+          color="coral"
+          size="xl"
+          intensity="whisper"
+          className="-top-20 -right-20 z-0"
+          delay={0}
+        />
+        <ResonanceBeacon
+          color="teal"
+          size="lg"
+          intensity="whisper"
+          className="-bottom-16 -left-16 z-0"
+          delay={3000}
+        />
 
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <h2 className="display-lg font-[family-name:var(--font-fraunces)] text-white mb-6">

@@ -85,15 +85,20 @@ export function usePublisherData(publisherId?: string): UsePublisherDataResult {
           publisherQuery = publisherQuery.eq('id', publisherId);
         }
 
-        const { data: publishers, error: publisherError } = await publisherQuery.limit(1).single();
+        const { data: publisherRows, error: publisherError } = await publisherQuery.limit(1);
 
         if (publisherError) {
           throw new Error(`Failed to fetch publisher: ${publisherError.message}`);
         }
 
-        if (!publishers) {
-          throw new Error('No publisher found');
+        if (!publisherRows || publisherRows.length === 0) {
+          // No publisher found - return empty state instead of throwing
+          setData(null);
+          setIsLoading(false);
+          return;
         }
+
+        const publishers = publisherRows[0];
 
         const pubId = publishers.id;
 

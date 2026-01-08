@@ -1,13 +1,14 @@
-import { createClient } from '@supabase/supabase-js';
+'use client';
+
+import { createBrowserClient as createSupabaseBrowserClient } from '@supabase/ssr';
 import type { Database } from './types';
 
 // =============================================================================
 // ENVIRONMENT VARIABLES
 // =============================================================================
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 // =============================================================================
 // CLIENT INSTANCES
@@ -18,26 +19,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
  * Uses anon key with RLS policies enforced
  */
 export function createBrowserClient() {
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables');
-  }
-  return createClient<Database>(supabaseUrl, supabaseAnonKey);
-}
-
-/**
- * Server-side Supabase client with service role key
- * Bypasses RLS - use only in trusted server contexts
- */
-export function createServerClient() {
-  if (!supabaseUrl || !supabaseServiceKey) {
-    throw new Error('Missing Supabase environment variables for server client');
-  }
-  return createClient<Database>(supabaseUrl, supabaseServiceKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
+  return createSupabaseBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
 }
 
 /**
@@ -57,6 +39,13 @@ export function getSupabaseClient() {
   }
   return browserClient;
 }
+
+// =============================================================================
+// SERVER CLIENT (for API routes)
+// =============================================================================
+
+// Server client is created in API routes using createServerClient from @supabase/ssr
+// with cookies() from next/headers
 
 // =============================================================================
 // TYPE EXPORTS
