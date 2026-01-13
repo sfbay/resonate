@@ -11,8 +11,29 @@
 
 import { useMemo } from 'react';
 import type { SFNeighborhood } from '@/types';
-import type { CensusData } from '@/lib/census/types';
 import { SF_NEIGHBORHOODS } from '@/lib/geo/sf-geography';
+
+// Simplified census data type matching actual data structure
+interface SimpleCensusData {
+  population?: { total: number };
+  economic?: {
+    medianHouseholdIncome?: number;
+    amiDistribution?: Record<string, number>;
+  };
+  housing?: { renterOccupied?: number };
+  language?: {
+    limitedEnglishProficiency?: number;
+    languagesSpoken?: Record<string, number>;
+  };
+  ethnicity?: {
+    distribution?: Record<string, number>;
+  };
+  age?: {
+    under18?: number;
+    seniors?: number;
+    distribution?: Record<string, number>;
+  };
+}
 
 // =============================================================================
 // TYPES
@@ -30,7 +51,7 @@ export interface NeighborhoodPopoverProps {
   /** Selected sub-filter within the tab (e.g., 'spanish', 'asian', 'extremelyLow') */
   selectedDemographic: string | null;
   /** Census data for this neighborhood */
-  censusData: CensusData;
+  censusData: SimpleCensusData;
   /** Eviction data if in housing tab */
   evictionData?: { rate: number; total: number };
   /** Ranking info */
@@ -85,7 +106,7 @@ export function NeighborhoodPopover({
 
     switch (activeDemoTab) {
       case 'languages': {
-        if (selectedDemographic && censusData.language.languagesSpoken) {
+        if (selectedDemographic && censusData.language?.languagesSpoken) {
           const langKey = selectedDemographic as keyof typeof censusData.language.languagesSpoken;
           const value = censusData.language.languagesSpoken[langKey] || 0;
           const langLabels: Record<string, string> = {
@@ -103,14 +124,14 @@ export function NeighborhoodPopover({
           };
         }
         return {
-          value: `${censusData.language.limitedEnglishProficiency}%`,
+          value: `${censusData.language?.limitedEnglishProficiency ?? 0}%`,
           label: 'Limited English Proficiency',
           accentColor,
         };
       }
 
       case 'communities': {
-        if (selectedDemographic && censusData.ethnicity.distribution) {
+        if (selectedDemographic && censusData.ethnicity?.distribution) {
           const ethKey = selectedDemographic as keyof typeof censusData.ethnicity.distribution;
           const value = censusData.ethnicity.distribution[ethKey] || 0;
           const ethLabels: Record<string, string> = {
@@ -129,18 +150,21 @@ export function NeighborhoodPopover({
           };
         }
         // Default: show largest ethnic group
-        const dist = censusData.ethnicity.distribution;
-        const entries = Object.entries(dist) as [string, number][];
-        const largest = entries.reduce((a, b) => (b[1] > a[1] ? b : a));
-        return {
-          value: `${largest[1].toFixed(1)}%`,
-          label: `${largest[0].charAt(0).toUpperCase() + largest[0].slice(1)} (largest group)`,
-          accentColor,
-        };
+        const dist = censusData.ethnicity?.distribution;
+        if (dist) {
+          const entries = Object.entries(dist) as [string, number][];
+          const largest = entries.reduce((a, b) => (b[1] > a[1] ? b : a));
+          return {
+            value: `${largest[1].toFixed(1)}%`,
+            label: `${largest[0].charAt(0).toUpperCase() + largest[0].slice(1)} (largest group)`,
+            accentColor,
+          };
+        }
+        return { value: 'N/A', label: 'No data', accentColor };
       }
 
       case 'income': {
-        if (selectedDemographic && censusData.economic.amiDistribution) {
+        if (selectedDemographic && censusData.economic?.amiDistribution) {
           const incKey = selectedDemographic as keyof typeof censusData.economic.amiDistribution;
           const value = censusData.economic.amiDistribution[incKey] || 0;
           const incLabels: Record<string, string> = {
@@ -157,7 +181,7 @@ export function NeighborhoodPopover({
           };
         }
         return {
-          value: `$${(censusData.economic.medianHouseholdIncome / 1000).toFixed(0)}k`,
+          value: `$${((censusData.economic?.medianHouseholdIncome ?? 0) / 1000).toFixed(0)}k`,
           label: 'Median household income',
           accentColor,
         };
@@ -169,22 +193,22 @@ export function NeighborhoodPopover({
           let label = '';
 
           if (selectedDemographic === 'under18') {
-            value = censusData.age.under18;
+            value = censusData.age?.under18 ?? 0;
             label = 'Under 18';
           } else if (selectedDemographic === 'seniors') {
-            value = censusData.age.seniors;
+            value = censusData.age?.seniors ?? 0;
             label = 'Seniors (65+)';
           } else {
             // Map to distribution keys
-            const ageKeyMap: Record<string, keyof typeof censusData.age.distribution> = {
-              '18-24': 'age18To24',
-              '25-34': 'age25To34',
-              '35-44': 'age35To44',
-              '45-54': 'age45To54',
-              '55-64': 'age55To64',
+            const ageKeyMap: Record<string, string> = {
+              '18-24': '18-24',
+              '25-34': '25-34',
+              '35-44': '35-44',
+              '45-54': '45-54',
+              '55-64': '55-64',
             };
             const distKey = ageKeyMap[selectedDemographic];
-            if (distKey && censusData.age.distribution[distKey] !== undefined) {
+            if (distKey && censusData.age?.distribution?.[distKey] !== undefined) {
               value = censusData.age.distribution[distKey];
               label = `Age ${selectedDemographic}`;
             }
@@ -197,8 +221,8 @@ export function NeighborhoodPopover({
           };
         }
         return {
-          value: `${censusData.age.medianAge}`,
-          label: 'Median age',
+          value: 'N/A',
+          label: 'Age data',
           accentColor,
         };
       }
@@ -213,9 +237,8 @@ export function NeighborhoodPopover({
           };
         }
         return {
-          value: `${censusData.housing.renterOccupied}%`,
+          value: `${censusData.housing?.renterOccupied ?? 0}%`,
           label: 'Renters',
-          subtext: `$${censusData.housing.medianRent.toLocaleString()}/mo median`,
           accentColor,
         };
       }

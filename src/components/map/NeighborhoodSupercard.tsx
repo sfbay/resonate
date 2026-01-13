@@ -12,8 +12,30 @@
 
 import { useMemo } from 'react';
 import type { SFNeighborhood, Publisher } from '@/types';
-import type { CensusData, NeighborhoodEvictionData } from '@/lib/census/types';
+import type { NeighborhoodEvictionData } from '@/lib/census/types';
 import { SF_NEIGHBORHOODS } from '@/lib/geo/sf-geography';
+
+// Simplified census data type matching actual data structure
+interface SimpleCensusData {
+  population?: { total: number };
+  economic?: {
+    medianHouseholdIncome?: number;
+    amiDistribution?: Record<string, number>;
+  };
+  housing?: { renterOccupied?: number };
+  language?: {
+    limitedEnglishProficiency?: number;
+    languagesSpoken?: Record<string, number>;
+  };
+  ethnicity?: {
+    distribution?: Record<string, number>;
+  };
+  age?: {
+    under18?: number;
+    seniors?: number;
+    distribution?: Record<string, number>;
+  };
+}
 
 // =============================================================================
 // TYPES
@@ -25,7 +47,7 @@ export interface NeighborhoodSupercardProps {
   /** Screen position for the card (pixels) */
   position: { x: number; y: number };
   /** Census data for this neighborhood */
-  censusData: CensusData;
+  censusData: SimpleCensusData;
   /** Eviction data */
   evictionData?: NeighborhoodEvictionData;
   /** Publishers serving this area */
@@ -110,29 +132,32 @@ export function NeighborhoodSupercard({
 
   // Get top languages (excluding English, sorted by percentage)
   const topLanguages = useMemo(() => {
-    const langs = censusData.language.languagesSpoken;
+    const langs = censusData.language?.languagesSpoken;
+    if (!langs) return [];
     return [
-      { key: 'spanish', label: 'Spanish', value: langs.spanish },
-      { key: 'chinese', label: 'Chinese', value: langs.chinese },
-      { key: 'tagalog', label: 'Tagalog', value: langs.tagalog },
-      { key: 'vietnamese', label: 'Vietnamese', value: langs.vietnamese },
-      { key: 'korean', label: 'Korean', value: langs.korean },
-      { key: 'russian', label: 'Russian', value: langs.russian },
+      { key: 'spanish', label: 'Spanish', value: langs.spanish ?? 0 },
+      { key: 'chinese', label: 'Chinese', value: langs.chinese ?? 0 },
+      { key: 'tagalog', label: 'Tagalog', value: langs.tagalog ?? 0 },
+      { key: 'vietnamese', label: 'Vietnamese', value: langs.vietnamese ?? 0 },
+      { key: 'korean', label: 'Korean', value: langs.korean ?? 0 },
+      { key: 'russian', label: 'Russian', value: langs.russian ?? 0 },
     ]
       .filter(l => l.value > 0.5)
       .sort((a, b) => b.value - a.value)
       .slice(0, 4);
-  }, [censusData.language.languagesSpoken]);
+  }, [censusData.language?.languagesSpoken]);
 
   // Get ethnicity distribution sorted
   const ethnicityRows = useMemo(() => {
-    const dist = censusData.ethnicity.distribution;
+    const dist = censusData.ethnicity?.distribution;
+    if (!dist) return [];
     const labels: Record<string, string> = {
       white: 'White',
       asian: 'Asian',
       hispanic: 'Hispanic/Latino',
       black: 'Black',
       pacificIslander: 'Pacific Islander',
+      pacific: 'Pacific Islander',
       multiracial: 'Multiracial',
       nativeAmerican: 'Native American',
       other: 'Other',
@@ -142,31 +167,34 @@ export function NeighborhoodSupercard({
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([k, v]) => ({ label: labels[k] || k, value: v }));
-  }, [censusData.ethnicity.distribution]);
+  }, [censusData.ethnicity?.distribution]);
 
   // Income distribution
   const incomeRows = useMemo(() => {
-    const ami = censusData.economic.amiDistribution;
+    const ami = censusData.economic?.amiDistribution;
+    if (!ami) return [];
     return [
-      { label: 'Extremely Low (≤30%)', value: ami.extremelyLow },
-      { label: 'Very Low (31-50%)', value: ami.veryLow },
-      { label: 'Low (51-80%)', value: ami.low },
-      { label: 'Moderate (81-120%)', value: ami.moderate },
-      { label: 'Above Moderate', value: ami.aboveModerate },
+      { label: 'Extremely Low (≤30%)', value: ami.extremelyLow ?? 0 },
+      { label: 'Very Low (31-50%)', value: ami.veryLow ?? 0 },
+      { label: 'Low (51-80%)', value: ami.low ?? 0 },
+      { label: 'Moderate (81-120%)', value: ami.moderate ?? 0 },
+      { label: 'Above Moderate', value: ami.aboveModerate ?? 0 },
     ].filter(r => r.value > 2);
-  }, [censusData.economic.amiDistribution]);
+  }, [censusData.economic?.amiDistribution]);
 
   // Age distribution
   const ageRows = useMemo(() => {
     const age = censusData.age;
+    if (!age) return [];
+    const dist = age.distribution ?? {};
     return [
-      { label: 'Under 18', value: age.under18 },
-      { label: '18-24', value: age.distribution.age18To24 },
-      { label: '25-34', value: age.distribution.age25To34 },
-      { label: '35-44', value: age.distribution.age35To44 },
-      { label: '45-54', value: age.distribution.age45To54 },
-      { label: '55-64', value: age.distribution.age55To64 },
-      { label: '65+', value: age.seniors },
+      { label: 'Under 18', value: age.under18 ?? 0 },
+      { label: '18-24', value: dist['18-24'] ?? 0 },
+      { label: '25-34', value: dist['25-34'] ?? 0 },
+      { label: '35-44', value: dist['35-44'] ?? 0 },
+      { label: '45-54', value: dist['45-54'] ?? 0 },
+      { label: '55-64', value: dist['55-64'] ?? 0 },
+      { label: '65+', value: age.seniors ?? 0 },
     ].filter(r => r.value > 3);
   }, [censusData.age]);
 
@@ -234,16 +262,16 @@ export function NeighborhoodSupercard({
 
             {/* Quick stats */}
             <div className="flex items-center gap-4 text-sm text-white/70">
-              <span>{censusData.population.total.toLocaleString()} residents</span>
+              <span>{(censusData.population?.total ?? 0).toLocaleString()} residents</span>
               <span className="text-white/30">·</span>
-              <span>Median age {censusData.age.medianAge}</span>
+              <span>{censusData.economic?.medianHouseholdIncome ? `$${(censusData.economic.medianHouseholdIncome / 1000).toFixed(0)}k median` : ''}</span>
             </div>
 
             {/* Key metrics row */}
             <div className="flex items-center gap-3 mt-4">
               <div className="flex-1 bg-white/10 rounded-lg px-3 py-2">
                 <div className="text-lg font-bold">
-                  ${(censusData.economic.medianHouseholdIncome / 1000).toFixed(0)}k
+                  ${((censusData.economic?.medianHouseholdIncome ?? 0) / 1000).toFixed(0)}k
                 </div>
                 <div className="text-[10px] text-white/60 uppercase tracking-wide">
                   Median Income
@@ -251,7 +279,7 @@ export function NeighborhoodSupercard({
               </div>
               <div className="flex-1 bg-white/10 rounded-lg px-3 py-2">
                 <div className="text-lg font-bold">
-                  {censusData.housing.renterOccupied}%
+                  {censusData.housing?.renterOccupied ?? 0}%
                 </div>
                 <div className="text-[10px] text-white/60 uppercase tracking-wide">
                   Renters
@@ -259,7 +287,7 @@ export function NeighborhoodSupercard({
               </div>
               <div className="flex-1 bg-white/10 rounded-lg px-3 py-2">
                 <div className="text-lg font-bold">
-                  {censusData.language.limitedEnglishProficiency}%
+                  {censusData.language?.limitedEnglishProficiency ?? 0}%
                 </div>
                 <div className="text-[10px] text-white/60 uppercase tracking-wide">
                   LEP Rate
@@ -330,15 +358,15 @@ export function NeighborhoodSupercard({
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="bg-slate-50 rounded-lg p-2.5">
                     <div className="font-semibold text-slate-900">
-                      ${censusData.housing.medianRent.toLocaleString()}
+                      {censusData.housing?.renterOccupied ?? 0}%
                     </div>
-                    <div className="text-[10px] text-slate-500">Median Rent</div>
+                    <div className="text-[10px] text-slate-500">Renters</div>
                   </div>
                   <div className="bg-slate-50 rounded-lg p-2.5">
                     <div className="font-semibold text-slate-900">
-                      {censusData.housing.rentBurdenedRate}%
+                      {100 - (censusData.housing?.renterOccupied ?? 0)}%
                     </div>
-                    <div className="text-[10px] text-slate-500">Rent Burdened</div>
+                    <div className="text-[10px] text-slate-500">Owners</div>
                   </div>
                 </div>
 
@@ -417,7 +445,7 @@ export function NeighborhoodSupercard({
           <div className="px-5 py-3 bg-slate-50 border-t border-slate-100">
             <div className="flex items-center justify-between text-[10px] text-slate-400">
               <span>Source: Census ACS 5-Year Estimates</span>
-              <span>Data year: {censusData.dataYear}</span>
+              <span>Data year: 2022</span>
             </div>
           </div>
         </div>
