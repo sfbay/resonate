@@ -1,55 +1,55 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Map, { Marker, NavigationControl, type MapRef } from 'react-map-gl/mapbox';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 /**
  * Geographic Selector Entry Page
  *
- * A stunning nationwide map that positions Resonate as a scalable platform.
- * San Francisco is the active launch city; others shown as "coming soon".
+ * A stunning US map showcasing Resonate as a platform with San Francisco
+ * as the Pre-Beta launch city.
  */
 
-// City data with coordinates (approximate positions on our SVG viewBox)
-const CITIES = [
-  {
-    id: 'sf',
-    name: 'San Francisco',
-    state: 'CA',
-    x: 82,
-    y: 185,
-    active: true,
-    publishers: 47,
-    departments: 12,
-  },
-  { id: 'la', name: 'Los Angeles', state: 'CA', x: 95, y: 230, active: false },
-  { id: 'seattle', name: 'Seattle', state: 'WA', x: 95, y: 85, active: false },
-  { id: 'portland', name: 'Portland', state: 'OR', x: 88, y: 115, active: false },
-  { id: 'denver', name: 'Denver', state: 'CO', x: 210, y: 195, active: false },
-  { id: 'austin', name: 'Austin', state: 'TX', x: 265, y: 310, active: false },
-  { id: 'chicago', name: 'Chicago', state: 'IL', x: 365, y: 160, active: false },
-  { id: 'detroit', name: 'Detroit', state: 'MI', x: 400, y: 145, active: false },
-  { id: 'atlanta', name: 'Atlanta', state: 'GA', x: 410, y: 270, active: false },
-  { id: 'miami', name: 'Miami', state: 'FL', x: 470, y: 340, active: false },
-  { id: 'dc', name: 'Washington', state: 'DC', x: 475, y: 200, active: false },
-  { id: 'nyc', name: 'New York', state: 'NY', x: 500, y: 165, active: false },
-  { id: 'boston', name: 'Boston', state: 'MA', x: 520, y: 135, active: false },
-  { id: 'philly', name: 'Philadelphia', state: 'PA', x: 490, y: 175, active: false },
-];
+const MAPBOX_TOKEN = 'pk.eyJ1Ijoiamdhcm5pZXIiLCJhIjoiY21qem1kbnJuMDE0cjNlcHZ6em1tZGNneCJ9.rkWafIhT1k4RHXVRJWoEBw';
+
+// San Francisco location
+const SF_LOCATION = {
+  id: 'sf',
+  name: 'San Francisco',
+  state: 'CA',
+  lat: 37.7749,
+  lng: -122.4194,
+  publishers: 47,
+  departments: 12,
+};
+
+// US center for initial view
+const US_CENTER = {
+  latitude: 39.8283,
+  longitude: -98.5795,
+  zoom: 3.5,
+};
 
 export default function GeographicSelector() {
   const router = useRouter();
-  const [hoveredCity, setHoveredCity] = useState<string | null>(null);
-  const [showWaitlist, setShowWaitlist] = useState<string | null>(null);
+  const mapRef = useRef<MapRef>(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const [showWaitlist, setShowWaitlist] = useState(false);
 
-  const handleCityClick = (city: typeof CITIES[0]) => {
-    if (city.active) {
+  const flyToSF = useCallback(() => {
+    mapRef.current?.flyTo({
+      center: [SF_LOCATION.lng, SF_LOCATION.lat],
+      zoom: 10,
+      duration: 2000,
+    });
+    // Navigate after the fly animation
+    setTimeout(() => {
       router.push('/home');
-    } else {
-      setShowWaitlist(city.id);
-    }
-  };
+    }, 2200);
+  }, [router]);
 
   return (
     <div className="min-h-screen bg-[var(--color-cream)] overflow-hidden">
@@ -88,7 +88,7 @@ export default function GeographicSelector() {
               About
             </Link>
             <Link href="/home" className="btn btn-teal text-sm py-2 px-5">
-              Enter SF Beta
+              Enter SF Pre-Beta
             </Link>
           </nav>
         </div>
@@ -99,9 +99,9 @@ export default function GeographicSelector() {
         <div className="max-w-7xl mx-auto">
           {/* Hero Text */}
           <div className="text-center mb-12 animate-fade-in-up">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-teal)]/10 text-[var(--color-teal)] text-sm font-semibold mb-6">
-              <span className="w-2 h-2 rounded-full bg-[var(--color-teal)] animate-pulse" />
-              Now Live in San Francisco
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-coral)]/10 text-[var(--color-coral)] text-sm font-semibold mb-6">
+              <span className="w-2 h-2 rounded-full bg-[var(--color-coral)] animate-pulse" />
+              Pre-Beta in San Francisco
             </div>
             <h1 className="font-[family-name:var(--font-fraunces)] text-[var(--color-charcoal)] mb-4"
                 style={{ fontSize: 'clamp(2.5rem, 6vw, 4rem)', fontWeight: 700, lineHeight: 1.1 }}>
@@ -125,207 +125,128 @@ export default function GeographicSelector() {
                       Select Your City
                     </h2>
                     <p className="text-sm text-[var(--color-slate)]">
-                      Click a city to explore local civic media partnerships
+                      Click San Francisco to explore civic media partnerships
                     </p>
                   </div>
-                  <div className="flex items-center gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <span className="w-3 h-3 rounded-full bg-[var(--color-coral)] shadow-lg shadow-[var(--color-coral)]/30" />
-                      <span className="text-[var(--color-slate)]">Active</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="w-3 h-3 rounded-full bg-[var(--color-mist)]" />
-                      <span className="text-[var(--color-slate)]">Coming Soon</span>
-                    </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="w-3 h-3 rounded-full bg-[var(--color-coral)] shadow-lg shadow-[var(--color-coral)]/30 animate-pulse" />
+                    <span className="text-[var(--color-slate)]">Pre-Beta</span>
                   </div>
                 </div>
               </div>
 
-              {/* SVG Map */}
-              <div className="relative p-6 bg-gradient-to-b from-white to-[var(--color-cream)]/30">
-                <svg
-                  viewBox="0 0 600 400"
-                  className="w-full h-auto"
-                  style={{ maxHeight: '500px' }}
+              {/* Mapbox Map */}
+              <div className="relative" style={{ height: '500px' }}>
+                <Map
+                  ref={mapRef}
+                  initialViewState={US_CENTER}
+                  style={{ width: '100%', height: '100%' }}
+                  mapStyle="mapbox://styles/mapbox/light-v11"
+                  mapboxAccessToken={MAPBOX_TOKEN}
+                  attributionControl={false}
+                  dragRotate={false}
+                  touchZoomRotate={false}
                 >
-                  {/* US Map Path - Simplified outline */}
-                  <defs>
-                    <linearGradient id="mapGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="var(--color-mist)" stopOpacity="0.5" />
-                      <stop offset="100%" stopColor="var(--color-mist)" stopOpacity="0.8" />
-                    </linearGradient>
-                    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-                      <feMerge>
-                        <feMergeNode in="coloredBlur"/>
-                        <feMergeNode in="SourceGraphic"/>
-                      </feMerge>
-                    </filter>
-                    <filter id="softGlow" x="-100%" y="-100%" width="300%" height="300%">
-                      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
-                      <feMerge>
-                        <feMergeNode in="coloredBlur"/>
-                        <feMergeNode in="SourceGraphic"/>
-                      </feMerge>
-                    </filter>
-                  </defs>
+                  <NavigationControl position="bottom-right" showCompass={false} />
 
-                  {/* Continental US outline */}
-                  <path
-                    d="M 50 140
-                       Q 55 100, 100 90
-                       L 130 85 Q 145 75, 180 78
-                       L 250 80 Q 280 75, 320 85
-                       L 380 90 Q 420 85, 460 100
-                       L 510 115 Q 540 120, 550 140
-                       L 545 160 Q 555 180, 540 200
-                       L 520 220 Q 530 250, 510 280
-                       L 480 310 Q 490 340, 470 360
-                       L 440 350 Q 420 370, 380 350
-                       L 320 340 Q 280 360, 240 340
-                       L 180 330 Q 140 350, 100 320
-                       L 80 280 Q 60 250, 70 220
-                       L 60 200 Q 45 170, 50 140"
-                    fill="url(#mapGradient)"
-                    stroke="var(--color-slate)"
-                    strokeWidth="1"
-                    strokeOpacity="0.2"
-                  />
-
-                  {/* State dividing lines (simplified) */}
-                  <g stroke="var(--color-slate)" strokeWidth="0.5" strokeOpacity="0.15" fill="none">
-                    <path d="M 150 80 L 150 320" />
-                    <path d="M 250 80 L 280 340" />
-                    <path d="M 350 85 L 350 350" />
-                    <path d="M 450 100 L 430 350" />
-                    <path d="M 50 200 L 550 200" />
-                    <path d="M 60 280 L 520 280" />
-                  </g>
-
-                  {/* City Markers */}
-                  {CITIES.map((city) => (
-                    <g
-                      key={city.id}
-                      className="cursor-pointer transition-transform duration-300"
-                      style={{
-                        transform: hoveredCity === city.id ? 'scale(1.2)' : 'scale(1)',
-                        transformOrigin: `${city.x}px ${city.y}px`
-                      }}
-                      onMouseEnter={() => setHoveredCity(city.id)}
-                      onMouseLeave={() => setHoveredCity(null)}
-                      onClick={() => handleCityClick(city)}
+                  {/* San Francisco Marker */}
+                  <Marker
+                    longitude={SF_LOCATION.lng}
+                    latitude={SF_LOCATION.lat}
+                    anchor="center"
+                  >
+                    <button
+                      onClick={flyToSF}
+                      onMouseEnter={() => setIsHovered(true)}
+                      onMouseLeave={() => setIsHovered(false)}
+                      className="relative cursor-pointer group focus:outline-none"
+                      aria-label="Enter San Francisco Pre-Beta"
                     >
-                      {city.active ? (
-                        <>
-                          {/* Active city - glowing pulse */}
-                          <circle
-                            cx={city.x}
-                            cy={city.y}
-                            r="24"
-                            fill="var(--color-coral)"
-                            opacity="0.15"
-                            className="animate-ping"
-                            style={{ animationDuration: '2s' }}
-                          />
-                          <circle
-                            cx={city.x}
-                            cy={city.y}
-                            r="16"
-                            fill="var(--color-coral)"
-                            opacity="0.25"
-                            filter="url(#softGlow)"
-                          />
-                          <circle
-                            cx={city.x}
-                            cy={city.y}
-                            r="10"
-                            fill="var(--color-coral)"
-                            filter="url(#glow)"
-                          />
-                          <circle
-                            cx={city.x}
-                            cy={city.y}
-                            r="4"
-                            fill="white"
-                          />
-                        </>
-                      ) : (
-                        <>
-                          {/* Inactive city - subtle dot */}
-                          <circle
-                            cx={city.x}
-                            cy={city.y}
-                            r={hoveredCity === city.id ? 8 : 6}
-                            fill={hoveredCity === city.id ? 'var(--color-slate)' : 'var(--color-mist)'}
-                            stroke="var(--color-slate)"
-                            strokeWidth={hoveredCity === city.id ? 2 : 1}
-                            strokeOpacity={hoveredCity === city.id ? 0.5 : 0.3}
-                            className="transition-all duration-300"
-                          />
-                        </>
-                      )}
-                    </g>
-                  ))}
+                      {/* Outer pulse ring */}
+                      <span
+                        className="absolute inset-0 rounded-full bg-[var(--color-coral)] animate-ping"
+                        style={{
+                          width: '60px',
+                          height: '60px',
+                          left: '-22px',
+                          top: '-22px',
+                          opacity: 0.3,
+                          animationDuration: '2s',
+                        }}
+                      />
+                      {/* Middle glow */}
+                      <span
+                        className="absolute rounded-full bg-[var(--color-coral)]"
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                          left: '-12px',
+                          top: '-12px',
+                          opacity: 0.4,
+                          filter: 'blur(8px)',
+                        }}
+                      />
+                      {/* Main marker */}
+                      <span
+                        className={`relative block rounded-full bg-[var(--color-coral)] shadow-lg transition-transform duration-300 ${
+                          isHovered ? 'scale-125' : 'scale-100'
+                        }`}
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          boxShadow: '0 0 20px rgba(232, 93, 79, 0.5)',
+                        }}
+                      />
+                      {/* Inner dot */}
+                      <span
+                        className="absolute rounded-full bg-white"
+                        style={{
+                          width: '6px',
+                          height: '6px',
+                          left: '5px',
+                          top: '5px',
+                        }}
+                      />
 
-                  {/* City Labels on Hover */}
-                  {hoveredCity && (
-                    <g>
-                      {CITIES.filter(c => c.id === hoveredCity).map(city => (
-                        <g key={`label-${city.id}`}>
-                          <rect
-                            x={city.x - 50}
-                            y={city.y - 50}
-                            width="100"
-                            height={city.active ? "36" : "28"}
-                            rx="6"
-                            fill="var(--color-charcoal)"
-                            opacity="0.95"
-                          />
-                          <text
-                            x={city.x}
-                            y={city.y - 32}
-                            textAnchor="middle"
-                            fill="white"
-                            fontSize="12"
-                            fontWeight="600"
-                            fontFamily="var(--font-body)"
-                          >
-                            {city.name}, {city.state}
-                          </text>
-                          {city.active ? (
-                            <text
-                              x={city.x}
-                              y={city.y - 18}
-                              textAnchor="middle"
-                              fill="var(--color-marigold)"
-                              fontSize="10"
-                              fontFamily="var(--font-body)"
-                            >
-                              {city.publishers} publishers · {city.departments} depts
-                            </text>
-                          ) : (
-                            <text
-                              x={city.x}
-                              y={city.y - 28}
-                              textAnchor="middle"
-                              fill="var(--color-slate)"
-                              fontSize="10"
-                              fontFamily="var(--font-body)"
-                            >
-                              Coming Soon
-                            </text>
-                          )}
-                        </g>
-                      ))}
-                    </g>
-                  )}
-                </svg>
+                      {/* Hover tooltip */}
+                      <div
+                        className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 transition-all duration-300 ${
+                          isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
+                        }`}
+                      >
+                        <div className="bg-[var(--color-charcoal)] text-white px-4 py-3 rounded-xl shadow-xl whitespace-nowrap">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-semibold">{SF_LOCATION.name}</span>
+                            <span className="px-2 py-0.5 rounded-full bg-[var(--color-coral)] text-xs font-medium">
+                              PRE-BETA
+                            </span>
+                          </div>
+                          <p className="text-xs text-white/70">
+                            {SF_LOCATION.publishers} publishers · {SF_LOCATION.departments} departments
+                          </p>
+                          <p className="text-xs text-[var(--color-marigold)] mt-1 font-medium">
+                            Click to enter →
+                          </p>
+                        </div>
+                        {/* Arrow */}
+                        <div
+                          className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-0 h-0"
+                          style={{
+                            borderLeft: '8px solid transparent',
+                            borderRight: '8px solid transparent',
+                            borderTop: '8px solid var(--color-charcoal)',
+                          }}
+                        />
+                      </div>
+                    </button>
+                  </Marker>
+                </Map>
 
-                {/* San Francisco Callout Card */}
-                <div className="absolute left-4 bottom-4 md:left-8 md:bottom-8">
-                  <Link
-                    href="/home"
-                    className="group flex items-start gap-4 p-4 bg-white rounded-2xl shadow-lg border border-[var(--color-coral)]/20 hover:border-[var(--color-coral)]/50 hover:shadow-xl transition-all duration-300"
+                {/* San Francisco Callout Card - Fixed position */}
+                <div className="absolute left-4 bottom-4 md:left-6 md:bottom-6 z-10">
+                  <button
+                    onClick={flyToSF}
+                    className="group flex items-start gap-4 p-4 bg-white rounded-2xl shadow-lg border border-[var(--color-coral)]/20 hover:border-[var(--color-coral)]/50 hover:shadow-xl transition-all duration-300 text-left"
                   >
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--color-coral)] to-[var(--color-coral-dark)] flex items-center justify-center flex-shrink-0">
                       <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -336,12 +257,12 @@ export default function GeographicSelector() {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-semibold text-[var(--color-charcoal)]">San Francisco</span>
-                        <span className="px-2 py-0.5 rounded-full bg-[var(--color-teal)] text-white text-xs font-medium">
-                          LIVE
+                        <span className="px-2 py-0.5 rounded-full bg-[var(--color-coral)] text-white text-xs font-medium">
+                          PRE-BETA
                         </span>
                       </div>
                       <p className="text-sm text-[var(--color-slate)] mb-2">
-                        47 publishers · 850K+ reach · 12 departments
+                        {SF_LOCATION.publishers} publishers · 850K+ reach · {SF_LOCATION.departments} departments
                       </p>
                       <div className="flex items-center gap-1 text-[var(--color-coral)] text-sm font-semibold group-hover:gap-2 transition-all">
                         Enter San Francisco
@@ -350,7 +271,7 @@ export default function GeographicSelector() {
                         </svg>
                       </div>
                     </div>
-                  </Link>
+                  </button>
                 </div>
               </div>
             </div>
@@ -359,10 +280,10 @@ export default function GeographicSelector() {
           {/* Bottom Stats */}
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto animate-fade-in-up stagger-2">
             {[
-              { value: '1', label: 'City Live', sublabel: 'San Francisco' },
+              { value: '1', label: 'City in Pre-Beta', sublabel: 'San Francisco' },
               { value: '47', label: 'Publishers', sublabel: 'And growing' },
               { value: '850K+', label: 'Combined Reach', sublabel: 'Bay Area residents' },
-              { value: '14', label: 'Cities Planned', sublabel: '2025 roadmap' },
+              { value: '12', label: 'Departments', sublabel: 'City partners' },
             ].map((stat, i) => (
               <div key={i} className="text-center">
                 <div className="font-[family-name:var(--font-fraunces)] text-3xl md:text-4xl font-bold text-[var(--color-charcoal)]">
@@ -384,7 +305,7 @@ export default function GeographicSelector() {
               Want Resonate in your city?
             </p>
             <button
-              onClick={() => setShowWaitlist('general')}
+              onClick={() => setShowWaitlist(true)}
               className="btn btn-outline text-[var(--color-charcoal)] border-[var(--color-charcoal)]"
             >
               Join the Waitlist
@@ -397,7 +318,7 @@ export default function GeographicSelector() {
       <footer className="relative z-10 px-6 py-8 border-t border-[var(--color-mist)]">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-sm text-[var(--color-slate)]">
-            A project of BAIMC in partnership with city governments
+            A project of SFIMC in partnership with city governments
           </div>
           <div className="flex items-center gap-6 text-sm text-[var(--color-slate)]">
             <Link href="/about" className="hover:text-[var(--color-charcoal)] transition-colors">About</Link>
@@ -411,10 +332,10 @@ export default function GeographicSelector() {
       {showWaitlist && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--color-charcoal)]/60 backdrop-blur-sm"
-          onClick={() => setShowWaitlist(null)}
+          onClick={() => setShowWaitlist(false)}
         >
           <div
-            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 animate-fade-in-up"
+            className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 animate-fade-in-up"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-center mb-6">
@@ -424,13 +345,13 @@ export default function GeographicSelector() {
                 </svg>
               </div>
               <h3 className="font-[family-name:var(--font-fraunces)] text-2xl font-semibold text-[var(--color-charcoal)] mb-2">
-                Coming Soon
+                Get Notified
               </h3>
               <p className="text-[var(--color-slate)]">
-                We&apos;re expanding! Join the waitlist to get notified when Resonate launches in your city.
+                Join the waitlist to hear when Resonate expands to your city.
               </p>
             </div>
-            <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setShowWaitlist(null); }}>
+            <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setShowWaitlist(false); }}>
               <input
                 type="email"
                 placeholder="your@email.com"
@@ -446,7 +367,7 @@ export default function GeographicSelector() {
               </button>
             </form>
             <button
-              onClick={() => setShowWaitlist(null)}
+              onClick={() => setShowWaitlist(false)}
               className="absolute top-4 right-4 text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
