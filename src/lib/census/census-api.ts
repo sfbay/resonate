@@ -54,11 +54,25 @@ export const ACS_VARIABLES = {
   notHispanicMulti: 'B03002_009E',
   hispanicTotal: 'B03002_012E',
 
-  // Language (B16004 - Age by Language Spoken at Home by Ability to Speak English)
-  langTotal5Plus: 'B16004_001E',
-  langEnglishOnly: 'B16004_002E',
-  langSpanishTotal: 'B16004_003E',
-  langSpanishLEP: 'B16004_005E', // Speak English less than "very well"
+  // Language - Population 5+ years (B16001 - Language Spoken at Home)
+  langTotal5Plus: 'B16001_001E',
+  langEnglishOnly: 'B16001_002E',
+
+  // Specific languages (B16001) - for map overlays
+  langSpanishSpeakers: 'B16001_003E',      // Spanish speakers total
+  langSpanishLEP: 'B16001_005E',           // Spanish, speak English less than very well
+  langChineseSpeakers: 'B16001_006E',      // Chinese speakers total
+  langChineseLEP: 'B16001_008E',           // Chinese LEP
+  langVietnameseSpeakers: 'B16001_009E',   // Vietnamese speakers total
+  langVietnameseLEP: 'B16001_011E',        // Vietnamese LEP
+  langTagalogSpeakers: 'B16001_012E',      // Tagalog speakers total
+  langTagalogLEP: 'B16001_014E',           // Tagalog LEP
+  langKoreanSpeakers: 'B16001_015E',       // Korean speakers total
+  langKoreanLEP: 'B16001_017E',            // Korean LEP
+  langRussianSpeakers: 'B16001_018E',      // Russian speakers total
+  langRussianLEP: 'B16001_020E',           // Russian LEP
+
+  // Broader language categories (B16004 for backward compatibility)
   langOtherIndoEuro: 'B16004_023E',
   langAsianPacific: 'B16004_043E',
   langAsianPacificLEP: 'B16004_045E',
@@ -202,7 +216,7 @@ export interface TractData {
 export async function fetchSFTractData(
   config: CensusApiConfig = {}
 ): Promise<TractData[]> {
-  const { year = 2022, dataset = 'acs5' } = config;
+  const { year = 2023, dataset = 'acs5' } = config;
   const apiKey = getApiKey(config);
 
   // Build variable list
@@ -302,12 +316,20 @@ export function calculateDerivedStats(data: Record<string, number | null>) {
       data.rentBurdenTotal
     ),
 
-    // Language
+    // Language - overall
     englishOnlyPercent: safeDiv(data.langEnglishOnly, data.langTotal5Plus),
     lepPercent: safeDiv(
-      safeSum(data.langSpanishLEP, data.langAsianPacificLEP),
+      safeSum(data.langSpanishLEP, data.langChineseLEP, data.langVietnameseLEP, data.langTagalogLEP, data.langKoreanLEP, data.langRussianLEP),
       data.langTotal5Plus
     ),
+
+    // Specific languages (percentage of population 5+)
+    spanishPercent: safeDiv(data.langSpanishSpeakers, data.langTotal5Plus),
+    chinesePercent: safeDiv(data.langChineseSpeakers, data.langTotal5Plus),
+    vietnamesePercent: safeDiv(data.langVietnameseSpeakers, data.langTotal5Plus),
+    tagalogPercent: safeDiv(data.langTagalogSpeakers, data.langTotal5Plus),
+    koreanPercent: safeDiv(data.langKoreanSpeakers, data.langTotal5Plus),
+    russianPercent: safeDiv(data.langRussianSpeakers, data.langTotal5Plus),
 
     // Foreign born
     foreignBornPercent: safeDiv(data.foreignBorn, data.nativeTotal),
@@ -341,7 +363,7 @@ export function calculateDerivedStats(data: Record<string, number | null>) {
  * Get a list of all SF census tract IDs
  */
 export async function getSFTractIds(config: CensusApiConfig = {}): Promise<string[]> {
-  const { year = 2022, dataset = 'acs5' } = config;
+  const { year = 2023, dataset = 'acs5' } = config;
   const apiKey = getApiKey(config);
 
   let url = `${CENSUS_API_BASE}/${year}/acs/${dataset}?get=NAME&for=tract:*&in=state:${SF_STATE_FIPS}&in=county:${SF_COUNTY_FIPS}`;

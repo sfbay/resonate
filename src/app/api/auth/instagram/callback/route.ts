@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { MetaOAuthProvider, decodeState, verifyStateTimestamp } from '@/lib/oauth/platforms/meta';
-import { createServerClient } from '@/lib/db/supabase';
+import { createServerClient } from '@/lib/db/supabase-server';
 import type { OAuthState } from '@/lib/oauth/types';
 
 export async function GET(request: NextRequest) {
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
     const metricsResult = await provider.fetchMetrics(tokens.accessToken);
 
     // Store in Supabase
-    const supabase = createServerClient();
+    const supabase = await createServerClient();
 
     // Upsert platform connection
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

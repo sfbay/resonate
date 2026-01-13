@@ -2,10 +2,13 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import type { Publisher, SFNeighborhood, Language, Ethnicity, IncomeLevel, AgeRange, Badge, BadgeType, GrowthTrend } from '@/types';
-import { SFNeighborhoodMap } from '../map/SFNeighborhoodMap';
+import { SFNeighborhoodMap, type PublisherTerritoryOverlay } from '../map/SFNeighborhoodMap';
+import { NeighborhoodPopover, type DemoTabType } from '../map/NeighborhoodPopover';
+import { NeighborhoodSupercard } from '../map/NeighborhoodSupercard';
 import { SF_NEIGHBORHOODS } from '@/lib/geo/sf-geography';
+import { getSFCensusData } from '@/lib/census/sf-census-data';
 import { getEvictionStats, getEvictionMapData } from '@/lib/datasf/evictions';
-import type { TimeRange, CityEvictionStats } from '@/lib/datasf/types';
+import type { TimeRange, CityEvictionStats, NeighborhoodEvictionData } from '@/lib/datasf/types';
 
 // =============================================================================
 // TYPES
@@ -62,27 +65,27 @@ const LANGUAGE_MAP_OPTIONS: { value: CensusLanguageKey; label: string; filterVal
 ];
 
 // Ethnicity options for single-select (maps to census ethnicity.distribution keys)
-type CensusEthnicityKey = 'white' | 'asian' | 'hispanic' | 'black' | 'pacificIslander' | 'multiracial';
+type CensusEthnicityKey = 'white' | 'asian' | 'hispanic' | 'black' | 'pacific' | 'multiracial';
 
 const ETHNICITY_MAP_OPTIONS: { value: CensusEthnicityKey; label: string; filterValues: Ethnicity[] }[] = [
   { value: 'hispanic', label: 'Hispanic/Latino', filterValues: ['latino_mexican', 'latino_central_american'] },
   { value: 'asian', label: 'Asian', filterValues: ['chinese', 'filipino', 'vietnamese', 'south_asian'] },
   { value: 'black', label: 'Black', filterValues: ['black_african_american'] },
   { value: 'white', label: 'White', filterValues: ['white_european'] },
-  { value: 'pacificIslander', label: 'Pacific Islander', filterValues: ['pacific_islander'] },
+  { value: 'pacific', label: 'Pacific Islander', filterValues: ['pacific_islander'] },
   { value: 'multiracial', label: 'Multiracial', filterValues: [] },
 ];
 
 // Age options for single-select (maps to census age keys)
-type CensusAgeKey = 'under18' | 'age18To24' | 'age25To34' | 'age35To44' | 'age45To54' | 'age55To64' | 'seniors';
+type CensusAgeKey = 'under18' | '18-24' | '25-34' | '35-44' | '45-54' | '55-64' | 'seniors';
 
 const AGE_MAP_OPTIONS: { value: CensusAgeKey; label: string; filterValues: AgeRange[] }[] = [
   { value: 'under18', label: 'Under 18', filterValues: [] },
-  { value: 'age18To24', label: '18-24', filterValues: ['18-24'] },
-  { value: 'age25To34', label: '25-34', filterValues: ['25-34'] },
-  { value: 'age35To44', label: '35-44', filterValues: ['35-44'] },
-  { value: 'age45To54', label: '45-54', filterValues: ['45-54'] },
-  { value: 'age55To64', label: '55-64', filterValues: ['55-64'] },
+  { value: '18-24', label: '18-24', filterValues: ['18-24'] },
+  { value: '25-34', label: '25-34', filterValues: ['25-34'] },
+  { value: '35-44', label: '35-44', filterValues: ['35-44'] },
+  { value: '45-54', label: '45-54', filterValues: ['45-54'] },
+  { value: '55-64', label: '55-64', filterValues: ['55-64'] },
   { value: 'seniors', label: '65+', filterValues: ['65-74'] },
 ];
 
@@ -191,6 +194,16 @@ export function PublisherDiscoveryMap({
   const [selectedMapAge, setSelectedMapAge] = useState<CensusAgeKey | null>(null);
   const [selectedMapIncome, setSelectedMapIncome] = useState<CensusIncomeKey | null>(null);
 
+  // Neighborhood click state (for popover/supercard)
+  const [clickedNeighborhood, setClickedNeighborhood] = useState<{
+    id: SFNeighborhood;
+    position: { x: number; y: number };
+  } | null>(null);
+  const [popoverMode, setPopoverMode] = useState<'mini' | 'supercard' | null>(null);
+
+  // Get census data for popover/supercard
+  const censusData = useMemo(() => getSFCensusData(), []);
+
   // Calculate neighborhoods by eviction percentile
   const neighborhoodsByPercentile = useMemo(() => {
     if (!evictionData.length) return {} as Record<EvictionPercentile, SFNeighborhood[]>;
@@ -231,6 +244,7 @@ export function PublisherDiscoveryMap({
   // Fetch eviction data when housing tab is active
   useEffect(() => {
     if (activeDemoTab === 'housing') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEvictionLoading(true);
       Promise.all([
         getEvictionMapData({ timeRange: evictionTimeRange }),
@@ -252,12 +266,13 @@ export function PublisherDiscoveryMap({
   // Toggle filter (for array fields only)
   type ArrayFilterKey = 'languages' | 'ethnicities' | 'incomelevels' | 'ageRanges' | 'neighborhoods';
   const toggleFilter = <K extends ArrayFilterKey>(key: K, value: FilterState[K][number]) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: (prev[key] as FilterState[K]).includes(value)
-        ? (prev[key] as FilterState[K]).filter((v) => v !== value)
-        : [...(prev[key] as FilterState[K]), value],
-    }));
+    setFilters((prev) => {
+      const currentArray = prev[key] as unknown[];
+      const newArray = currentArray.includes(value)
+        ? currentArray.filter((v) => v !== value)
+        : [...currentArray, value];
+      return { ...prev, [key]: newArray };
+    });
   };
 
   // Clear all filters
@@ -398,6 +413,91 @@ export function PublisherDiscoveryMap({
   const handlePublisherClick = (pub: Publisher) => {
     setSelectedPublisher(selectedPublisher === pub.id ? null : pub.id);
     onPublisherSelect?.(pub);
+  };
+
+  // Handle neighborhood click from map
+  const handleNeighborhoodClick = (id: SFNeighborhood, screenPosition: { x: number; y: number }) => {
+    if (clickedNeighborhood?.id === id) {
+      // Clicking same neighborhood dismisses
+      setClickedNeighborhood(null);
+      setPopoverMode(null);
+    } else {
+      setClickedNeighborhood({ id, position: screenPosition });
+      setPopoverMode('mini');
+    }
+  };
+
+  // Dismiss popover/supercard
+  const dismissNeighborhoodPopover = () => {
+    setClickedNeighborhood(null);
+    setPopoverMode(null);
+  };
+
+  // Get publishers serving a neighborhood
+  const getPublishersForNeighborhood = (neighborhoodId: SFNeighborhood): Publisher[] => {
+    return filteredPublishers.filter(pub => {
+      if (pub.audienceProfile.geographic.citywide) return true;
+      return pub.audienceProfile.geographic.neighborhoods.includes(neighborhoodId);
+    });
+  };
+
+  // Compute publisher territory overlay based on hovered/selected publisher
+  const publisherTerritoryOverlay = useMemo((): PublisherTerritoryOverlay | null => {
+    const activePublisherId = hoveredPublisher || selectedPublisher;
+    if (!activePublisherId) return null;
+
+    const pub = filteredPublishers.find(p => p.id === activePublisherId);
+    if (!pub) return null;
+
+    // Citywide publishers cover everything
+    if (pub.audienceProfile.geographic.citywide || pub.audienceProfile.geographic.neighborhoods.length === 0) {
+      return {
+        neighborhoods: Object.keys(SF_NEIGHBORHOODS) as SFNeighborhood[],
+        color: publisherColors[activePublisherId],
+        publisherName: pub.name,
+      };
+    }
+
+    return {
+      neighborhoods: pub.audienceProfile.geographic.neighborhoods,
+      color: publisherColors[activePublisherId],
+      publisherName: pub.name,
+    };
+  }, [hoveredPublisher, selectedPublisher, filteredPublishers, publisherColors]);
+
+  // Get ranking for clicked neighborhood
+  const getNeighborhoodRank = (neighborhoodId: SFNeighborhood): { rank: number; total: number } | null => {
+    if (!censusData[neighborhoodId]) return null;
+
+    // Rank based on current demographic selection
+    let getValue: (id: SFNeighborhood) => number;
+
+    if (activeDemoTab === 'languages' && selectedMapLanguage) {
+      getValue = (id) => censusData[id]?.language.languagesSpoken[selectedMapLanguage] || 0;
+    } else if (activeDemoTab === 'communities' && selectedMapEthnicity) {
+      getValue = (id) => censusData[id]?.ethnicity.distribution[selectedMapEthnicity] || 0;
+    } else if (activeDemoTab === 'income' && selectedMapIncome) {
+      getValue = (id) => censusData[id]?.economic.amiDistribution[selectedMapIncome] || 0;
+    } else if (activeDemoTab === 'age' && selectedMapAge) {
+      getValue = (id) => {
+        const data = censusData[id];
+        if (!data) return 0;
+        if (selectedMapAge === 'under18') return data.age.under18;
+        if (selectedMapAge === 'seniors') return data.age.seniors;
+        return data.age.distribution[selectedMapAge as keyof typeof data.age.distribution] || 0;
+      };
+    } else if (activeDemoTab === 'housing' && evictionData.length > 0) {
+      getValue = (id) => evictionData.find(e => e.neighborhood === id)?.rate || 0;
+    } else {
+      return null;
+    }
+
+    const allValues = (Object.keys(censusData) as SFNeighborhood[])
+      .map(id => ({ id, value: getValue(id) }))
+      .sort((a, b) => b.value - a.value);
+
+    const rank = allValues.findIndex(v => v.id === neighborhoodId) + 1;
+    return { rank, total: allValues.length };
   };
 
   // Sorted neighborhoods
@@ -657,8 +757,9 @@ export function PublisherDiscoveryMap({
             mode="department"
             publisherCoverage={activeDemoTab !== 'housing' ? publisherCoverage : undefined}
             evictionData={activeDemoTab === 'housing' ? evictionData : undefined}
-            evictionStats={activeDemoTab === 'housing' ? evictionStats ?? undefined : undefined}
             selectedNeighborhoods={mapHighlightedNeighborhoods}
+            onNeighborhoodClick={handleNeighborhoodClick}
+            publisherTerritory={publisherTerritoryOverlay}
             colorBy={
               activeDemoTab === 'housing'
                 ? 'evictions'
@@ -688,7 +789,7 @@ export function PublisherDiscoveryMap({
           />
 
           {/* Citywide overlay indicator */}
-          {isHoveringCitywide && (
+          {isHoveringCitywide && !clickedNeighborhood && (
             <div className="absolute inset-4 border-4 border-dashed border-[var(--color-teal)]/40 rounded-xl pointer-events-none flex items-center justify-center">
               <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">
                 <span className="text-sm font-medium text-[var(--color-teal)]">
@@ -696,6 +797,51 @@ export function PublisherDiscoveryMap({
                 </span>
               </div>
             </div>
+          )}
+
+          {/* Neighborhood Mini Popover */}
+          {clickedNeighborhood && popoverMode === 'mini' && censusData[clickedNeighborhood.id] && (
+            <NeighborhoodPopover
+              neighborhood={clickedNeighborhood.id}
+              position={clickedNeighborhood.position}
+              activeDemoTab={activeDemoTab as DemoTabType}
+              selectedDemographic={
+                activeDemoTab === 'languages' ? selectedMapLanguage :
+                activeDemoTab === 'communities' ? selectedMapEthnicity :
+                activeDemoTab === 'income' ? selectedMapIncome :
+                activeDemoTab === 'age' ? selectedMapAge :
+                null
+              }
+              censusData={censusData[clickedNeighborhood.id]}
+              evictionData={
+                activeDemoTab === 'housing' && evictionStats?.byNeighborhood[clickedNeighborhood.id]
+                  ? {
+                      rate: evictionStats.byNeighborhood[clickedNeighborhood.id].rate,
+                      total: evictionStats.byNeighborhood[clickedNeighborhood.id].total,
+                    }
+                  : undefined
+              }
+              rank={getNeighborhoodRank(clickedNeighborhood.id)?.rank}
+              totalNeighborhoods={getNeighborhoodRank(clickedNeighborhood.id)?.total}
+              onExpand={() => setPopoverMode('supercard')}
+              onDismiss={dismissNeighborhoodPopover}
+            />
+          )}
+
+          {/* Neighborhood Supercard */}
+          {clickedNeighborhood && popoverMode === 'supercard' && censusData[clickedNeighborhood.id] && (
+            <NeighborhoodSupercard
+              neighborhood={clickedNeighborhood.id}
+              position={clickedNeighborhood.position}
+              censusData={censusData[clickedNeighborhood.id]}
+              evictionData={evictionStats?.byNeighborhood[clickedNeighborhood.id]}
+              publishersInArea={getPublishersForNeighborhood(clickedNeighborhood.id)}
+              onDismiss={dismissNeighborhoodPopover}
+              onPublisherClick={(pub) => {
+                dismissNeighborhoodPopover();
+                handlePublisherClick(pub);
+              }}
+            />
           )}
         </div>
 

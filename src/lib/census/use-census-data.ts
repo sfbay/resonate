@@ -12,8 +12,14 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { SFNeighborhood } from '@/types';
-import type { NeighborhoodCensusData } from './types';
-import { getSFCensusData, fetchSFCensusData, type CensusApiConfig } from './sf-census-data';
+// Import the simplified census data type from sf-census-data (for map visualization)
+import {
+  getSFCensusData,
+  fetchSFCensusData,
+  type CensusApiConfig,
+  type NeighborhoodCensusData,
+  type SFCensusDataMap,
+} from './sf-census-data';
 
 interface UseCensusDataResult {
   /** Census data for all neighborhoods */

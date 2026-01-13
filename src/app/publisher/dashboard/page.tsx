@@ -7,12 +7,30 @@
  * Fetches real data from Supabase.
  */
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { AnalyticsDashboard } from '@/components/publisher/analytics';
 import { usePublisherData } from '@/lib/db/use-publisher-data';
 
-export default function PublisherDashboardPage() {
+/**
+ * Loading fallback for the dashboard while search params are resolved
+ */
+function DashboardLoading() {
+  return (
+    <div className="min-h-screen bg-cream flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-12 h-12 border-4 border-coral-200 border-t-coral-500 rounded-full animate-spin" />
+        <p className="text-slate-500">Loading dashboard...</p>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Dashboard content that uses useSearchParams
+ * Wrapped in Suspense boundary for static generation compatibility
+ */
+function DashboardContent() {
   const searchParams = useSearchParams();
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -27,6 +45,7 @@ export default function PublisherDashboardPage() {
     const message = searchParams.get('message');
 
     if (connected) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNotification({
         type: 'success',
         message: `Successfully connected ${connected}${handle ? ` as ${handle}` : ''}!`,
@@ -141,5 +160,17 @@ export default function PublisherDashboardPage() {
         isLoading={isLoading}
       />
     </>
+  );
+}
+
+/**
+ * Main page component with Suspense boundary
+ * Required for Next.js static generation with useSearchParams
+ */
+export default function PublisherDashboardPage() {
+  return (
+    <Suspense fallback={<DashboardLoading />}>
+      <DashboardContent />
+    </Suspense>
   );
 }

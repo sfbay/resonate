@@ -1,14 +1,22 @@
 /**
- * San Francisco Census Data (Sample Data)
+ * San Francisco Census Data
  *
  * This module provides census demographics for SF neighborhoods.
- * Data is based on ACS 5-year estimates with some approximations.
+ * Supports both:
+ * - Sync sample data (for SSR/immediate rendering)
+ * - Async live data from Census Bureau API (for accuracy)
  *
- * In production, this would be fetched from the Census Bureau API
- * and cached locally.
+ * Usage:
+ *   const sample = getSFCensusData();           // Immediate, sample data
+ *   const live = await fetchSFCensusData();     // From Census Bureau API
  */
 
 import type { SFNeighborhood } from '@/types';
+import { getNeighborhoodCensusData as fetchFromAggregator, type CensusApiConfig } from './census-aggregator';
+import type { NeighborhoodCensusData as FullCensusData } from './types';
+
+// Re-export CensusApiConfig for consumers
+export type { CensusApiConfig };
 
 // =============================================================================
 // TYPES
@@ -777,4 +785,156 @@ export function getNeighborhoodsByEthnicity(
     .filter(([, data]) => data.ethnicity.distribution[ethnicity] >= minPercentage)
     .sort((a, b) => b[1].ethnicity.distribution[ethnicity] - a[1].ethnicity.distribution[ethnicity])
     .map(([id]) => id);
+}
+
+// =============================================================================
+// ASYNC CENSUS DATA (from Census Bureau API)
+// =============================================================================
+
+/**
+ * Cache for live census data from the API
+ */
+let censusCache: {
+  data: SFCensusDataMap;
+  fetchedAt: Date;
+  expiresAt: Date;
+} | null = null;
+
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+/**
+ * Transform comprehensive census data to the simplified format used by map components
+ */
+function transformToSimpleFormat(fullData: FullCensusData): NeighborhoodCensusData {
+  return {
+    population: {
+      total: fullData.population.total,
+    },
+    economic: {
+      medianHouseholdIncome: fullData.economic.medianHouseholdIncome,
+      amiDistribution: {
+        extremelyLow: fullData.economic.amiDistribution.extremelyLow,
+        veryLow: fullData.economic.amiDistribution.veryLow,
+        low: fullData.economic.amiDistribution.low,
+        moderate: fullData.economic.amiDistribution.moderate,
+        aboveModerate: fullData.economic.amiDistribution.aboveModerate,
+      },
+    },
+    housing: {
+      renterOccupied: fullData.housing.renterOccupied,
+    },
+    language: {
+      limitedEnglishProficiency: fullData.language.limitedEnglishProficiency,
+      languagesSpoken: {
+        chinese: fullData.language.languagesSpoken.chinese,
+        spanish: fullData.language.languagesSpoken.spanish,
+        tagalog: fullData.language.languagesSpoken.tagalog,
+        vietnamese: fullData.language.languagesSpoken.vietnamese,
+        korean: fullData.language.languagesSpoken.korean,
+        russian: fullData.language.languagesSpoken.russian,
+      },
+    },
+    ethnicity: {
+      distribution: {
+        white: fullData.ethnicity.distribution.white,
+        asian: fullData.ethnicity.distribution.asian,
+        hispanic: fullData.ethnicity.distribution.hispanic,
+        black: fullData.ethnicity.distribution.black,
+        pacific: fullData.ethnicity.distribution.pacificIslander,
+        multiracial: fullData.ethnicity.distribution.multiracial,
+      },
+    },
+    age: {
+      under18: fullData.age.under18,
+      seniors: fullData.age.seniors,
+      distribution: {
+        '18-24': fullData.age.distribution.age18To24,
+        '25-34': fullData.age.distribution.age25To34,
+        '35-44': fullData.age.distribution.age35To44,
+        '45-54': fullData.age.distribution.age45To54,
+        '55-64': fullData.age.distribution.age55To64,
+      },
+    },
+  };
+}
+
+/**
+ * Fetch live census data from the Census Bureau API
+ *
+ * This function fetches real ACS 5-year estimates and aggregates them
+ * to SF neighborhood level using population-weighted averages.
+ *
+ * Features:
+ * - 24-hour caching to minimize API calls
+ * - Automatic fallback to sample data on error
+ * - Transforms comprehensive data to map-friendly format
+ *
+ * @param config - Optional API configuration (year, API key)
+ * @returns Census data for all SF neighborhoods
+ */
+export async function fetchSFCensusData(
+  config?: CensusApiConfig
+): Promise<SFCensusDataMap> {
+  // Check cache first
+  const now = new Date();
+  if (censusCache && now < censusCache.expiresAt) {
+    console.log('[Census] Returning cached data, fetched at:', censusCache.fetchedAt.toISOString());
+    return censusCache.data;
+  }
+
+  console.log('[Census] Fetching live data from Census Bureau API...');
+
+  try {
+    // Fetch and aggregate tract data to neighborhoods
+    const fullData = await fetchFromAggregator(config);
+
+    // Transform to simplified format for map components
+    const simpleData: Partial<SFCensusDataMap> = {};
+    for (const [neighborhood, data] of Object.entries(fullData)) {
+      simpleData[neighborhood as SFNeighborhood] = transformToSimpleFormat(data);
+    }
+
+    // Cache the result
+    censusCache = {
+      data: simpleData as SFCensusDataMap,
+      fetchedAt: now,
+      expiresAt: new Date(now.getTime() + CACHE_TTL_MS),
+    };
+
+    console.log('[Census] Live data fetched and cached for 24 hours');
+    console.log('[Census] Neighborhoods loaded:', Object.keys(simpleData).length);
+
+    return simpleData as SFCensusDataMap;
+  } catch (error) {
+    console.error('[Census] Failed to fetch live data:', error);
+    console.log('[Census] Falling back to sample data');
+
+    // Return sample data as fallback
+    return getSFCensusData();
+  }
+}
+
+/**
+ * Check if the current census data is from the live API or sample data
+ */
+export function isCensusDataLive(): boolean {
+  return censusCache !== null && new Date() < censusCache.expiresAt;
+}
+
+/**
+ * Get metadata about the current census data cache
+ */
+export function getCensusDataInfo(): {
+  source: 'live' | 'sample';
+  fetchedAt?: Date;
+  expiresAt?: Date;
+} {
+  if (censusCache && new Date() < censusCache.expiresAt) {
+    return {
+      source: 'live',
+      fetchedAt: censusCache.fetchedAt,
+      expiresAt: censusCache.expiresAt,
+    };
+  }
+  return { source: 'sample' };
 }

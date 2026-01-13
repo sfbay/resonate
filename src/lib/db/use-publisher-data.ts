@@ -98,9 +98,9 @@ export function usePublisherData(publisherId?: string): UsePublisherDataResult {
           return;
         }
 
-        const publishers = publisherRows[0];
+        const publisher = publisherRows[0] as { id: string; [key: string]: unknown };
 
-        const pubId = publishers.id;
+        const pubId = publisher.id;
 
         // Fetch platform connections
         const { data: connections, error: connectionsError } = await supabase
@@ -146,14 +146,15 @@ export function usePublisherData(publisherId?: string): UsePublisherDataResult {
         }
 
         // Transform connections to app format
-        const transformedConnections: PlatformConnection[] = (connections || []).map((c) => ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const transformedConnections: PlatformConnection[] = ((connections || []) as any[]).map((c) => ({
           id: c.id,
           publisherId: c.publisher_id,
           platform: c.platform as Platform,
           handle: c.handle || undefined,
           url: c.url || undefined,
           platformUserId: c.platform_user_id || undefined,
-          status: c.status as 'active' | 'expired' | 'revoked' | 'error',
+          status: c.status,
           verified: c.verified || false,
           connectedAt: c.connected_at ? new Date(c.connected_at) : new Date(),
           lastSyncedAt: c.last_synced_at ? new Date(c.last_synced_at) : undefined,
@@ -163,7 +164,9 @@ export function usePublisherData(publisherId?: string): UsePublisherDataResult {
         const latestSnapshots = createEmptySnapshots();
         const seenPlatforms = new Set<string>();
 
-        for (const snap of snapshots || []) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const snapshotsList = (snapshots || []) as any[];
+        for (const snap of snapshotsList) {
           if (!seenPlatforms.has(snap.platform)) {
             seenPlatforms.add(snap.platform);
             latestSnapshots[snap.platform as Platform] = {
@@ -183,21 +186,23 @@ export function usePublisherData(publisherId?: string): UsePublisherDataResult {
         }
 
         // Calculate aggregate metrics
-        const totalFollowers = (snapshots || []).reduce(
+        const totalFollowers = snapshotsList.reduce(
           (sum, s) => sum + (s.follower_count || 0),
           0
         );
 
         const avgEngagement =
-          (snapshots || []).filter((s) => s.engagement_rate).length > 0
-            ? (snapshots || [])
+          snapshotsList.filter((s) => s.engagement_rate).length > 0
+            ? snapshotsList
                 .filter((s) => s.engagement_rate)
                 .reduce((sum, s) => sum + Number(s.engagement_rate || 0), 0) /
-              (snapshots || []).filter((s) => s.engagement_rate).length
+              snapshotsList.filter((s) => s.engagement_rate).length
             : 0;
 
         // Get growth data (most recent monthly snapshot)
-        const monthlyGrowth = (growthData || []).find((g) => g.period_type === 'monthly');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const growthList = (growthData || []) as any[];
+        const monthlyGrowth = growthList.find((g) => g.period_type === 'monthly');
         const growth30d = monthlyGrowth
           ? {
               followersGained: monthlyGrowth.net_growth || 0,
@@ -220,16 +225,16 @@ export function usePublisherData(publisherId?: string): UsePublisherDataResult {
           growth90d: { followersGained: 0, growthRate: 0 }, // Would need 90-day data
           trend,
           trendConfidence: 70,
-          byPlatform: {},
+          byPlatform: {} as GrowthMetrics['byPlatform'],
           badges: [],
           verificationLevel: 'self_reported',
           lastUpdated: new Date(),
         };
 
         // Build per-platform metrics
-        for (const snap of snapshots || []) {
+        for (const snap of snapshotsList) {
           if (!metrics.byPlatform[snap.platform as Platform]) {
-            const platformGrowth = (growthData || []).find(
+            const platformGrowth = growthList.find(
               (g) => g.platform === snap.platform && g.period_type === 'monthly'
             );
             metrics.byPlatform[snap.platform as Platform] = {
@@ -242,7 +247,8 @@ export function usePublisherData(publisherId?: string): UsePublisherDataResult {
         }
 
         // Transform badges
-        const transformedBadges: Badge[] = (badgesData || []).map((b) => ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const transformedBadges: Badge[] = ((badgesData || []) as any[]).map((b) => ({
           type: b.badge_type as Badge['type'],
           tier: b.tier as Badge['tier'],
           awardedAt: new Date(b.awarded_at),
@@ -253,8 +259,8 @@ export function usePublisherData(publisherId?: string): UsePublisherDataResult {
 
         setData({
           publisherId: pubId,
-          publisherName: publishers.name,
-          publisherDescription: publishers.description,
+          publisherName: publisher.name as string,
+          publisherDescription: (publisher.description as string) || null,
           metrics,
           connections: transformedConnections,
           latestSnapshots,

@@ -14,6 +14,10 @@ import type {
   OverlayMethodology,
 } from './types';
 import { SF_NEIGHBORHOODS } from '../geo/sf-geography';
+
+// Use aggregator for live census data in main calculation
+import { getNeighborhoodCensusData } from './census-aggregator';
+// Use sample data for synchronous helper functions (population weighting)
 import { getSFCensusData } from './sf-census-data';
 
 // =============================================================================
@@ -23,15 +27,15 @@ import { getSFCensusData } from './sf-census-data';
 /**
  * Calculate census overlay for a publisher's audience
  */
-export function calculateAudienceOverlay(publisher: Publisher): AudienceOverlay {
+export async function calculateAudienceOverlay(publisher: Publisher): Promise<AudienceOverlay> {
   const profile = publisher.audienceProfile;
   const geographic = profile.geographic;
 
   // Get audience geographic distribution
   const distribution = getGeographicDistribution(publisher);
 
-  // Get census data for relevant neighborhoods
-  const censusData = getSFCensusData();
+  // Get census data for relevant neighborhoods (from live API or cache)
+  const censusData = await getNeighborhoodCensusData();
 
   // Calculate weighted demographics
   const inferredDemographics = calculateWeightedDemographics(distribution, censusData);

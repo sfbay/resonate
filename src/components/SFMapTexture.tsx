@@ -37,6 +37,7 @@ export function SFMapTexture({ className = "", variant = "coral" }: SFMapTexture
   useEffect(() => {
     // Pick a random punch-out on mount
     const randomIndex = Math.floor(Math.random() * MAP_PUNCHOUTS.length);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPunchout(MAP_PUNCHOUTS[randomIndex]);
 
     // Random subtle transform for variety

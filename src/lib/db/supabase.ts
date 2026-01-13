@@ -41,13 +41,6 @@ export function getSupabaseClient() {
 }
 
 // =============================================================================
-// SERVER CLIENT (for API routes)
-// =============================================================================
-
-// Server client is created in API routes using createServerClient from @supabase/ssr
-// with cookies() from next/headers
-
-// =============================================================================
 // TYPE EXPORTS
 // =============================================================================
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { Publisher, SFNeighborhood } from '@/types';
 import type { AudienceOverlay, InferredDemographics, PublisherAnnotation } from '@/lib/census/types';
 import { SFNeighborhoodMap } from '../map/SFNeighborhoodMap';
@@ -28,12 +28,49 @@ export function AudienceDemographicsView({
   const [activeTab, setActiveTab] = useState<'overview' | 'map' | 'details' | 'annotations'>('overview');
   const [colorBy, setColorBy] = useState<'audience' | 'income' | 'language'>('audience');
   const [showAnnotationForm, setShowAnnotationForm] = useState(false);
+  const [overlay, setOverlay] = useState<AudienceOverlay | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Calculate audience overlay
-  const overlay = useMemo(() => calculateAudienceOverlay(publisher), [publisher]);
+  // Fetch audience overlay asynchronously
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchOverlay() {
+      setIsLoading(true);
+      try {
+        const result = await calculateAudienceOverlay(publisher);
+        if (!cancelled) {
+          setOverlay(result);
+        }
+      } catch (error) {
+        console.error('Failed to calculate audience overlay:', error);
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    fetchOverlay();
+    return () => { cancelled = true; };
+  }, [publisher]);
+
+  // Show loading state while fetching census data
+  if (isLoading || !overlay) {
+    return (
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden p-8">
+        <div className="flex items-center justify-center gap-3">
+          <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <span className="text-slate-600">Loading demographics data...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Now that we know overlay exists, extract derived values
   const demographics = overlay.inferredDemographics;
-  const cityComparison = useMemo(() => compareToCity(demographics), [demographics]);
-  const summary = useMemo(() => generateDemographicSummary(demographics), [demographics]);
+  const cityComparison = compareToCity(demographics);
+  const summary = generateDemographicSummary(demographics);
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
@@ -57,7 +94,7 @@ export function AudienceDemographicsView({
         {/* Summary */}
         <div className="mt-4 bg-slate-50 rounded-lg p-4">
           <div className="text-sm text-slate-700">{summary}</div>
-          {cityComparison.keyDifferences.length > 0 && (
+          {cityComparison && cityComparison.keyDifferences.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-2">
               {cityComparison.keyDifferences.map((diff, i) => (
                 <span key={i} className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">

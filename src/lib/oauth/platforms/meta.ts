@@ -477,5 +477,7 @@ export function verifyStateTimestamp(state: OAuthState): boolean {
   return Date.now() - state.timestamp < MAX_AGE;
 }
 
-// Export singleton instance
-export const metaOAuth = new MetaOAuthProvider();
+// Note: We don't export a singleton here because getMetaConfig() throws
+// if META_APP_ID/META_APP_SECRET are not set. This would break builds
+// in environments where OAuth isn't configured. Instead, create instances
+// on-demand in route handlers where the error can be caught gracefully.

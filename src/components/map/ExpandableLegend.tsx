@@ -125,6 +125,36 @@ export const LEGEND_CONFIGS: Record<LegendColorBy, LegendConfig> = {
     sourceLabel: 'DataSF Eviction Notices',
     sourceUrl: 'https://data.sfgov.org/Housing-and-Buildings/Eviction-Notices/5cei-gny5',
   },
+  ethnicity: {
+    colorBy: 'ethnicity',
+    label: 'Population by Ethnicity',
+    unit: '%',
+    scale: [
+      { value: 0, color: '#f2f0f7' },
+      { value: 20, color: '#cbc9e2' },
+      { value: 40, color: '#9e9ac8' },
+      { value: 60, color: '#756bb1' },
+      { value: 80, color: '#54278f' },
+    ],
+    formatValue: (v) => `${v.toFixed(1)}%`,
+    sourceLabel: 'Census ACS 5-Year',
+    sourceUrl: 'https://data.census.gov/',
+  },
+  age: {
+    colorBy: 'age',
+    label: 'Population by Age',
+    unit: '%',
+    scale: [
+      { value: 0, color: '#e0f3db' },
+      { value: 10, color: '#a8ddb5' },
+      { value: 20, color: '#4eb3d3' },
+      { value: 30, color: '#2b8cbe' },
+      { value: 40, color: '#08589e' },
+    ],
+    formatValue: (v) => `${v.toFixed(1)}%`,
+    sourceLabel: 'Census ACS 5-Year',
+    sourceUrl: 'https://data.census.gov/',
+  },
 };
 
 // =============================================================================

@@ -50,9 +50,6 @@ export const ZIP_TO_NEIGHBORHOOD: Record<string, SFNeighborhood> = {
   '94127': 'west_portal',        // West Portal, St. Francis Wood
   '94132': 'lakeshore',          // Lake Merced, Stonestown, Parkside
 
-  // Bernal / Glen Park
-  '94110': 'mission',            // (already defined - Mission primary)
-
   // Special areas
   '94129': 'presidio',           // Presidio
   '94130': 'treasure_island',    // Treasure Island

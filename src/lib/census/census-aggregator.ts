@@ -77,7 +77,7 @@ export async function fetchNeighborhoodCensusData(
       neighborhoodInfo.name,
       tractDataForNeighborhood,
       totalWeightedPopulation,
-      config.year ?? 2022
+      config.year ?? 2023
     );
   }
 
@@ -181,14 +181,14 @@ function aggregateToNeighborhood(
       limitedEnglishProficiency: Math.round(weightedAvg((t) => t.derived.lepPercent) * 10) / 10,
       languagesSpoken: {
         english: Math.round(weightedAvg((t) => t.derived.englishOnlyPercent) * 10) / 10,
-        spanish: 12, // Would need more detailed language data
-        chinese: 20,
-        tagalog: 4,
-        vietnamese: 2,
-        korean: 1,
-        russian: 2,
-        arabic: 0.5,
-        other: 3.5,
+        spanish: Math.round(weightedAvg((t) => t.derived.spanishPercent ?? 0) * 10) / 10,
+        chinese: Math.round(weightedAvg((t) => t.derived.chinesePercent ?? 0) * 10) / 10,
+        tagalog: Math.round(weightedAvg((t) => t.derived.tagalogPercent ?? 0) * 10) / 10,
+        vietnamese: Math.round(weightedAvg((t) => t.derived.vietnamesePercent ?? 0) * 10) / 10,
+        korean: Math.round(weightedAvg((t) => t.derived.koreanPercent ?? 0) * 10) / 10,
+        russian: Math.round(weightedAvg((t) => t.derived.russianPercent ?? 0) * 10) / 10,
+        arabic: 0.5, // Not in B16001 basic tables
+        other: 3.5,  // Would need to calculate remainder
       },
       linguisticallyIsolatedHouseholds: Math.round(weightedAvg((t) => t.derived.lepPercent) * 0.4 * 10) / 10,
     },
