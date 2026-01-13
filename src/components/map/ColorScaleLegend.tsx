@@ -22,8 +22,8 @@ export interface ColorScaleStop {
 export interface ColorScaleLegendProps {
   /** Title shown above the scale (e.g., "Spanish Speakers", "Eviction Rate") */
   label: string;
-  /** Color stops from low to high */
-  scale: ColorScaleStop[];
+  /** Color stops from low to high (accepts readonly arrays from const assertions) */
+  scale: readonly ColorScaleStop[];
   /** Unit for display (e.g., "%", "/1k", "k") */
   unit: string;
   /** Data source name */
