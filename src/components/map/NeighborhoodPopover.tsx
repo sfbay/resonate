@@ -245,7 +245,7 @@ export function NeighborhoodPopover({
 
       default:
         return {
-          value: censusData.population.total.toLocaleString(),
+          value: (censusData.population?.total ?? 0).toLocaleString(),
           label: 'Population',
           accentColor: '#64748b',
         };
