@@ -338,9 +338,9 @@ export function NeighborhoodPopover({
 
             {/* Population context */}
             <div className="flex items-center gap-3 pt-3 border-t border-slate-100 text-[11px] text-slate-500">
-              <span>{censusData.population.total.toLocaleString()} residents</span>
+              <span>{(censusData.population?.total ?? 0).toLocaleString()} residents</span>
               <span className="text-slate-300">·</span>
-              <span>{censusData.housing.renterOccupied}% renters</span>
+              <span>{censusData.housing?.renterOccupied ?? 0}% renters</span>
             </div>
           </div>
 
