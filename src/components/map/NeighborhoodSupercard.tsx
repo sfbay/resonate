@@ -12,7 +12,7 @@
 
 import { useMemo } from 'react';
 import type { SFNeighborhood, Publisher } from '@/types';
-import type { NeighborhoodEvictionData } from '@/lib/census/types';
+import type { NeighborhoodEvictionData } from '@/lib/datasf/types';
 import { SF_NEIGHBORHOODS } from '@/lib/geo/sf-geography';
 
 // Simplified census data type matching actual data structure
