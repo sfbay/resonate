@@ -74,10 +74,10 @@ export default function AdvertiserPortal() {
       <section className="bg-[var(--color-navy)] py-12 px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {[
-            { num: '12', label: 'City Departments', color: 'text-[var(--color-teal-light)]' },
-            { num: '850K+', label: 'Combined Reach', color: 'text-[var(--color-marigold)]' },
-            { num: '89%', label: 'Engagement Rate', color: 'text-white' },
-            { num: '47', label: 'Local Publishers', color: 'text-[var(--color-coral)]' },
+            { num: 'xx', label: 'City Departments', color: 'text-[var(--color-teal-light)]' },
+            { num: 'xx', label: 'Combined Reach', color: 'text-[var(--color-marigold)]' },
+            { num: 'xx', label: 'Engagement Rate', color: 'text-white' },
+            { num: 'xx', label: 'Local Publishers', color: 'text-[var(--color-coral)]' },
           ].map((stat) => (
             <div key={stat.label}>
               <div className={`stat-number ${stat.color}`}>{stat.num}</div>
@@ -93,7 +93,7 @@ export default function AdvertiserPortal() {
           <div className="text-center mb-16">
             <div className="label text-[var(--color-teal)] mb-4">The Challenge</div>
             <h2 className="display-md font-[family-name:var(--font-fraunces)] text-[var(--color-charcoal)]">
-              Reaching San Francisco isn&apos;t easy
+              Connecting with San Franciscans isn&apos;t easy
             </h2>
           </div>
 
@@ -103,15 +103,15 @@ export default function AdvertiserPortal() {
               {[
                 {
                   title: 'Platform Ads Miss Trust',
-                  desc: 'Facebook and Instagram ads reach eyeballs, but not trust. Your public health message gets scrolled past like every other ad.',
+                  desc: 'Facebook and Instagram ads reach eyeballs, but don&apos;t build trust. Your public message gets scrolled past like every other ad.',
                 },
                 {
                   title: 'Broad Demographics Miss Nuance',
-                  desc: 'Targeting "Spanish speakers in SF" misses the difference between a Salvadoran family in Excelsior and a tech worker from Madrid.',
+                  desc: 'Targeting "Spanish speakers in SF" misses the difference between a Salvadoran family in the Excelsior and a CTO from Madrid.',
                 },
                 {
-                  title: 'No Local Infrastructure',
-                  desc: "You know community media exists. But finding them, vetting them, getting them into the vendor system—it's a full-time job.",
+                  title: 'Build Local Infrastructure',
+                  desc: 'Community media exists and serves the public. Resonate connects you with their audience.',
                 },
               ].map((problem, i) => (
                 <div key={problem.title} className="flex gap-4 items-start">
@@ -335,10 +335,10 @@ export default function AdvertiserPortal() {
       <section className="py-24 px-6 bg-[var(--color-cream)]">
         <div className="max-w-4xl mx-auto">
           <Testimonial
-            quote="We tried platform ads for months with minimal results. Through Resonate, we reached 40,000 Cantonese-speaking seniors through just three community publishers. The engagement was 10x higher because these are sources the community already reads."
-            author="James Wong"
-            role="Public Information Officer"
-            org="SF Dept of Public Health"
+            quote="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam."
+            author="Placeholder Name"
+            role="Role Title"
+            org="Organization Name"
             variant="teal"
           />
         </div>

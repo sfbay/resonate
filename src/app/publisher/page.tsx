@@ -33,7 +33,7 @@ export default function PublisherPortal() {
                 <span className="block text-[var(--color-marigold)]">into revenue</span>
               </h1>
               <p className="text-2xl font-medium text-white/90 max-w-xl mb-8 animate-fade-in-up stagger-2 leading-relaxed">
-                You&apos;ve built trust with your audience. City departments need to reach them. Resonate connects you with paid campaign opportunities that respect your community.
+                You&apos;ve built trust within your community. City departments need to reach them. Resonate connects you with paid campaign opportunities that serve your audience.
               </p>
               <div className="flex flex-wrap gap-4 animate-fade-in-up stagger-3">
                 <Link href="/publisher/onboarding" className="btn bg-white text-[var(--color-coral)] hover:bg-[var(--color-cream)]">
@@ -68,10 +68,10 @@ export default function PublisherPortal() {
       <section className="bg-[var(--color-charcoal)] py-12 px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {[
-            { num: '47', label: 'Active Publishers', color: 'text-[var(--color-coral)]' },
-            { num: '$180K', label: 'Paid to Publishers', color: 'text-[var(--color-marigold)]' },
-            { num: '94%', label: 'Campaign Satisfaction', color: 'text-[var(--color-teal-light)]' },
-            { num: '3 days', label: 'Avg. Match Time', color: 'text-white' },
+            { num: 'xx', label: 'Active Publishers', color: 'text-[var(--color-coral)]' },
+            { num: 'xx', label: 'Paid to Publishers', color: 'text-[var(--color-marigold)]' },
+            { num: 'xx', label: 'Campaign Satisfaction', color: 'text-[var(--color-teal-light)]' },
+            { num: 'xx', label: 'Avg. Match Time', color: 'text-white' },
           ].map((stat) => (
             <div key={stat.label}>
               <div className={`stat-number ${stat.color}`}>{stat.num}</div>
@@ -226,8 +226,8 @@ export default function PublisherPortal() {
       <section className="py-24 px-6 bg-white">
         <div className="max-w-4xl mx-auto">
           <Testimonial
-            quote="Before Resonate, we were always chasing funding. Now city departments come to us. Last quarter we ran three public health campaigns—that's real sustainable revenue for our newsroom."
-            author="Linda Chen"
+            quote="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam."
+            author="Placeholder Name"
             role="Publisher"
             org="Sunset Beacon"
           />

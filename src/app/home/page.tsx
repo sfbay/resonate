@@ -50,7 +50,7 @@ export default function Home() {
                 <span className="block text-gradient-coral">Resonate</span>
               </h1>
               <p className="text-2xl font-medium text-[var(--color-charcoal)]/75 max-w-xl mb-8 animate-fade-in-up stagger-2 leading-relaxed">
-                Connect city departments with community publishers. Reach real audiences through voices they already trust.
+                Connect city departments with community publishers. Reach real audiences through voices they know and trust.
               </p>
               <div className="flex flex-wrap gap-4 animate-fade-in-up stagger-3">
                 <Link href="/publisher" className="btn btn-coral">
@@ -93,17 +93,17 @@ export default function Home() {
       <section className="bg-[var(--color-teal)] py-16 px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
           <div className="text-center">
-            <div className="stat-number text-white">47</div>
+            <div className="stat-number text-white">xx</div>
             <div className="text-white/80 font-medium mt-1">Community Publishers</div>
             <div className="text-sm text-white/60">And growing weekly</div>
           </div>
           <div className="text-center">
-            <div className="stat-number text-[var(--color-marigold)]">850K+</div>
+            <div className="stat-number text-[var(--color-marigold)]">xx</div>
             <div className="text-white/80 font-medium mt-1">Combined Reach</div>
             <div className="text-sm text-white/60">Across San Francisco</div>
           </div>
           <div className="text-center">
-            <div className="stat-number text-white">12</div>
+            <div className="stat-number text-white">xx</div>
             <div className="text-white/80 font-medium mt-1">City Departments</div>
             <div className="text-sm text-white/60">Running campaigns</div>
           </div>
@@ -284,10 +284,10 @@ export default function Home() {
             {/* Quote */}
             <div>
               <Testimonial
-                quote="Resonate helped us reach families in Excelsior that we'd been trying to connect with for years. The community publishers know their audience—we just needed a way to find them."
-                author="Maria Santos"
-                role="Communications Manager"
-                org="SF Dept of Public Health"
+                quote="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+                author="Placeholder Name"
+                role="Role Title"
+                org="Organization Name"
               />
             </div>
           </div>

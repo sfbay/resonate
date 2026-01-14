@@ -406,7 +406,7 @@ function MatchingMockup() {
         {[
           { name: 'Mission Local', score: 94, color: 'bg-[var(--color-teal)]' },
           { name: 'El Tecolote', score: 91, color: 'bg-[var(--color-teal)]' },
-          { name: 'Excelsior Action', score: 85, color: 'bg-[var(--color-marigold)]' },
+          { name: 'Bay Area Reporter', score: 85, color: 'bg-[var(--color-marigold)]' },
         ].map(({ name, score, color }) => (
           <div key={name} className="flex items-center justify-between p-2 bg-[var(--color-cream)] rounded-lg">
             <span className="text-sm text-[var(--color-charcoal)]">{name}</span>
@@ -432,7 +432,7 @@ export function Footer({ variant = 'default' }: FooterProps) {
       <footer className="bg-[var(--color-charcoal)] text-white py-8 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-sm text-white/60">
-            Resonate - A project of BAIMC in partnership with the City of San Francisco
+            Resonate - A project of the San Francisco Independent Media Coalition
           </div>
           <div className="flex gap-6 text-sm text-white/60">
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
@@ -473,7 +473,7 @@ export function Footer({ variant = 'default' }: FooterProps) {
         </div>
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-sm text-white/50">
-            A project of BAIMC in partnership with the City of San Francisco
+            A project of the San Francisco Independent Media Coalition
           </div>
           <div className="flex gap-6 text-sm text-white/50">
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>

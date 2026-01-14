@@ -318,7 +318,7 @@ export default function GeographicSelector() {
       <footer className="relative z-10 px-6 py-8 border-t border-[var(--color-mist)]">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-sm text-[var(--color-slate)]">
-            A project of SFIMC in partnership with city governments
+            A project of the San Francisco Independent Media Coalition
           </div>
           <div className="flex items-center gap-6 text-sm text-[var(--color-slate)]">
             <Link href="/about" className="hover:text-[var(--color-charcoal)] transition-colors">About</Link>

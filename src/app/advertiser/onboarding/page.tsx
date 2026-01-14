@@ -389,13 +389,13 @@ function StepReview() {
       priceRange: '$100 - $350 per deliverable',
     },
     {
-      name: 'Excelsior Action Group',
-      description: 'Community organization for Excelsior neighborhood',
-      platforms: ['Instagram', 'Facebook'],
-      followers: '12K total reach',
+      name: 'Bay Area Reporter',
+      description: 'LGBTQ news and community coverage since 1971',
+      platforms: ['Website', 'Newsletter'],
+      followers: '45K total reach',
       matchScore: 85,
-      matchReasons: ['Excelsior focus', 'Family & community events', 'Multilingual'],
-      priceRange: '$75 - $200 per deliverable',
+      matchReasons: ['LGBTQ community focus', 'Citywide coverage', 'News & events'],
+      priceRange: '$150 - $400 per deliverable',
     },
   ];
 
