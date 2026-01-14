@@ -222,7 +222,7 @@ export default function GeographicSelector() {
                             </span>
                           </div>
                           <p className="text-xs text-white/70">
-                            {SF_LOCATION.publishers} publishers · {SF_LOCATION.departments} departments
+                            xx publishers · xx departments
                           </p>
                           <p className="text-xs text-[var(--color-marigold)] mt-1 font-medium">
                             Click to enter →
@@ -262,7 +262,7 @@ export default function GeographicSelector() {
                         </span>
                       </div>
                       <p className="text-sm text-[var(--color-slate)] mb-2">
-                        {SF_LOCATION.publishers} publishers · 850K+ reach · {SF_LOCATION.departments} departments
+                        xx publishers · xx reach · xx departments
                       </p>
                       <div className="flex items-center gap-1 text-[var(--color-coral)] text-sm font-semibold group-hover:gap-2 transition-all">
                         Enter San Francisco
@@ -281,9 +281,9 @@ export default function GeographicSelector() {
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto animate-fade-in-up stagger-2">
             {[
               { value: '1', label: 'City in Pre-Beta', sublabel: 'San Francisco' },
-              { value: '47', label: 'Publishers', sublabel: 'And growing' },
-              { value: '850K+', label: 'Combined Reach', sublabel: 'Bay Area residents' },
-              { value: '12', label: 'Departments', sublabel: 'City partners' },
+              { value: 'xx', label: 'Publishers', sublabel: 'And growing' },
+              { value: 'xx', label: 'Combined Reach', sublabel: 'Bay Area residents' },
+              { value: 'xx', label: 'Departments', sublabel: 'City partners' },
             ].map((stat, i) => (
               <div key={i} className="text-center">
                 <div className="font-[family-name:var(--font-fraunces)] text-3xl md:text-4xl font-bold text-[var(--color-charcoal)]">
