@@ -32,7 +32,10 @@ Use `@/*` to import from `./src/*` (configured in tsconfig.json).
 src/
 ├── app/                    # Next.js App Router pages
 │   ├── layout.tsx          # Root layout with fonts (DM Sans, Fraunces)
+│   ├── page.tsx            # Geographic selector entry (Mapbox US map)
+│   ├── home/               # Main landing page (after selecting SF)
 │   ├── publisher/          # Publisher-facing routes
+│   │   ├── dashboard/      # Publisher analytics dashboard
 │   │   └── onboarding/     # Multi-step publisher registration
 │   └── advertiser/         # Department-facing routes
 │       ├── discover/       # Publisher discovery map
@@ -228,6 +231,9 @@ Publishers can add community notes to supplement census data:
 - [x] Expandable legend with neighborhood detail cards
 - [x] Single-select demographic filters (languages, ethnicities, ages, income brackets)
 - [x] Per-category calibrated color scales for meaningful differentiation
+- [x] Geographic selector entry page with Mapbox US map
+- [x] Publisher analytics dashboard
+- [x] Production deployment on Render
 
 ### Pending
 - [ ] Publisher onboarding flow completion
@@ -236,3 +242,24 @@ Publishers can add community notes to supplement census data:
 - [ ] Platform OAuth connections for audience data
 - [ ] City vendor system API integration
 - [ ] Additional DataSF datasets (traffic crashes, fire/EMS dispatch)
+
+## Deployment
+
+### Production
+- **URL**: https://resonatelocal.org
+- **Host**: Render (Web Service, free tier)
+- **Build**: Next.js standalone output with static asset copying
+- **Auto-deploy**: Enabled on push to `main` branch
+
+### Environment Variables (Render)
+- `HOSTNAME=0.0.0.0` - Required for Next.js standalone server
+- `PORT=10000` - Render's default port
+
+### Build Configuration
+The `package.json` build script copies static assets for standalone mode:
+```bash
+next build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/
+```
+
+### Static Files
+Files in `public/` are served directly (e.g., `public/demo.html` → `/demo.html`).
