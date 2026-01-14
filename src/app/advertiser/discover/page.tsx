@@ -124,7 +124,7 @@ const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
   {
     id: "pub-5",
     userId: "user-5",
-    name: "Richmond District Blog",
+    name: "Richmond Review",
     logo: "/images/publishers/richmond-blog.png",
     description: "Neighborhood news and events for the Richmond District",
     website: "https://richmondsunsetblog.com",

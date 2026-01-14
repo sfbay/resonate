@@ -44,6 +44,11 @@ export function Nav({ variant = 'default' }: NavProps) {
             </>
           ) : (
             <>
+              {variant === 'publisher' && (
+                <Link href="/publisher/dashboard" className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+                  Dashboard
+                </Link>
+              )}
               <Link href={`/${variant}/login`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
                 Sign In
               </Link>

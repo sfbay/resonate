@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SFIMC Website Wireframes — Structural Concepts</title>
+  <style>
+    :root {
+      --black: #222;
+      --gray-dark: #555;
+      --gray: #888;
+      --gray-light: #bbb;
+      --gray-lighter: #ddd;
+      --gray-bg: #f5f5f5;
+      --white: #fff;
+      --border: #ccc;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--gray-bg);
+      color: var(--black);
+      line-height: 1.5;
+      padding: 40px;
+    }
+
+    .presentation {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .doc-header {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 40px;
+      margin-bottom: 40px;
+    }
+
+    .doc-header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .doc-header .subtitle {
+      color: var(--gray);
+      font-size: 16px;
+      margin-bottom: 24px;
+    }
+
+    .doc-header p {
+      color: var(--gray-dark);
+      max-width: 700px;
+      line-height: 1.6;
+    }
+
+    .toc {
+      display: flex;
+      gap: 16px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .toc a {
+      color: var(--black);
+      text-decoration: none;
+      padding: 8px 16px;
+      background: var(--gray-bg);
+      border-radius: 4px;
+      font-size: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .toc a:hover {
+      background: var(--gray-lighter);
+    }
+
+    /* Section */
+    .section {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 40px;
+      margin-bottom: 40px;
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray);
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .section-desc {
+      color: var(--gray-dark);
+      margin-bottom: 32px;
+      max-width: 600px;
+    }
+
+    /* Wireframe container */
+    .wireframe {
+      border: 2px solid var(--gray-light);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--white);
+    }
+
+    .wireframe-label {
+      background: var(--gray-lighter);
+      padding: 8px 16px;
+      font-size: 12px;
+      color: var(--gray-dark);
+      border-bottom: 1px solid var(--gray-light);
+      font-family: monospace;
+    }
+
+    .wireframe-content {
+      padding: 0;
+    }
+
+    /* Generic wireframe elements */
+    .wf-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--gray-lighter);
+      background: var(--gray-bg);
+    }
+
+    .wf-logo {
+      font-weight: 600;
+      font-size: 18px;
+      color: var(--black);
+    }
+
+    .wf-logo .i {
+      color: var(--gray);
+      font-weight: 400;
+    }
+
+    .wf-nav-links {
+      display: flex;
+      gap: 24px;
+      font-size: 14px;
+      color: var(--gray);
+    }
+
+    .wf-hero {
+      padding: 48px 24px;
+      background: repeating-linear-gradient(
+        45deg,
+        var(--gray-bg),
+        var(--gray-bg) 10px,
+        var(--white) 10px,
+        var(--white) 20px
+      );
+      border-bottom: 1px solid var(--gray-lighter);
+    }
+
+    .wf-hero h1 {
+      font-size: 32px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      max-width: 500px;
+    }
+
+    .wf-hero p {
+      color: var(--gray-dark);
+      max-width: 450px;
+      margin-bottom: 20px;
+    }
+
+    .wf-button {
+      display: inline-block;
+      padding: 12px 24px;
+      background: var(--gray-dark);
+      color: var(--white);
+      font-size: 14px;
+      border-radius: 4px;
+    }
+
+    .wf-button-outline {
+      background: var(--white);
+      color: var(--black);
+      border: 1px solid var(--border);
+    }
+
+    .wf-section {
+      padding: 32px 24px;
+      border-bottom: 1px solid var(--gray-lighter);
+    }
+
+    .wf-section:last-child {
+      border-bottom: none;
+    }
+
+    .wf-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .wf-section-header h2 {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .wf-section-header a {
+      font-size: 14px;
+      color: var(--gray);
+    }
+
+    .wf-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .wf-grid-4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .wf-grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .wf-grid-2 {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .wf-card {
+      border: 1px solid var(--gray-lighter);
+      border-radius: 6px;
+      padding: 16px;
+      background: var(--white);
+    }
+
+    .wf-card-image {
+      height: 80px;
+      background: var(--gray-lighter);
+      border-radius: 4px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray);
+      font-size: 12px;
+    }
+
+    .wf-card h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .wf-card p {
+      font-size: 12px;
+      color: var(--gray);
+    }
+
+    .wf-tag {
+      display: inline-block;
+      padding: 4px 8px;
+      background: var(--gray-lighter);
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray-dark);
+      margin-bottom: 8px;
+    }
+
+    .wf-footer {
+      padding: 20px 24px;
+      background: var(--gray-bg);
+      border-top: 1px solid var(--gray-lighter);
+      font-size: 13px;
+      color: var(--gray);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Annotation callouts */
+    .annotation {
+      background: #fffde7;
+      border: 1px solid #ffd54f;
+      border-radius: 6px;
+      padding: 16px;
+      margin-top: 24px;
+      font-size: 14px;
+    }
+
+    .annotation-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #f57f17;
+    }
+
+    .annotation ul {
+      margin-left: 20px;
+      color: var(--gray-dark);
+    }
+
+    .annotation li {
+      margin-bottom: 4px;
+    }
+
+    /* Impact-specific styles */
+    .wf-impact-banner {
+      background: var(--gray-lighter);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 1px solid var(--gray-light);
+    }
+
+    .wf-impact-banner .icon {
+      width: 40px;
+      height: 40px;
+      background: var(--gray);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-weight: bold;
+    }
+
+    .wf-impact-banner h3 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .wf-impact-banner p {
+      font-size: 13px;
+      color: var(--gray-dark);
+    }
+
+    /* Featured impact */
+    .wf-featured {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .wf-featured-image {
+      aspect-ratio: 16/10;
+      background: var(--gray-lighter);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray);
+      font-size: 13px;
+    }
+
+    .wf-featured-content h2 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+
+    .wf-featured-content p {
+      color: var(--gray-dark);
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .wf-outcome-box {
+      background: var(--gray-bg);
+      border: 1px solid var(--gray-lighter);
+      border-radius: 6px;
+      padding: 12px;
+      margin-top: 16px;
+    }
+
+    .wf-outcome-box strong {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray);
+    }
+
+    .wf-outcome-box p {
+      margin-top: 4px;
+      font-size: 14px;
+      color: var(--black);
+    }
+
+    .wf-share-tools {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .wf-share-btn {
+      width: 32px;
+      height: 32px;
+      background: var(--gray-lighter);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--gray);
+    }
+
+    /* Feed items */
+    .wf-feed-item {
+      display: grid;
+      grid-template-columns: 100px 1fr auto;
+      gap: 16px;
+      padding: 16px;
+      border: 1px solid var(--gray-lighter);
+      border-radius: 6px;
+      align-items: center;
+    }
+
+    .wf-feed-item + .wf-feed-item {
+      margin-top: 12px;
+    }
+
+    .wf-feed-image {
+      height: 70px;
+      background: var(--gray-lighter);
+      border-radius: 4px;
+    }
+
+    .wf-feed-content h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .wf-feed-content .meta {
+      font-size: 12px;
+      color: var(--gray);
+    }
+
+    .wf-feed-outcome {
+      text-align: right;
+    }
+
+    .wf-feed-outcome .outcome-text {
+      font-size: 12px;
+      color: var(--gray);
+      max-width: 150px;
+    }
+
+    /* Filters */
+    .wf-filters {
+      display: flex;
+      gap: 8px;
+      padding: 16px 24px;
+      background: var(--gray-bg);
+      border-bottom: 1px solid var(--gray-lighter);
+      flex-wrap: wrap;
+    }
+
+    .wf-filter-btn {
+      padding: 8px 14px;
+      background: var(--white);
+      border: 1px solid var(--gray-lighter);
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--gray-dark);
+    }
+
+    .wf-filter-btn.active {
+      background: var(--gray-dark);
+      color: var(--white);
+      border-color: var(--gray-dark);
+    }
+
+    /* Identity section */
+    .identity-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .identity-panel {
+      border: 1px solid var(--gray-lighter);
+      border-radius: 8px;
+      padding: 24px;
+    }
+
+    .identity-panel h3 {
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray);
+      margin-bottom: 16px;
+    }
+
+    .logo-display {
+      text-align: center;
+      padding: 32px;
+      font-size: 48px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-display .i {
+      color: var(--gray);
+      font-weight: 400;
+    }
+
+    .logo-note {
+      text-align: center;
+      color: var(--gray);
+      font-size: 14px;
+      font-style: italic;
+      margin-top: 16px;
+    }
+
+    .naming-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .naming-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--gray-bg);
+      border-radius: 6px;
+    }
+
+    .naming-option .name {
+      font-weight: 600;
+      min-width: 100px;
+    }
+
+    .naming-option .desc {
+      font-size: 13px;
+      color: var(--gray);
+    }
+
+    /* Concept explanation */
+    .concept-box {
+      background: var(--gray-bg);
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+
+    .concept-box h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .concept-box ul {
+      margin-left: 20px;
+      color: var(--gray-dark);
+    }
+
+    .concept-box li {
+      margin-bottom: 8px;
+    }
+
+    /* Decision callout */
+    .decision-box {
+      background: #e3f2fd;
+      border: 1px solid #90caf9;
+      border-radius: 6px;
+      padding: 16px;
+      margin-top: 24px;
+    }
+
+    .decision-box h4 {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #1565c0;
+    }
+
+    .decision-box ul {
+      margin-left: 20px;
+      color: var(--gray-dark);
+    }
+
+    .decision-box li {
+      margin-bottom: 4px;
+    }
+
+    /* Photo placeholders with intent */
+    .wf-hero-photos {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .wf-hero-photo {
+      flex: 1;
+      height: 120px;
+      background: var(--gray-lighter);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--gray);
+      text-align: center;
+      padding: 8px;
+    }
+
+    /* Page structure diagram */
+    .structure-diagram {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .structure-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--gray-bg);
+      border-radius: 4px;
+      border-left: 3px solid var(--gray);
+    }
+
+    .structure-item .page {
+      font-weight: 600;
+      min-width: 120px;
+    }
+
+    .structure-item .purpose {
+      font-size: 13px;
+      color: var(--gray-dark);
+    }
+    
+    @media print { 
+    
+        .presentation {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+}
+  </style>
+</head>
+<body>
+
+  <div class="presentation">
+
+    <header class="doc-header">
+      <h1>SFIMC Website — Structural Wireframes</h1>
+      <p class="subtitle">Stakeholder Review · January 2026</p>
+      <p>These wireframes outline proposed site structure, information architecture and key functionality — particularly the <strong>Impact Aggregator</strong> concept. Visual design (colors, typography, imagery) will be developed after this structure is approved.</p>
+      <nav class="toc">
+        <a href="#sitemap">Site Structure</a>
+        <a href="#homepage">Homepage</a>
+        <a href="#members">Members</a>
+        <a href="#impact">Impact Aggregator</a>
+        <a href="#identity">Naming/Identity</a>
+        <a href="#decisions">Decisions Needed</a>
+      </nav>
+    </header>
+
+    <!-- SITE STRUCTURE -->
+    <section class="section" id="sitemap">
+      <div class="section-label">Overview</div>
+      <h2 class="section-title">Proposed Site Structure</h2>
+      <p class="section-desc">Six core pages plus the Impact Aggregator as the central differentiating feature.</p>
+
+      <div class="structure-diagram">
+        <div class="structure-item">
+          <span class="page">Home</span>
+          <span class="purpose">Mission, key win (50% resolution), member preview, recent impact stories</span>
+        </div>
+        <div class="structure-item">
+          <span class="page">About</span>
+          <span class="purpose">Coalition history, member orgs, theory of change, team/contacts</span>
+        </div>
+        <div class="structure-item">
+          <span class="page">Members</span>
+          <span class="purpose">Directory of participating publications with profiles, communities served, links</span>
+        </div>
+        <div class="structure-item" style="border-left-color: #555; background: #eee;">
+          <span class="page"><strong>Impact</strong></span>
+          <span class="purpose"><strong>Curated journalism stories with documented outcomes — the core differentiator</strong></span>
+        </div>
+        <div class="structure-item">
+          <span class="page">Policy</span>
+          <span class="purpose">50% resolution details, SF Civic Media Fund status, advocacy resources</span>
+        </div>
+        <div class="structure-item">
+          <span class="page">News</span>
+          <span class="purpose">Coalition updates, ecosystem news, announcements</span>
+        </div>
+        <div class="structure-item">
+          <span class="page">Contact/Join</span>
+          <span class="purpose">Entry point for interested publications, policymakers, funders</span>
+        </div>
+      </div>
+
+      <div class="concept-box">
+        <h3>Campaign Sub-sites</h3>
+        <p>The architecture supports modular campaign pages at dedicated URLs:</p>
+        <ul>
+          <li><strong>sfmediafund.com</strong> — SF Civic Media Fund campaign</li>
+          <li><strong>impact.sfindependentmedia.org</strong> — SFIMC public impact campaign</li>
+         <li>Future campaigns as needed</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- HOMEPAGE -->
+    <section class="section" id="homepage">
+      <div class="section-label">Page 1</div>
+      <h2 class="section-title">Homepage</h2>
+      <p class="section-desc">The front door — establishes mission, showcases the 50% policy win, introduces members, and previews impact stories.</p>
+
+      <div class="wireframe">
+        <div class="wireframe-label">sfindependentmedia.org</div>
+        <div class="wireframe-content">
+
+          <nav class="wf-nav">
+            <div class="wf-logo">sf<span class="i">i</span>mc</div>
+            <div class="wf-nav-links">
+              <span>About</span>
+              <span>Members</span>
+              <span>Impact</span>
+              <span>Policy</span>
+              <span>News</span>
+              <span>Contact</span>
+            </div>
+          </nav>
+
+          <div class="wf-hero">
+            <h1>[Mission-driven headline about community journalism impact]</h1>
+            <p>Brief description of coalition — ethnic and community publishers building infrastructure for local news that makes a difference.</p>
+            <span class="wf-button">Explore Our Impact →</span>
+
+            <div class="wf-hero-photos">
+              <div class="wf-hero-photo">Community event photo</div>
+              <div class="wf-hero-photo">Reporter at work</div>
+              <div class="wf-hero-photo">Neighborhood gathering</div>
+            </div>
+          </div>
+
+          <div class="wf-impact-banner">
+            <div class="icon">✓</div>
+            <div>
+              <h3>50% of SF city advertising now goes to community media</h3>
+              <p>Coalition advocacy led to this landmark policy — passed by the Board of Supervisors in 2024.</p>
+            </div>
+          </div>
+
+          <div class="wf-section">
+            <div class="wf-section-header">
+              <h2>Our Member Publications</h2>
+              <a>View all →</a>
+            </div>
+            <div class="wf-grid wf-grid-4">
+              <div class="wf-card">
+                <div class="wf-card-image">[Logo]</div>
+                <h4>El Tecolote</h4>
+                <p>Mission District · Latino community</p>
+              </div>
+              <div class="wf-card">
+                <div class="wf-card-image">[Logo]</div>
+                <h4>The Bay View</h4>
+                <p>Hunters Point · Black community</p>
+              </div>
+              <div class="wf-card">
+                <div class="wf-card-image">[Logo]</div>
+                <h4>Nichi Bei</h4>
+                <p>Japanese American community</p>
+              </div>
+              <div class="wf-card">
+                <div class="wf-card-image">[Logo]</div>
+                <h4>Bay Area Reporter</h4>
+                <p>LGBTQ+ community</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="wf-section" style="background: var(--gray-bg);">
+            <div class="wf-section-header">
+              <h2>Recent Impact</h2>
+              <a>See all stories →</a>
+            </div>
+            <div class="wf-grid wf-grid-2">
+              <div class="wf-card">
+                <div class="wf-card-image" style="height: 120px;">[Photo]</div>
+                <span class="wf-tag">Policy Changed</span>
+                <h4>California’s New AI Safety Law Created the Illusion of Whistleblower Protections</h4>
+                <p>SF Public Press · Dec 2025</p>
+              </div>
+              <div class="wf-card">
+                <div class="wf-card-image" style="height: 120px;">[Photo]</div>
+                <span class="wf-tag">Community Impact</span>
+                <h4>‘We’re here to create something positive’: Pop-up at 16th St. BART seeks to activate plaza</h4>
+                <p>Mission Local · Dec 2025</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="wf-footer">
+            <span>sf<span class="i">i</span>mc — San Francisco Independent Media Coalition</span>
+            <span>© 2026</span>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="annotation">
+        <div class="annotation-title">Key Elements</div>
+        <ul>
+          <li><strong>Policy win banner:</strong> Immediate proof of coalition effectiveness</li>
+          <li><strong>Community photography:</strong> Real people, not stock images</li>
+          <li><strong>Impact preview:</strong> Draws visitors into the aggregator</li>
+          <li><strong>Member visibility:</strong> Publications front and center</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- MEMBERS -->
+    <section class="section" id="members">
+      <div class="section-label">Page 2</div>
+      <h2 class="section-title">Members Directory</h2>
+      <p class="section-desc">Showcases coalition diversity with filterable profiles. Each publication gets a card with community served, description, and direct link.</p>
+
+      <div class="wireframe">
+        <div class="wireframe-label">sfindependentmedia.org/members</div>
+        <div class="wireframe-content">
+
+          <nav class="wf-nav">
+            <div class="wf-logo">ba<span class="i">i</span>mc</div>
+            <div class="wf-nav-links">
+              <span>About</span>
+              <span><strong>Members</strong></span>
+              <span>Impact</span>
+              <span>Policy</span>
+              <span>News</span>
+              <span>Contact</span>
+            </div>
+          </nav>
+
+          <div class="wf-section" style="background: var(--gray-bg);">
+            <h1 style="font-size: 28px; margin-bottom: 8px;">Independent Local Voices</h1>
+            <p style="color: var(--gray-dark); max-width: 500px;">Ethnic media, neighborhood news, investigative journalism — diverse publications serving San Francisco's diverse communities.</p>
+          </div>
+
+          <div class="wf-filters">
+            <span class="wf-filter-btn active">All Publications</span>
+            <span class="wf-filter-btn">Ethnic Media</span>
+            <span class="wf-filter-btn">Neighborhood</span>
+            <span class="wf-filter-btn">Investigative</span>
+            <span class="wf-filter-btn">LGBTQ+</span>
+          </div>
+
+          <div class="wf-section">
+            <div class="wf-grid wf-grid-3">
+              <div class="wf-card">
+                <div class="wf-card-image" style="height: 100px;">[Team/Community Photo]</div>
+                <div style="display: flex; gap: 12px; margin-top: 12px;">
+                  <div style="width: 40px; height: 40px; background: var(--gray-lighter); border-radius: 6px;"></div>
+                  <div>
+                    <h4>El Tecolote</h4>
+                    <p style="color: var(--gray-dark); font-size: 13px;">Mission District · Latino</p>
+                  </div>
+                </div>
+                <p style="margin-top: 12px; font-size: 13px;">Bilingual newspaper serving SF's Latino community since 1970.</p>
+                <p style="margin-top: 12px; font-size: 13px; color: var(--gray-dark);">Visit eltecolote.org →</p>
+              </div>
+              <div class="wf-card">
+                <div class="wf-card-image" style="height: 100px;">[Team/Community Photo]</div>
+                <div style="display: flex; gap: 12px; margin-top: 12px;">
+                  <div style="width: 40px; height: 40px; background: var(--gray-lighter); border-radius: 6px;"></div>
+                  <div>
+                    <h4>Mission Local</h4>
+                    <p style="color: var(--gray-dark); font-size: 13px;">Mission District</p>
+                  </div>
+                </div>
+                <p style="margin-top: 12px; font-size: 13px;">Nonprofit news covering SF's Mission neighborhood with in-depth local reporting.</p>
+                <p style="margin-top: 12px; font-size: 13px; color: var(--gray-dark);">Visit missionlocal.org →</p>
+              </div>
+              <div class="wf-card">
+                <div class="wf-card-image" style="height: 100px;">[Team/Community Photo]</div>
+                <div style="display: flex; gap: 12px; margin-top: 12px;">
+                  <div style="width: 40px; height: 40px; background: var(--gray-lighter); border-radius: 6px;"></div>
+                  <div>
+                    <h4>The Bay View</h4>
+                    <p style="color: var(--gray-dark); font-size: 13px;">Hunters Point · Black</p>
+                  </div>
+                </div>
+                <p style="margin-top: 12px; font-size: 13px;">The San Francisco Bay View National Black Newspaper has covered Bayview-Hunters Point since 1976.</p>
+                <p style="margin-top: 12px; font-size: 13px; color: var(--gray-dark);">Visit sfbayview.com →</p>
+              </div>
+            </div>
+            <p style="text-align: center; margin-top: 24px; color: var(--gray);">+ 8 more publications</p>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="annotation">
+        <div class="annotation-title">Key Elements</div>
+        <ul>
+          <li><strong>Filters:</strong> Let visitors find publications by type/community</li>
+          <li><strong>Team photos:</strong> Humanize the publications, show real journalists</li>
+          <li><strong>Direct links:</strong> Drive traffic to member sites</li>
+          <li><strong>Consistent profiles:</strong> Equal treatment for all members</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- IMPACT AGGREGATOR -->
+    <section class="section" id="impact">
+      <div class="section-label">Core Feature</div>
+      <h2 class="section-title">Impact Aggregator</h2>
+      <p class="section-desc">The differentiating feature — curated journalism stories with <strong>documented outcomes</strong>. Not vanity metrics (pageviews, shares), but real-world impact evidence.</p>
+
+      <div class="concept-box">
+        <h3>Why This Matters</h3>
+        <ul>
+          <li><strong>For funders/policymakers:</strong> Concrete evidence that community journalism produces results — strengthens case for SF Civic Media Fund</li>
+          <li><strong>For coalition members:</strong> Amplification and visibility for their best work</li>
+          <li><strong>For the public:</strong> Tangible proof that local journalism matters</li>
+          <li><strong>For advocacy:</strong> Shareable proof points for campaigns</li>
+        </ul>
+      </div>
+
+      <div class="wireframe" style="margin-top: 24px;">
+        <div class="wireframe-label">sfindependentmedia.org/impact</div>
+        <div class="wireframe-content">
+
+          <nav class="wf-nav">
+            <div class="wf-logo">ba<span class="i">i</span>mc</div>
+            <div class="wf-nav-links">
+              <span>About</span>
+              <span>Members</span>
+              <span><strong>Impact</strong></span>
+              <span>Policy</span>
+              <span>News</span>
+              <span>Contact</span>
+            </div>
+          </nav>
+
+          <div class="wf-section" style="background: var(--gray-lighter);">
+            <h1 style="font-size: 28px; margin-bottom: 8px;">Journalism That Made a Difference</h1>
+            <p style="color: var(--gray-dark);">Stories from our coalition members that led to real outcomes in San Francisco communities.</p>
+          </div>
+
+          <div class="wf-section">
+            <p style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gray); margin-bottom: 16px;">Featured Impact</p>
+            <div class="wf-featured">
+              <div class="wf-featured-image">[Featured Photo]</div>
+              <div class="wf-featured-content">
+                <span class="wf-tag">Community Impact</span>
+                <h2>Oasis saved! – Popular nightclub receives emergency donation</h2>
+                <p>After announcing in July that SoMa nightclub Oasis would permanently close after New Year’s Eve, a surprise emergency donation made last week could possibly save the nightclub.</p>
+                <p style="font-size: 13px; color: var(--gray);"><strong>Bay Area Reporter</strong> · December 2025</p>
+                <div class="wf-outcome-box">
+                  <strong>Outcome</strong>
+                  <p>Funds raised to rescue community resource.</p>
+                </div>
+                <div class="wf-share-tools">
+                  <span class="wf-share-btn">𝕏</span>
+                  <span class="wf-share-btn">f</span>
+                  <span class="wf-share-btn">in</span>
+                  <span class="wf-share-btn">⎘</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="wf-filters">
+            <span class="wf-filter-btn active">All Impact</span>
+            <span class="wf-filter-btn">Policy Changed</span>
+            <span class="wf-filter-btn">Accountability</span>
+            <span class="wf-filter-btn">Resources Connected</span>
+            <span class="wf-filter-btn">Recognition</span>
+            <span style="margin-left: auto;" class="wf-filter-btn">All Outlets ▾</span>
+          </div>
+
+          <div class="wf-section">
+            <div class="wf-feed-item">
+              <div class="wf-feed-image"></div>
+              <div class="wf-feed-content">
+                <h4>Who gets housing support in S.F.? Inside a system that frustrates homeless families</h4>
+                <p class="meta"><strong>El Tecolote</strong> · November 2025</p>
+              </div>
+              <div class="wf-feed-outcome">
+                <span class="wf-tag">Resources Connected</span>
+                <p class="outcome-text">Families experiencing homelessness, recent immigrants</p>
+              </div>
+            </div>
+            <div class="wf-feed-item">
+              <div class="wf-feed-image"></div>
+              <div class="wf-feed-content">
+                <h4>What’s it like to enroll in San Francisco Drug Court?</h4>
+                <p class="meta"><strong>Mission Local</strong> · March 2025</p>
+              </div>
+              <div class="wf-feed-outcome">
+                <span class="wf-tag">Award Recognition</span>
+                <p class="outcome-text">Society of Professional Journalists</p>
+              </div>
+            </div>
+            <div class="wf-feed-item">
+              <div class="wf-feed-image"></div>
+              <div class="wf-feed-content">
+                <h4>Researchers Seek Hepatitis B Cure as Trump Slashes Funding</h4>
+                <p class="meta"><strong>SF Public Press</strong> · June 2025</p>
+              </div>
+              <div class="wf-feed-outcome">
+                <span class="wf-tag">Issue Visibility</span>
+                <p class="outcome-text">Inaugural Hep B Free California Summit</p>
+              </div>
+            </div>
+            <div class="wf-feed-item">
+              <div class="wf-feed-image"></div>
+              <div class="wf-feed-content">
+                <h4>San Francisco is weaponizing parking rules to displace RV communities</h4>
+                <p class="meta"><strong>El Tecolote</strong> · June 2025</p>
+              </div>
+              <div class="wf-feed-outcome">
+                <span class="wf-tag">Accountability</span>
+                <p class="outcome-text">City policy review</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="annotation">
+        <div class="annotation-title">Impact Categories</div>
+        <ul>
+          <li><strong>Policy Changed:</strong> Story led to legislation, regulation, or government action</li>
+          <li><strong>Accountability:</strong> Investigation resulted in resignation, charges, or reform</li>
+          <li><strong>Resources Connected:</strong> Reporting connected community to services/assistance</li>
+          <li><strong>Award Recognition:</strong> Award, citation, or republication by larger outlet</li>
+          <li><strong>Community Response:</strong> Measurable community engagement or action</li>
+        </ul>
+      </div>
+
+      <div class="decision-box">
+        <h4>Questions for Discussion</h4>
+        <ul>
+          <li>Are these the right impact categories for our advocacy goals?</li>
+          <li>Who will curate/tag stories? Coalition coordinator? Rotating member responsibility?</li>
+          <li>How do we verify and document outcomes?</li>
+          <li>Should members be able to submit their own impact stories for review?</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- NAMING/IDENTITY -->
+    <section class="section" id="identity">
+      <div class="section-label">Identity</div>
+      <h2 class="section-title">Naming Concept: SFIMC</h2>
+      <p class="section-desc">A naming approach built around the central "i" — the letter that joins, defines, and carries the meaning.</p>
+
+      <div class="identity-grid">
+        <div class="identity-panel">
+          <h3>The Concept</h3>
+          <div class="logo-display">
+            sf<span class="i">i</span>mc
+          </div>
+          <p class="logo-note">"sf" (San Francisco) + "i" (Independent) + "mc" (Media Coalition)<br>The "i" joins the halves while carrying the core meaning</p>
+        </div>
+        <div class="identity-panel">
+          <h3>The "i" Paradox</h3>
+          <div style="padding: 16px; background: var(--gray-bg); border-radius: 6px; margin-bottom: 16px;">
+            <p style="font-size: 14px; color: var(--gray-dark); line-height: 1.6;">
+              <strong>Visually lighter</strong> — recedes, bridges, connects<br>
+              <strong>Conceptually central</strong> — independent, information, the reason the coalition exists
+            </p>
+          </div>
+          <p style="font-size: 13px; color: var(--gray); font-style: italic;">
+            Like a hinge: small, but holds everything together. The quiet letter that carries the meaning.
+          </p>
+        </div>
+      </div>
+
+      <div class="identity-grid" style="margin-top: 24px;">
+        <div class="identity-panel">
+          <h3>Visual Treatment Options</h3>
+          <div class="naming-options">
+            <div class="naming-option">
+              <span class="name" style="font-size: 20px; font-weight: 600;">sf<span style="color: #888; font-weight: 400;">i</span>mc</span>
+              <span class="desc">Lighter weight "i" — recedes but joins</span>
+            </div>
+            <div class="naming-option">
+              <span class="name" style="font-size: 20px; font-weight: 600;">sf<span style="color: #c00;">i</span>mc</span>
+              <span class="desc">Accent color "i" — stands out, defines (Roger Black approach)</span>
+            </div>
+            <div class="naming-option">
+              <span class="name" style="font-size: 20px; font-weight: 600;">SF<span style="color: #888; font-weight: 400;">i</span>MC</span>
+              <span class="desc">Mixed case — emphasizes the joining role</span>
+            </div>
+          </div>
+        </div>
+        <div class="identity-panel">
+          <h3>Domain Considerations</h3>
+          <div class="naming-options">
+            <div class="naming-option">
+              <span class="name">sfindependentmedia.org</span>
+              <span class="desc">Direct, professional, .org signals coalition</span>
+            </div>
+            <div class="naming-option">
+              <span class="name">sfimc.media</span>
+              <span class="desc">Modern TLD, journalism-focused</span>
+            </div>
+            <div class="naming-option">
+              <span class="name">sfimc.news</span>
+              <span class="desc">News-focused TLD</span>
+            </div>
+          </div>
+          <p style="margin-top: 16px; font-size: 13px; color: var(--gray);">Sub-domains for campaigns: civicfund.sfindependentmedia.org</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- DECISIONS -->
+    <section class="section" id="decisions">
+      <div class="section-label">Next Steps</div>
+      <h2 class="section-title">Decisions for Stakeholder Input</h2>
+      <p class="section-desc">Key questions requiring alignment before proceeding to detailed design and development.</p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+
+        <div class="concept-box">
+          <h3>Identity & Branding</h3>
+          <ul>
+            <li>Name/branding confirmation: SFIMC vs other?</li>
+            <li>Domain/TLD preference</li>
+            <li>Geographic scope messaging (SF vs. Bay Area)</li>
+           </ul>
+        </div>
+
+        <div class="concept-box">
+          <h3>Content & Operations</h3>
+          <ul>
+            <li>Who curates the Impact Aggregator?</li>
+            <li>What's the process for verifying impact outcomes?</li>
+            <li>How often should content be updated?</li>
+          </ul>
+        </div>
+
+        <div class="concept-box">
+          <h3>Technical</h3>
+          <ul>
+            <li>Hosting preferences/constraints?</li>
+            <li>Integration with existing member systems?</li>
+            <li>RSS feeds for automated story discovery?</li>
+            <li>Archive/permanence requirements?</li>
+          </ul>
+        </div>
+
+        <div class="concept-box">
+          <h3>Strategic</h3>
+          <ul>
+            <li>Target launch timing? (advocacy moment?)</li>
+            <li>First campaign sub-site priority?</li>
+            <li>Success metrics for the site itself?</li>
+            <li>Long-term maintenance/sustainability?</li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+
+  </div>
+
+</body>
+</html>
