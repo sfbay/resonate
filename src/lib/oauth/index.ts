@@ -7,17 +7,29 @@
 import type { Platform } from '@/types';
 import type { OAuthProvider } from './types';
 import { MetaOAuthProvider } from './platforms/meta';
+import { TikTokOAuthProvider } from './platforms/tiktok';
+import { MailchimpOAuthProvider } from './platforms/mailchimp';
+import { GoogleOAuthProvider } from './platforms/google';
 
 // =============================================================================
 // PROVIDER REGISTRY
 // =============================================================================
 
 const providers: Partial<Record<Platform, () => OAuthProvider>> = {
+  // Meta platforms (Instagram, Facebook, WhatsApp)
   instagram: () => new MetaOAuthProvider(),
   facebook: () => new MetaOAuthProvider(),
-  // WhatsApp uses Meta OAuth with different scopes
   whatsapp: () => new MetaOAuthProvider(),
-  // TikTok, newsletter platforms, etc. will be added here
+
+  // TikTok
+  tiktok: () => new TikTokOAuthProvider(),
+
+  // Newsletter platforms
+  mailchimp: () => new MailchimpOAuthProvider(),
+  // substack: () => new SubstackOAuthProvider(), // Week 3
+
+  // Web Analytics (note: stores in web_analytics_connections, not platform_connections)
+  google: () => new GoogleOAuthProvider() as unknown as OAuthProvider,
 };
 
 /**

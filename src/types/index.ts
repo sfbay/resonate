@@ -87,7 +87,7 @@ export type MessagingPlatform =
   | 'weibo';
 
 // Combined platform type for all distribution channels
-export type Platform = SocialPlatform | MessagingPlatform | 'mailchimp' | 'substack';
+export type Platform = SocialPlatform | MessagingPlatform | 'mailchimp' | 'substack' | 'google';
 
 // =============================================================================
 // AUDIENCE PROFILE - The core of matching

@@ -155,9 +155,12 @@ function DashboardContent() {
           weibo: null,
           mailchimp: null,
           substack: null,
+          google: null,
         }}
         badges={data?.badges || []}
         isLoading={isLoading}
+        posts={data?.posts || []}
+        growthHistory={data?.growthHistory || []}
       />
     </>
   );

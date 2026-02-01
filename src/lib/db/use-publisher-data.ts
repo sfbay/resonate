@@ -17,6 +17,7 @@ import type {
   Platform,
   GrowthTrend,
 } from '@/types';
+import type { PostPerformance, GrowthDataPoint } from '@/components/publisher/analytics';
 
 interface PublisherData {
   publisherId: string;
@@ -26,6 +27,9 @@ interface PublisherData {
   connections: PlatformConnection[];
   latestSnapshots: Record<Platform, MetricsSnapshot | null>;
   badges: Badge[];
+  // New: Content performance and growth history for visualizations
+  posts: PostPerformance[];
+  growthHistory: GrowthDataPoint[];
 }
 
 interface UsePublisherDataResult {
@@ -53,6 +57,7 @@ function createEmptySnapshots(): Record<Platform, MetricsSnapshot | null> {
     weibo: null,
     mailchimp: null,
     substack: null,
+    google: null,
   };
 }
 
@@ -143,6 +148,22 @@ export function usePublisherData(publisherId?: string): UsePublisherDataResult {
 
         if (badgesError) {
           console.error('Badges error:', badgesError);
+        }
+
+        // Fetch content performance (last 30 days, limit 100 posts)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        const { data: contentData, error: contentError } = await supabase
+          .from('content_performance')
+          .select('*')
+          .eq('publisher_id', pubId)
+          .gte('published_at', thirtyDaysAgo.toISOString())
+          .order('published_at', { ascending: false })
+          .limit(100);
+
+        if (contentError) {
+          console.error('Content performance error:', contentError);
         }
 
         // Transform connections to app format
@@ -257,6 +278,52 @@ export function usePublisherData(publisherId?: string): UsePublisherDataResult {
           criteriaMet: b.criteria_met as Badge['criteriaMet'],
         }));
 
+        // Transform content performance to PostPerformance
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const transformedPosts: PostPerformance[] = ((contentData || []) as any[]).map((c) => ({
+          id: c.id,
+          platform: c.platform as Platform,
+          contentType: c.content_type || 'post',
+          publishedAt: new Date(c.published_at),
+          captionExcerpt: c.caption_excerpt || null,
+          thumbnailUrl: c.thumbnail_url || null,
+          contentUrl: c.content_url || null,
+          impressions: c.impressions || null,
+          reach: c.reach || null,
+          likes: c.likes || null,
+          comments: c.comments || null,
+          shares: c.shares || null,
+          saves: c.saves || null,
+          videoViews: c.video_views || null,
+          engagementScore: c.engagement_score || 0,
+          engagementRate: c.engagement_rate ? Number(c.engagement_rate) : null,
+        }));
+
+        // Build growth history from metrics snapshots (aggregate by date)
+        const snapshotsByDate = new Map<string, { date: Date; followers: number; netGrowth: number }>();
+        for (const snap of snapshotsList) {
+          const dateKey = new Date(snap.recorded_at).toISOString().split('T')[0];
+          const existing = snapshotsByDate.get(dateKey);
+          if (existing) {
+            existing.followers += snap.follower_count || 0;
+          } else {
+            snapshotsByDate.set(dateKey, {
+              date: new Date(snap.recorded_at),
+              followers: snap.follower_count || 0,
+              netGrowth: 0,
+            });
+          }
+        }
+
+        // Convert to array and sort by date
+        const growthHistory: GrowthDataPoint[] = Array.from(snapshotsByDate.values())
+          .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+        // Calculate net growth (difference from previous day)
+        for (let i = 1; i < growthHistory.length; i++) {
+          growthHistory[i].netGrowth = growthHistory[i].followers - growthHistory[i - 1].followers;
+        }
+
         setData({
           publisherId: pubId,
           publisherName: publisher.name as string,
@@ -265,6 +332,8 @@ export function usePublisherData(publisherId?: string): UsePublisherDataResult {
           connections: transformedConnections,
           latestSnapshots,
           badges: transformedBadges,
+          posts: transformedPosts,
+          growthHistory,
         });
       } catch (err) {
         console.error('Error fetching publisher data:', err);

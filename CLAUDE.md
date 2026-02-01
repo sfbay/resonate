@@ -9,8 +9,8 @@ Resonate is a civic marketplace platform connecting San Francisco city departmen
 ## Commands
 
 ```bash
-npm run dev      # Start development server at http://localhost:3000
-npm run build    # Production build
+npm run dev      # Start development server at http://localhost:3002
+npm run build    # Production build (standalone + static assets)
 npm run lint     # Run ESLint
 npm run start    # Start production server
 ```
@@ -215,6 +215,116 @@ Publishers can add community notes to supplement census data:
 - `cultural_note` - Cultural context
 - `audience_segment` - Distinct audience segments
 
+## Social Analytics Platform
+
+### OAuth Integrations (src/lib/oauth/)
+
+The platform supports OAuth 2.0 connections to multiple social platforms:
+
+```typescript
+import { getOAuthProvider, supportsOAuth } from '@/lib/oauth';
+
+// Get provider for a platform
+const provider = getOAuthProvider('instagram'); // or 'tiktok', 'mailchimp'
+
+// Check if OAuth is supported
+if (supportsOAuth('instagram')) {
+  // Redirect to: /api/auth/instagram?publisherId=xxx
+}
+```
+
+**Supported Platforms:**
+- **Meta** (Instagram, Facebook, WhatsApp) - `src/lib/oauth/platforms/meta.ts`
+- **TikTok** - `src/lib/oauth/platforms/tiktok.ts`
+- **Mailchimp** - `src/lib/oauth/platforms/mailchimp.ts`
+- **Google** (GA4 Analytics) - `src/lib/oauth/platforms/google.ts`
+
+**OAuth Flow:**
+1. Publisher clicks connect → `/api/auth/[platform]?publisherId=xxx`
+2. Redirects to platform OAuth with encoded state (nonce + timestamp)
+3. Platform redirects to `/api/auth/[platform]/callback`
+4. Exchange code for tokens, fetch initial metrics, store connection
+
+### Platform Sync Service (src/lib/sync/)
+
+Background syncing for connected platforms:
+
+```typescript
+import { syncPublisher, processPendingSyncs } from '@/lib/sync';
+
+// Sync all platforms for a publisher
+const result = await syncPublisher(publisherId, {
+  syncMetrics: true,
+  syncContent: true,
+  contentLimit: 50,
+});
+
+// Process scheduled syncs (called by cron)
+const batch = await processPendingSyncs(50);
+```
+
+**API Endpoints:**
+- `POST /api/sync/cron` - Background sync (Vercel Cron)
+- `POST /api/sync/publisher/[publisherId]` - Manual refresh
+
+### Database Schema for Analytics
+
+New tables in `supabase/migrations/20250115*`:
+- `content_performance` - Individual post metrics with engagement scoring
+- `ai_recommendations` - AI-generated and template insights
+- `media_kit_settings` - Public media kit configuration
+- `web_analytics_connections` - GA4 OAuth connections
+- `web_traffic_snapshots` - Daily traffic aggregates
+- `web_article_performance` - Article-level stats
+- `social_web_attribution` - UTM tracking: post → traffic
+- `platform_sync_schedule` - Background sync configuration
+
+### AI Recommendations (src/lib/ai/, src/lib/recommendations/)
+
+Multi-provider AI system for generating publisher recommendations:
+
+```typescript
+import { generateAIRecommendations, generateHybridRecommendations } from '@/lib/recommendations/ai-recommendation-service';
+
+// Generate AI-powered recommendations
+const recs = await generateAIRecommendations(publisherId);
+
+// Hybrid: AI with template fallback
+const hybrid = await generateHybridRecommendations(publisherId);
+```
+
+**AI Provider Abstraction** (`src/lib/ai/`):
+- Factory pattern supporting multiple providers
+- Configured via `AI_PROVIDER` env var (default: `claude`)
+- Providers: Claude (Anthropic), Gemini (Google), OpenAI
+
+```typescript
+import { getAIProvider, isAIEnabled, generateCompletion } from '@/lib/ai';
+
+// Check if AI is configured
+if (isAIEnabled()) {
+  const response = await generateCompletion({
+    systemPrompt: 'You are a social media expert...',
+    userPrompt: 'Analyze this engagement data...',
+    maxTokens: 1000,
+  });
+}
+```
+
+**Recommendation Types:**
+- `content_timing` - Optimal posting schedules
+- `audience_growth` - Follower acquisition strategies
+- `engagement_boost` - Interaction improvement tactics
+- `platform_expansion` - Cross-platform opportunities
+- `trending_topic` - Timely content suggestions
+- `competitor_insight` - Competitive analysis
+- `web_traffic` - Website traffic optimization
+- `monetization` - Revenue opportunities
+
+**API Endpoints:**
+- `POST /api/recommendations/generate` - Generate new recommendations
+- `GET /api/recommendations/generate?publisherId=xxx` - Fetch existing
+
 ## Development Status
 
 ### Completed
@@ -234,14 +344,26 @@ Publishers can add community notes to supplement census data:
 - [x] Geographic selector entry page with Mapbox US map
 - [x] Publisher analytics dashboard
 - [x] Production deployment on Render
+- [x] OAuth providers for Instagram, TikTok, Mailchimp
+- [x] Platform sync service with background job support
+- [x] Content performance tracking with engagement scoring
+- [x] Database schema for web analytics (GA4 integration)
+- [x] GA4 OAuth integration with property/metrics fetching
+- [x] Multi-provider AI recommendations (Claude, Gemini, OpenAI)
+- [x] AI recommendation service with template fallback
+
+### In Progress
+- [ ] Post performance visualization UI
+- [ ] Growth chart components (Recharts)
+- [ ] Template recommendation engine UI
 
 ### Pending
 - [ ] Publisher onboarding flow completion
 - [ ] Department campaign creation wizard
+- [ ] WhatsApp/Substack OAuth providers
+- [ ] Media kit public page + PDF export
 - [ ] Order/procurement workflow
-- [ ] Platform OAuth connections for audience data
 - [ ] City vendor system API integration
-- [ ] Additional DataSF datasets (traffic crashes, fire/EMS dispatch)
 
 ## Deployment
 
@@ -251,7 +373,34 @@ Publishers can add community notes to supplement census data:
 - **Build**: Next.js standalone output with static asset copying
 - **Auto-deploy**: Enabled on push to `main` branch
 
-### Environment Variables (Render)
+### Environment Variables
+
+**Required for development** (see `.env.example`):
+- `CENSUS_API_KEY` - Census Bureau API key for ACS data
+- `NEXT_PUBLIC_MAPBOX_TOKEN` - Mapbox GL JS access token
+- `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
+- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key (server-side)
+- `NEXT_PUBLIC_APP_URL` - App URL for OAuth callbacks (default: http://localhost:3002)
+
+**OAuth Credentials (optional, enables platform connections):**
+- `META_APP_ID` / `META_APP_SECRET` - Meta (Instagram/Facebook/WhatsApp)
+- `TIKTOK_CLIENT_KEY` / `TIKTOK_CLIENT_SECRET` - TikTok
+- `MAILCHIMP_CLIENT_ID` / `MAILCHIMP_CLIENT_SECRET` - Mailchimp
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - Google Analytics (GA4)
+
+**AI Provider (optional, enables AI recommendations):**
+- `AI_PROVIDER` - Provider selection: `claude` (default), `gemini`, or `openai`
+- `ANTHROPIC_API_KEY` - For Claude provider
+- `GOOGLE_AI_API_KEY` - For Gemini provider
+- `OPENAI_API_KEY` - For OpenAI provider
+- Model overrides: `CLAUDE_MODEL`, `GEMINI_MODEL`, `OPENAI_MODEL`
+
+**Optional:**
+- `DATASF_APP_TOKEN` - For higher DataSF rate limits
+- `CRON_SECRET` - Vercel Cron authorization
+
+**Render production:**
 - `HOSTNAME=0.0.0.0` - Required for Next.js standalone server
 - `PORT=10000` - Render's default port
 

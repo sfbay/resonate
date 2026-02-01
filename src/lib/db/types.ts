@@ -9,13 +9,21 @@
 
 export type VendorStatus = 'not_registered' | 'registration_in_progress' | 'registered' | 'registration_expired';
 export type PublisherStatus = 'pending_review' | 'active' | 'suspended' | 'inactive';
-export type PlatformType = 'instagram' | 'facebook' | 'tiktok' | 'twitter' | 'youtube' | 'mailchimp' | 'substack' | 'whatsapp' | 'telegram' | 'signal' | 'sms' | 'weibo' | 'newsletter' | 'website' | 'other';
-export type ConnectionStatus = 'active' | 'expired' | 'revoked' | 'pending';
+export type PlatformType = 'instagram' | 'facebook' | 'tiktok' | 'twitter' | 'youtube' | 'mailchimp' | 'substack' | 'whatsapp' | 'telegram' | 'signal' | 'sms' | 'weibo' | 'newsletter' | 'website' | 'other' | 'google';
+export type ConnectionStatus = 'active' | 'expired' | 'revoked' | 'pending' | 'error';
 export type BadgeType = 'rising_star' | 'growth_champion' | 'engagement_leader' | 'verified_publisher' | 'emerging_channel' | 'community_builder';
 export type BadgeTier = 'bronze' | 'silver' | 'gold';
 export type BadgeStatus = 'active' | 'expired' | 'revoked';
 export type VerificationLevel = 'self_reported' | 'partial' | 'verified';
 export type GrowthPeriod = 'daily' | 'weekly' | 'monthly';
+
+// New types for analytics features
+export type ContentType = 'post' | 'story' | 'reel' | 'video' | 'carousel' | 'article' | 'newsletter' | 'broadcast';
+export type RecommendationType = 'content_timing' | 'content_format' | 'hashtag_strategy' | 'audience_growth' | 'engagement_boost' | 'cross_platform' | 'trending_topic' | 'competitor_insight' | 'web_traffic' | 'monetization';
+export type RecommendationPriority = 'high' | 'medium' | 'low';
+export type MediaKitVisibility = 'public' | 'authenticated' | 'private';
+export type AnalyticsProvider = 'google_analytics' | 'plausible' | 'fathom' | 'simple_analytics';
+export type SyncFrequency = 'hourly' | 'every_6_hours' | 'daily' | 'weekly';
 
 // =============================================================================
 // TABLE TYPES
@@ -207,7 +215,8 @@ export interface DbContentPerformance {
   publisher_id: string;
   platform: PlatformType;
   content_id: string;
-  content_type: string | null;
+  content_type: ContentType | null;
+  content_url: string | null;
   published_at: string | null;
 
   // Performance metrics
@@ -218,16 +227,212 @@ export interface DbContentPerformance {
   shares: number | null;
   saves: number | null;
   clicks: number | null;
+  video_views: number | null;
+  watch_time_seconds: number | null;
 
-  // Engagement rate for this content
+  // Engagement metrics
   engagement_rate: number | null;
+  engagement_score: number; // Computed: likes + comments*3 + shares*5 + saves*2
 
   // Content metadata
   caption_excerpt: string | null;
+  thumbnail_url: string | null;
   media_type: string | null;
   hashtags: string[] | null;
+  mentions: string[] | null;
+
+  // UTM tracking
+  utm_campaign: string | null;
+  utm_content: string | null;
 
   recorded_at: string;
+}
+
+export interface DbAIRecommendation {
+  id: string;
+  publisher_id: string;
+  recommendation_type: RecommendationType;
+  priority: RecommendationPriority;
+  title: string;
+  summary: string;
+  detailed_explanation: string | null;
+  action_items: RecommendationActionItem[] | null;
+  context: RecommendationContext | null;
+  platform: PlatformType | null;
+  is_ai_generated: boolean;
+  ai_model: string | null;
+  status: 'active' | 'dismissed' | 'completed' | 'expired';
+  dismissed_at: string | null;
+  completed_at: string | null;
+  valid_from: string;
+  valid_until: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbMediaKitSettings {
+  id: string;
+  publisher_id: string;
+  visibility: MediaKitVisibility;
+  custom_slug: string | null;
+
+  // Display preferences
+  show_follower_counts: boolean;
+  show_engagement_rates: boolean;
+  show_growth_metrics: boolean;
+  show_audience_demographics: boolean;
+  show_top_content: boolean;
+  show_badges: boolean;
+  show_web_traffic: boolean;
+  displayed_platforms: PlatformType[] | null;
+
+  // Custom content
+  headline: string | null;
+  bio: string | null;
+  mission_statement: string | null;
+
+  // Branding
+  accent_color: string | null;
+  custom_logo_url: string | null;
+  cover_image_url: string | null;
+
+  // Contact
+  show_contact_email: boolean;
+  contact_email: string | null;
+  booking_url: string | null;
+
+  // Social proof
+  featured_campaigns: FeaturedCampaign[] | null;
+  testimonials: Testimonial[] | null;
+
+  // Analytics
+  view_count: number;
+  last_viewed_at: string | null;
+
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbWebAnalyticsConnection {
+  id: string;
+  publisher_id: string;
+  provider: AnalyticsProvider;
+  property_id: string | null;
+  property_name: string | null;
+  website_url: string | null;
+  access_token: string | null;
+  refresh_token: string | null;
+  token_expires_at: string | null;
+  scopes: string[] | null;
+  status: ConnectionStatus;
+  last_synced_at: string | null;
+  last_sync_error: string | null;
+  connected_at: string;
+  updated_at: string;
+}
+
+export interface DbWebTrafficSnapshot {
+  id: string;
+  publisher_id: string;
+  connection_id: string | null;
+  snapshot_date: string;
+
+  // Traffic metrics
+  total_users: number | null;
+  new_users: number | null;
+  returning_users: number | null;
+  sessions: number | null;
+  pageviews: number | null;
+  unique_pageviews: number | null;
+
+  // Engagement
+  avg_session_duration_seconds: number | null;
+  pages_per_session: number | null;
+  bounce_rate: number | null;
+  engagement_rate: number | null;
+
+  // Breakdown (JSONB)
+  traffic_sources: TrafficSourceBreakdown | null;
+  social_traffic: SocialTrafficBreakdown | null;
+  top_cities: CityTraffic[] | null;
+  device_breakdown: DeviceBreakdown | null;
+
+  recorded_at: string;
+}
+
+export interface DbWebArticlePerformance {
+  id: string;
+  publisher_id: string;
+  connection_id: string | null;
+  page_path: string;
+  page_title: string | null;
+  published_date: string | null;
+  snapshot_date: string;
+
+  // Metrics
+  pageviews: number | null;
+  unique_pageviews: number | null;
+  users: number | null;
+  avg_time_on_page_seconds: number | null;
+  bounce_rate: number | null;
+  exit_rate: number | null;
+
+  // Sources
+  traffic_sources: TrafficSourceBreakdown | null;
+  social_traffic: SocialTrafficBreakdown | null;
+
+  recorded_at: string;
+}
+
+export interface DbSocialWebAttribution {
+  id: string;
+  publisher_id: string;
+  content_id: string | null;
+  platform: PlatformType;
+  post_id: string | null;
+  posted_at: string | null;
+
+  // UTM
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
+  utm_content: string | null;
+  utm_term: string | null;
+
+  // Attribution metrics
+  attributed_users: number;
+  attributed_sessions: number;
+  attributed_pageviews: number;
+  attributed_conversions: number;
+
+  // Engagement quality
+  avg_session_duration_seconds: number | null;
+  pages_per_session: number | null;
+  bounce_rate: number | null;
+
+  attribution_date: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbPlatformSyncSchedule {
+  id: string;
+  publisher_id: string;
+  platform: PlatformType;
+  connection_id: string | null;
+  frequency: SyncFrequency;
+  is_enabled: boolean;
+  last_run_at: string | null;
+  next_run_at: string | null;
+  sync_metrics: boolean;
+  sync_content: boolean;
+  sync_demographics: boolean;
+  content_limit: number;
+  last_status: 'success' | 'partial' | 'failed' | null;
+  last_error: string | null;
+  consecutive_failures: number;
+  created_at: string;
+  updated_at: string;
 }
 
 // =============================================================================
@@ -252,6 +457,77 @@ export interface DataSourceInfo {
   platformConnections?: string[];
   verificationLevel: VerificationLevel;
   lastUpdated: string;
+}
+
+// AI Recommendations JSONB types
+export interface RecommendationActionItem {
+  text: string;
+  completed: boolean;
+}
+
+export interface RecommendationContext {
+  basedOn: string;
+  dataPoints: number;
+  confidenceScore: number;
+  relatedMetrics?: Record<string, number>;
+}
+
+// Media Kit JSONB types
+export interface FeaturedCampaign {
+  name: string;
+  date: string;
+  logo?: string;
+  testimonial?: string;
+}
+
+export interface Testimonial {
+  author: string;
+  org: string;
+  quote: string;
+  date: string;
+}
+
+// Web Traffic JSONB types
+export interface TrafficSourceBreakdown {
+  organic_search?: TrafficSourceData;
+  direct?: TrafficSourceData;
+  social?: TrafficSourceData;
+  referral?: TrafficSourceData;
+  email?: TrafficSourceData;
+  paid_search?: TrafficSourceData;
+  display?: TrafficSourceData;
+}
+
+export interface TrafficSourceData {
+  users: number;
+  sessions: number;
+  percent: number;
+}
+
+export interface SocialTrafficBreakdown {
+  instagram?: SocialTrafficData;
+  tiktok?: SocialTrafficData;
+  facebook?: SocialTrafficData;
+  twitter?: SocialTrafficData;
+  youtube?: SocialTrafficData;
+  linkedin?: SocialTrafficData;
+}
+
+export interface SocialTrafficData {
+  users: number;
+  sessions: number;
+}
+
+export interface CityTraffic {
+  city: string;
+  users: number;
+  percent: number;
+}
+
+export interface DeviceBreakdown {
+  mobile: number;
+  desktop: number;
+  tablet: number;
 }
 
 // =============================================================================
@@ -339,11 +615,74 @@ export interface Database {
       };
       content_performance: {
         Row: DbContentPerformance;
-        Insert: Omit<DbContentPerformance, 'id' | 'recorded_at'> & {
+        Insert: Omit<DbContentPerformance, 'id' | 'recorded_at' | 'engagement_score'> & {
           id?: string;
           recorded_at?: string;
         };
-        Update: Partial<Omit<DbContentPerformance, 'id'>>;
+        Update: Partial<Omit<DbContentPerformance, 'id' | 'engagement_score'>>;
+      };
+      ai_recommendations: {
+        Row: DbAIRecommendation;
+        Insert: Omit<DbAIRecommendation, 'id' | 'created_at' | 'updated_at'> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<DbAIRecommendation, 'id'>>;
+      };
+      media_kit_settings: {
+        Row: DbMediaKitSettings;
+        Insert: Omit<DbMediaKitSettings, 'id' | 'created_at' | 'updated_at' | 'view_count'> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+          view_count?: number;
+        };
+        Update: Partial<Omit<DbMediaKitSettings, 'id'>>;
+      };
+      web_analytics_connections: {
+        Row: DbWebAnalyticsConnection;
+        Insert: Omit<DbWebAnalyticsConnection, 'id' | 'connected_at' | 'updated_at'> & {
+          id?: string;
+          connected_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<DbWebAnalyticsConnection, 'id'>>;
+      };
+      web_traffic_snapshots: {
+        Row: DbWebTrafficSnapshot;
+        Insert: Omit<DbWebTrafficSnapshot, 'id' | 'recorded_at'> & {
+          id?: string;
+          recorded_at?: string;
+        };
+        Update: Partial<Omit<DbWebTrafficSnapshot, 'id'>>;
+      };
+      web_article_performance: {
+        Row: DbWebArticlePerformance;
+        Insert: Omit<DbWebArticlePerformance, 'id' | 'recorded_at'> & {
+          id?: string;
+          recorded_at?: string;
+        };
+        Update: Partial<Omit<DbWebArticlePerformance, 'id'>>;
+      };
+      social_web_attribution: {
+        Row: DbSocialWebAttribution;
+        Insert: Omit<DbSocialWebAttribution, 'id' | 'created_at' | 'updated_at'> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<DbSocialWebAttribution, 'id'>>;
+      };
+      platform_sync_schedule: {
+        Row: DbPlatformSyncSchedule;
+        Insert: Omit<DbPlatformSyncSchedule, 'id' | 'created_at' | 'updated_at' | 'consecutive_failures'> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+          consecutive_failures?: number;
+        };
+        Update: Partial<Omit<DbPlatformSyncSchedule, 'id'>>;
       };
     };
   };

@@ -111,6 +111,12 @@ const PLATFORM_INFO: Record<
     color: 'text-slate-500',
     bgColor: 'bg-slate-500',
   },
+  google: {
+    name: 'Google Analytics',
+    icon: '📊',
+    color: 'text-orange-500',
+    bgColor: 'bg-gradient-to-br from-yellow-400 to-orange-500',
+  },
 };
 
 function formatNumber(num: number | undefined | null): string {

@@ -130,6 +130,197 @@ export interface MetricsFetchResult {
 }
 
 // =============================================================================
+// CONTENT TYPES
+// =============================================================================
+
+export interface ContentPost {
+  id: string;
+  platform: Platform;
+  contentType: 'post' | 'story' | 'reel' | 'video' | 'carousel' | 'article' | 'newsletter' | 'broadcast';
+  publishedAt: Date;
+  captionExcerpt?: string;
+  contentUrl?: string;
+  thumbnailUrl?: string;
+  mediaType?: 'image' | 'video' | 'carousel' | 'text';
+  hashtags?: string[];
+  mentions?: string[];
+
+  // Performance metrics
+  impressions?: number;
+  reach?: number;
+  likes?: number;
+  comments?: number;
+  shares?: number;
+  saves?: number;
+  clicks?: number;
+  videoViews?: number;
+  watchTimeSeconds?: number;
+
+  // Engagement
+  engagementRate?: number;
+}
+
+export interface ContentFetchResult {
+  success: boolean;
+  posts?: ContentPost[];
+  error?: string;
+  rateLimited?: boolean;
+  hasMore?: boolean;
+  cursor?: string;
+}
+
+// =============================================================================
+// TIKTOK API TYPES
+// =============================================================================
+
+export interface TikTokTokenResponse {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+  refresh_expires_in: number;
+  open_id: string;
+  scope: string;
+  token_type: string;
+}
+
+export interface TikTokUserInfo {
+  open_id: string;
+  union_id?: string;
+  avatar_url?: string;
+  avatar_url_100?: string;
+  avatar_large_url?: string;
+  display_name?: string;
+  bio_description?: string;
+  profile_deep_link?: string;
+  is_verified?: boolean;
+  follower_count?: number;
+  following_count?: number;
+  likes_count?: number;
+  video_count?: number;
+}
+
+export interface TikTokVideo {
+  id: string;
+  create_time: number;
+  cover_image_url?: string;
+  share_url?: string;
+  video_description?: string;
+  duration?: number;
+  title?: string;
+  embed_html?: string;
+  embed_link?: string;
+  like_count?: number;
+  comment_count?: number;
+  share_count?: number;
+  view_count?: number;
+}
+
+export interface TikTokVideoQueryResponse {
+  data: {
+    videos: TikTokVideo[];
+    cursor?: number;
+    has_more?: boolean;
+  };
+  error: {
+    code: string;
+    message: string;
+    log_id: string;
+  };
+}
+
+// =============================================================================
+// MAILCHIMP API TYPES
+// =============================================================================
+
+export interface MailchimpTokenResponse {
+  access_token: string;
+  expires_in?: number;
+  scope?: string;
+  token_type: string;
+}
+
+export interface MailchimpMetadata {
+  dc: string; // Data center (e.g., "us1")
+  accountname?: string;
+  user_id?: number;
+  login?: {
+    email?: string;
+    avatar?: string;
+    login_id?: number;
+    login_name?: string;
+    login_email?: string;
+  };
+  api_endpoint: string;
+}
+
+export interface MailchimpListStats {
+  member_count: number;
+  unsubscribe_count: number;
+  cleaned_count: number;
+  member_count_since_send: number;
+  unsubscribe_count_since_send: number;
+  cleaned_count_since_send: number;
+  campaign_count: number;
+  campaign_last_sent?: string;
+  merge_field_count: number;
+  avg_sub_rate: number;
+  avg_unsub_rate: number;
+  target_sub_rate: number;
+  open_rate: number;
+  click_rate: number;
+  last_sub_date?: string;
+  last_unsub_date?: string;
+}
+
+export interface MailchimpList {
+  id: string;
+  web_id: number;
+  name: string;
+  stats: MailchimpListStats;
+  date_created: string;
+  list_rating: number;
+}
+
+export interface MailchimpCampaign {
+  id: string;
+  web_id: number;
+  type: string;
+  create_time: string;
+  archive_url?: string;
+  long_archive_url?: string;
+  status: string;
+  emails_sent: number;
+  send_time?: string;
+  content_type: string;
+  recipients: {
+    list_id: string;
+    list_name: string;
+    segment_text?: string;
+    recipient_count: number;
+  };
+  settings: {
+    subject_line?: string;
+    preview_text?: string;
+    title?: string;
+    from_name?: string;
+    reply_to?: string;
+  };
+  report_summary?: {
+    opens: number;
+    unique_opens: number;
+    open_rate: number;
+    clicks: number;
+    subscriber_clicks: number;
+    click_rate: number;
+    ecommerce?: {
+      total_orders: number;
+      total_spent: number;
+      total_revenue: number;
+    };
+  };
+}
+
+// =============================================================================
 // OAUTH PROVIDER INTERFACE
 // =============================================================================
 
@@ -151,10 +342,20 @@ export interface OAuthProvider {
   /** Fetch current metrics using access token */
   fetchMetrics(accessToken: string): Promise<MetricsFetchResult>;
 
+  /** Fetch content/posts from the platform */
+  fetchContent(accessToken: string, options?: ContentFetchOptions): Promise<ContentFetchResult>;
+
   /** Get connected account info */
   getAccountInfo(accessToken: string): Promise<{
     platformUserId: string;
     handle?: string;
     url?: string;
+    profileImageUrl?: string;
   }>;
+}
+
+export interface ContentFetchOptions {
+  limit?: number;
+  cursor?: string;
+  since?: Date;
 }

@@ -26,6 +26,9 @@ import type {
   MetaPageResponse,
   MetaInstagramAccountResponse,
   MetaInstagramInsightsResponse,
+  ContentFetchResult,
+  ContentFetchOptions,
+  ContentPost,
 } from '../types';
 import type { Platform } from '@/types';
 
@@ -199,6 +202,7 @@ export class MetaOAuthProvider implements OAuthProvider {
     platformUserId: string;
     handle?: string;
     url?: string;
+    profileImageUrl?: string;
   }> {
     const instagram = await this.getInstagramBusinessAccount(accessToken);
     if (!instagram) {
@@ -209,7 +213,119 @@ export class MetaOAuthProvider implements OAuthProvider {
       platformUserId: instagram.id,
       handle: instagram.username ? `@${instagram.username}` : undefined,
       url: instagram.username ? `https://instagram.com/${instagram.username}` : undefined,
+      profileImageUrl: instagram.profile_picture_url,
     };
+  }
+
+  /**
+   * Fetch Instagram posts/content
+   */
+  async fetchContent(
+    accessToken: string,
+    options?: ContentFetchOptions
+  ): Promise<ContentFetchResult> {
+    try {
+      const instagram = await this.getInstagramBusinessAccount(accessToken);
+      if (!instagram) {
+        return { success: false, error: 'No Instagram Business account found' };
+      }
+
+      const limit = options?.limit || 25;
+      const url = new URL(`${GRAPH_API_BASE}/${instagram.id}/media`);
+      url.searchParams.set('access_token', accessToken);
+      url.searchParams.set('fields', [
+        'id',
+        'media_type',
+        'media_url',
+        'thumbnail_url',
+        'permalink',
+        'caption',
+        'timestamp',
+        'like_count',
+        'comments_count',
+        'insights.metric(impressions,reach,saved,shares)',
+      ].join(','));
+      url.searchParams.set('limit', limit.toString());
+
+      if (options?.cursor) {
+        url.searchParams.set('after', options.cursor);
+      }
+
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        const error = await response.text();
+        return { success: false, error: `Failed to fetch content: ${error}` };
+      }
+
+      const data = await response.json();
+      const posts: ContentPost[] = (data.data || []).map((post: {
+        id: string;
+        media_type: string;
+        permalink?: string;
+        thumbnail_url?: string;
+        caption?: string;
+        timestamp: string;
+        like_count?: number;
+        comments_count?: number;
+        insights?: { data: Array<{ name: string; values: Array<{ value: number }> }> };
+      }) => {
+        // Extract insights
+        const insights: Record<string, number> = {};
+        if (post.insights?.data) {
+          for (const metric of post.insights.data) {
+            insights[metric.name] = metric.values[0]?.value || 0;
+          }
+        }
+
+        // Determine content type from media_type
+        let contentType: ContentPost['contentType'] = 'post';
+        if (post.media_type === 'VIDEO') {
+          contentType = 'video';
+        } else if (post.media_type === 'CAROUSEL_ALBUM') {
+          contentType = 'carousel';
+        }
+
+        // Extract hashtags from caption
+        const hashtags = post.caption?.match(/#\w+/g)?.map(h => h.slice(1)) || [];
+        const mentions = post.caption?.match(/@\w+/g)?.map(m => m.slice(1)) || [];
+
+        return {
+          id: post.id,
+          platform: 'instagram' as Platform,
+          contentType,
+          publishedAt: new Date(post.timestamp),
+          captionExcerpt: post.caption?.slice(0, 280),
+          contentUrl: post.permalink,
+          thumbnailUrl: post.thumbnail_url,
+          mediaType: post.media_type === 'VIDEO' ? 'video' : post.media_type === 'CAROUSEL_ALBUM' ? 'carousel' : 'image',
+          hashtags,
+          mentions,
+          likes: post.like_count,
+          comments: post.comments_count,
+          impressions: insights.impressions,
+          reach: insights.reach,
+          saves: insights.saved,
+          shares: insights.shares,
+        };
+      });
+
+      // Filter by date if specified
+      const filteredPosts = options?.since
+        ? posts.filter(p => p.publishedAt >= options.since!)
+        : posts;
+
+      return {
+        success: true,
+        posts: filteredPosts,
+        hasMore: !!data.paging?.cursors?.after,
+        cursor: data.paging?.cursors?.after,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
   }
 
   /**
