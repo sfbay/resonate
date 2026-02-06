@@ -1,4 +1,4 @@
-import { dirname } from 'path';
+import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -14,6 +14,11 @@ const nextConfig = {
         hostname: '**.supabase.co',
       },
     ],
+  },
+  webpack: (config) => {
+    // Ensure @/ alias resolves correctly on all build environments
+    config.resolve.alias['@'] = resolve(__dirname, 'src');
+    return config;
   },
 };
 
