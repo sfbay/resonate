@@ -103,7 +103,6 @@ export async function GET(
       description: p.description || '',
       website: p.website,
       audienceProfile: {
-        // Demo: assume all publishers cover citywide SF
         geographic: {
           neighborhoods: campaign.target_neighborhoods?.slice(0, 3) || [],
           citywide: true,
@@ -113,12 +112,17 @@ export async function GET(
         },
         economic: {},
         cultural: {},
+        dataSource: {
+          type: 'platform_reported' as const,
+          verificationLevel: 'partially_verified' as const,
+          lastVerified: new Date(),
+        },
+        lastUpdated: new Date(),
       },
       platforms: [],
       rateCard: {
-        adPlacements: [],
+        rates: [],
         currency: 'USD',
-        minimumSpend: 500,
       },
       vendorStatus: 'registered' as const,
       status: 'active' as const,
