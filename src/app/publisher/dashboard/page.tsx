@@ -9,6 +9,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { AnalyticsDashboard } from '@/components/publisher/analytics';
 import { usePublisherData } from '@/lib/db/use-publisher-data';
 
@@ -97,12 +98,12 @@ function DashboardContent() {
           <p className="text-slate-500 mb-4">
             You don&apos;t have a publisher profile yet. Create one to start tracking your analytics.
           </p>
-          <a
+          <Link
             href="/publisher/onboarding"
             className="inline-block px-4 py-2 bg-coral-500 text-white rounded-lg hover:bg-coral-600 transition-colors"
           >
             Create Profile
-          </a>
+          </Link>
         </div>
       </div>
     );
