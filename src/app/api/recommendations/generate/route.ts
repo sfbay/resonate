@@ -78,10 +78,27 @@ export async function POST(request: NextRequest) {
       .from('metrics_snapshots')
       .select('*')
       .eq('publisher_id', publisherId)
-      .order('created_at', { ascending: false })
+      .order('recorded_at', { ascending: false })
       .limit(1);
 
     const latestSnapshot = snapshotData?.[0];
+
+    // Fetch 30-day growth from growth_snapshots
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: growthData } = await (supabase as any)
+      .from('growth_snapshots')
+      .select('net_growth, growth_rate_percent')
+      .eq('publisher_id', publisherId)
+      .eq('period_type', 'monthly')
+      .order('snapshot_date', { ascending: false })
+      .limit(10);
+
+    // Aggregate growth across all platforms
+    const growthRows = growthData || [];
+    const totalNetGrowth = growthRows.reduce((sum: number, g: { net_growth: number }) => sum + (g.net_growth || 0), 0);
+    const avgGrowthRate = growthRows.length > 0
+      ? growthRows.reduce((sum: number, g: { growth_rate_percent: string }) => sum + Number(g.growth_rate_percent || 0), 0) / growthRows.length
+      : 0;
 
     // Transform content data
     const posts: ContentPerformance[] = (contentData || []).map((row: {
@@ -118,13 +135,13 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Build metrics from snapshot
+    // Build metrics from snapshot + growth data
     const metrics: GrowthMetrics = {
       totalFollowers: latestSnapshot?.follower_count || 0,
       avgEngagementRate: latestSnapshot?.engagement_rate || 0,
       growth30d: {
-        absolute: 0, // Would need historical data to calculate
-        growthRate: 0,
+        absolute: totalNetGrowth,
+        growthRate: Math.round(avgGrowthRate * 100) / 100,
       },
     };
 

@@ -84,7 +84,8 @@ export function usePublisherData(publisherId?: string): UsePublisherDataResult {
         let publisherQuery = supabase
           .from('publishers')
           .select('*')
-          .eq('status', 'active');
+          .eq('status', 'active')
+          .order('created_at', { ascending: true });
 
         if (publisherId) {
           publisherQuery = publisherQuery.eq('id', publisherId);
@@ -150,15 +151,15 @@ export function usePublisherData(publisherId?: string): UsePublisherDataResult {
           console.error('Badges error:', badgesError);
         }
 
-        // Fetch content performance (last 30 days, limit 100 posts)
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        // Fetch content performance (last 90 days, limit 100 posts)
+        const ninetyDaysAgo = new Date();
+        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
 
         const { data: contentData, error: contentError } = await supabase
           .from('content_performance')
           .select('*')
           .eq('publisher_id', pubId)
-          .gte('published_at', thirtyDaysAgo.toISOString())
+          .gte('published_at', ninetyDaysAgo.toISOString())
           .order('published_at', { ascending: false })
           .limit(100);
 
