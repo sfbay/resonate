@@ -17,11 +17,13 @@ import {
   type ContentPerformance,
   type GrowthMetrics,
 } from '@/lib/recommendations/ai-recommendation-service';
+import { generateWizardRecommendations } from '@/lib/recommendations/wizard-service';
+import { getSFCensusData } from '@/lib/census/sf-census-data';
 import type { PlatformType } from '@/lib/db/types';
 
 interface GenerateRequestBody {
   publisherId: string;
-  mode?: 'ai' | 'template' | 'hybrid';
+  mode?: 'ai' | 'template' | 'hybrid' | 'wizard';
   platform?: PlatformType;
   storeResults?: boolean;
 }
@@ -126,6 +128,69 @@ export async function POST(request: NextRequest) {
       reach: row.reach,
       hashtags: row.hashtags,
     }));
+
+    // Wizard mode: run wizard rules with census + civic data
+    if (mode === 'wizard') {
+      const censusData = getSFCensusData();
+
+      // Fetch audience profile
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: profileData } = await (supabase as any)
+        .from('audience_profiles')
+        .select('*')
+        .eq('publisher_id', publisherId)
+        .single();
+
+      // Fetch platform connections
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: connectionData } = await (supabase as any)
+        .from('platform_connections')
+        .select('platform')
+        .eq('publisher_id', publisherId)
+        .eq('status', 'active');
+
+      const publisherPlatforms = (connectionData || []).map(
+        (c: { platform: string }) => c.platform as PlatformType
+      );
+
+      const performanceData = posts.length > 0
+        ? {
+            posts: posts.map((p) => ({
+              platform: p.platform,
+              contentType: p.contentType,
+              publishedAt: p.publishedAt,
+              likes: p.likes,
+              comments: p.comments,
+              shares: p.shares,
+            })),
+            avgEngagementRate: latestSnapshot?.engagement_rate || 0,
+            growthRate30d: Math.round(avgGrowthRate * 100) / 100,
+            totalFollowers: latestSnapshot?.follower_count || 0,
+          }
+        : undefined;
+
+      const wizardResults = generateWizardRecommendations({
+        publisherId,
+        publisherName: publisher.name,
+        wizardData: {
+          censusData,
+          evictionStats: null, // Evictions fetched client-side
+          audienceProfile: profileData || null,
+          allNeighborhoods: Object.keys(censusData),
+          publisherNeighborhoods: profileData?.neighborhoods || [],
+          publisherPlatforms,
+        },
+        performanceData,
+      });
+
+      return NextResponse.json({
+        success: true,
+        publisherId,
+        source: 'wizard',
+        wizardResults,
+        timestamp: new Date().toISOString(),
+      });
+    }
 
     if (posts.length === 0) {
       return NextResponse.json({

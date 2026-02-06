@@ -166,4 +166,10 @@ export const RECOMMENDATION_TYPES: Record<RecommendationType, string> = {
   competitor_insight: 'What similar publishers do well',
   web_traffic: 'Driving traffic from social to website',
   monetization: 'Revenue optimization strategies',
+  neighborhood_expansion: 'Neighborhood areas with audience growth potential',
+  demographic_reach: 'Underserved demographic segments in coverage areas',
+  social_media_timing: 'Optimal social media posting windows',
+  content_series: 'Recurring social media series ideas',
+  platform_recommendation: 'Platforms where audience is active but publisher isn\'t',
+  community_landscape: 'Civic data signals in coverage areas',
 };

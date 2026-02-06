@@ -70,6 +70,12 @@ const TYPE_ICONS: Record<RecommendationType, string> = {
   competitor_insight: '👀',
   web_traffic: '🌐',
   monetization: '💰',
+  neighborhood_expansion: '📍',
+  demographic_reach: '👥',
+  social_media_timing: '⏰',
+  content_series: '🔄',
+  platform_recommendation: '🚀',
+  community_landscape: '🏘️',
 };
 
 // =============================================================================

@@ -14,6 +14,8 @@ import { BadgeCollection, RisingStarBadge } from './GrowthBadge';
 import { GrowthChart } from './GrowthChart';
 import { PostPerformanceTable } from './PostPerformanceTable';
 import { RecommendationsPanel, type ExtendedRecommendation } from './RecommendationsPanel';
+import { GrowthOpportunitiesSection } from './GrowthOpportunitiesSection';
+import { WizardOverlay } from './wizard';
 import { generateRecommendations } from '@/lib/recommendations/template-engine';
 import type { GrowthMetrics, PlatformConnection, MetricsSnapshot, Badge, Platform } from '@/types';
 import type { PostPerformance } from './PostPerformanceTable';
@@ -61,14 +63,21 @@ export function AnalyticsDashboard({
   // State for AI recommendations
   const [aiRecommendations, setAiRecommendations] = useState<ExtendedRecommendation[]>([]);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
-  const [aiError, setAiError] = useState<string | null>(null);
+
+  // State for wizard overlay
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
+
+  // Derive publisher platforms from connections
+  const activePlatforms = useMemo(
+    () => connections.filter((c) => c.status === 'active').map((c) => c.platform),
+    [connections]
+  );
 
   // Generate AI recommendations via API
   const handleGenerateAI = useCallback(async () => {
     if (!publisherId) return;
 
     setIsGeneratingAI(true);
-    setAiError(null);
 
     try {
       const response = await fetch('/api/recommendations/generate', {
@@ -101,7 +110,7 @@ export function AnalyticsDashboard({
       }
     } catch (error) {
       console.error('AI recommendation error:', error);
-      setAiError(error instanceof Error ? error.message : 'Failed to generate AI insights');
+      console.warn('AI insights generation failed:', error instanceof Error ? error.message : 'Unknown error');
     } finally {
       setIsGeneratingAI(false);
     }
@@ -360,62 +369,19 @@ export function AnalyticsDashboard({
               <PostPerformanceTable posts={posts} isLoading={isLoading} />
             </div>
 
-            {/* Recommendations - takes 1 column */}
+            {/* Growth Opportunities + Recommendations - takes 1 column */}
             <div className="space-y-4">
-              {/* AI Insights Button */}
-              <div className="bg-white rounded-xl p-4 shadow-md">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-charcoal">AI Insights</h3>
-                  {aiRecommendations.length > 0 && (
-                    <span className="text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded-full flex items-center gap-1">
-                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                      </svg>
-                      AI Active
-                    </span>
-                  )}
-                </div>
-                <p className="text-sm text-slate-500 mb-4">
-                  Get personalized recommendations powered by AI analysis of your content performance.
-                </p>
-                <button
-                  onClick={handleGenerateAI}
-                  disabled={isGeneratingAI || !publisherId}
-                  className={`w-full py-3 px-4 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${
-                    isGeneratingAI
-                      ? 'bg-purple-100 text-purple-600 cursor-wait'
-                      : aiRecommendations.length > 0
-                      ? 'bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-200'
-                      : 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 shadow-md'
-                  }`}
-                >
-                  {isGeneratingAI ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-purple-300 border-t-purple-600 rounded-full animate-spin" />
-                      Analyzing...
-                    </>
-                  ) : aiRecommendations.length > 0 ? (
-                    <>
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                      Refresh Insights
-                    </>
-                  ) : (
-                    <>
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                      </svg>
-                      Generate AI Insights
-                    </>
-                  )}
-                </button>
-                {aiError && (
-                  <p className="text-sm text-red-500 mt-2 flex items-center gap-1">
-                    <span>⚠️</span> {aiError}
-                  </p>
-                )}
-              </div>
+              {/* Growth Opportunities Section */}
+              <GrowthOpportunitiesSection
+                publisherId={publisherId}
+                publisherName={publisherName}
+                posts={posts}
+                growthRate30d={metrics?.growth30d.growthRate}
+                totalFollowers={metrics?.totalFollowers}
+                avgEngagementRate={metrics?.averageEngagementRate}
+                platforms={activePlatforms}
+                onOpenWizard={() => setIsWizardOpen(true)}
+              />
 
               {/* Recommendations Panel */}
               <RecommendationsPanel
@@ -426,7 +392,7 @@ export function AnalyticsDashboard({
           </section>
         )}
 
-        {/* Recommendations (placeholder) */}
+        {/* Grow Your Reach CTA */}
         <section className="bg-gradient-to-br from-coral-500 to-marigold-500 rounded-xl p-6 text-white">
           <h2 className="font-semibold text-lg mb-2">Grow Your Reach</h2>
           <p className="opacity-90 mb-4">
@@ -447,6 +413,18 @@ export function AnalyticsDashboard({
           </div>
         </section>
       </main>
+
+      {/* Wizard Overlay */}
+      <WizardOverlay
+        isOpen={isWizardOpen}
+        onClose={() => setIsWizardOpen(false)}
+        publisherId={publisherId}
+        publisherName={publisherName}
+        posts={posts}
+        growthRate30d={metrics?.growth30d.growthRate}
+        totalFollowers={metrics?.totalFollowers}
+        avgEngagementRate={metrics?.averageEngagementRate}
+      />
     </div>
   );
 }

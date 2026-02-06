@@ -428,6 +428,16 @@ function validateRecommendationType(type: string): RecommendationType {
     'audience_growth',
     'engagement_boost',
     'cross_platform',
+    'trending_topic',
+    'competitor_insight',
+    'web_traffic',
+    'monetization',
+    'neighborhood_expansion',
+    'demographic_reach',
+    'social_media_timing',
+    'content_series',
+    'platform_recommendation',
+    'community_landscape',
   ];
 
   return validTypes.includes(type as RecommendationType)

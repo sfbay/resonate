@@ -19,7 +19,7 @@ export type GrowthPeriod = 'daily' | 'weekly' | 'monthly';
 
 // New types for analytics features
 export type ContentType = 'post' | 'story' | 'reel' | 'video' | 'carousel' | 'article' | 'newsletter' | 'broadcast';
-export type RecommendationType = 'content_timing' | 'content_format' | 'hashtag_strategy' | 'audience_growth' | 'engagement_boost' | 'cross_platform' | 'trending_topic' | 'competitor_insight' | 'web_traffic' | 'monetization';
+export type RecommendationType = 'content_timing' | 'content_format' | 'hashtag_strategy' | 'audience_growth' | 'engagement_boost' | 'cross_platform' | 'trending_topic' | 'competitor_insight' | 'web_traffic' | 'monetization' | 'neighborhood_expansion' | 'demographic_reach' | 'social_media_timing' | 'content_series' | 'platform_recommendation' | 'community_landscape';
 export type RecommendationPriority = 'high' | 'medium' | 'low';
 export type MediaKitVisibility = 'public' | 'authenticated' | 'private';
 export type AnalyticsProvider = 'google_analytics' | 'plausible' | 'fathom' | 'simple_analytics';
