@@ -79,7 +79,7 @@ const initialFormData: CampaignFormData = {
   audienceDescription: '',
 };
 
-export default function AdvertiserOnboarding() {
+export default function GovernmentOnboarding() {
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('department');
   const [formData, setFormData] = useState<CampaignFormData>(initialFormData);
   const [campaignId, setCampaignId] = useState<string | null>(null);
@@ -189,10 +189,10 @@ export default function AdvertiserOnboarding() {
       {/* Header */}
       <header className="bg-white border-b border-slate-200 px-6 py-4">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <Link href="/advertiser" className="text-xl font-bold text-slate-900">
-            Resonate <span className="text-blue-600 font-normal text-sm ml-2">Departments</span>
+          <Link href="/government" className="text-xl font-bold text-slate-900">
+            Resonate <span className="text-teal-600 font-normal text-sm ml-2">Government</span>
           </Link>
-          <Link href="/advertiser" className="text-sm text-slate-500 hover:text-slate-700">
+          <Link href="/government" className="text-sm text-slate-500 hover:text-slate-700">
             Save & Exit
           </Link>
         </div>

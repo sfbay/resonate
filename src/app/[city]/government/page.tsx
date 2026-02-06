@@ -1,16 +1,16 @@
 'use client';
 
 /**
- * Advertiser Landing Page (City-Scoped)
+ * Government Landing Page (City-Scoped)
  *
- * Entry point for city departments to discover publishers
+ * Entry point for government agencies to discover publishers
  * and create campaigns.
  */
 
 import { useCity } from '@/lib/geo/city-context';
 import Link from 'next/link';
 
-export default function AdvertiserPage() {
+export default function GovernmentPage() {
   const { city, getPath } = useCity();
 
   return (
@@ -22,7 +22,7 @@ export default function AdvertiserPage() {
             ← Back to {city.name}
           </Link>
           <Link
-            href={getPath('/advertiser/onboarding')}
+            href={getPath('/government/onboarding')}
             className="btn btn-teal"
           >
             Create Campaign
@@ -33,7 +33,7 @@ export default function AdvertiserPage() {
       {/* Hero */}
       <section className="bg-gradient-to-br from-teal-500 to-teal-700 text-white">
         <div className="max-w-5xl mx-auto px-6 py-16">
-          <p className="text-teal-100 mb-2">For City Departments</p>
+          <p className="text-teal-100 mb-2">For Government Agencies</p>
           <h1 className="display-lg mb-4">
             Reach {city.name} Communities
           </h1>
@@ -84,7 +84,7 @@ export default function AdvertiserPage() {
         {/* CTAs */}
         <div className="mt-16 grid md:grid-cols-2 gap-8">
           <Link
-            href={getPath('/advertiser/discover')}
+            href={getPath('/government/discover')}
             className="block bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow border-2 border-transparent hover:border-teal-500"
           >
             <div className="text-5xl mb-4">🔍</div>
@@ -98,7 +98,7 @@ export default function AdvertiserPage() {
           </Link>
 
           <Link
-            href={getPath('/advertiser/onboarding')}
+            href={getPath('/government/onboarding')}
             className="block bg-teal-500 rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow text-white"
           >
             <div className="text-5xl mb-4">✨</div>

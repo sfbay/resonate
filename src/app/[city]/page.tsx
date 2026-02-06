@@ -4,7 +4,7 @@
  * City Landing Page
  *
  * Shows different content based on city status:
- * - Active cities: Links to publisher/advertiser dashboards
+ * - Active cities: Links to publisher/government/advertise dashboards
  * - Coming soon cities: Waitlist signup and info
  */
 
@@ -32,12 +32,12 @@ export default function CityPage() {
       </header>
 
       {/* Role Selection */}
-      <main className="max-w-4xl mx-auto px-6 py-16">
+      <main className="max-w-5xl mx-auto px-6 py-16">
         <h2 className="display-sm text-charcoal text-center mb-8">
           How would you like to use Resonate?
         </h2>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-3 gap-6">
           {/* Publisher Card */}
           <Link
             href={getPath('/publisher')}
@@ -46,8 +46,8 @@ export default function CityPage() {
             <div className="text-5xl mb-4">📰</div>
             <h3 className="display-sm text-charcoal mb-3">I&apos;m a Publisher</h3>
             <p className="text-slate-600 mb-6">
-              Connect your platforms, track your growth, and get matched with city
-              department campaigns that reach your community.
+              Connect your platforms, track your growth, and get matched with
+              campaigns that reach your community.
             </p>
             <span className="inline-flex items-center gap-2 text-coral-500 font-semibold group-hover:gap-3 transition-all">
               View Dashboard
@@ -57,19 +57,38 @@ export default function CityPage() {
             </span>
           </Link>
 
-          {/* Advertiser Card */}
+          {/* Government Card */}
           <Link
-            href={getPath('/advertiser')}
+            href={getPath('/government')}
             className="group bg-white rounded-2xl p-8 shadow-md hover:shadow-lg transition-all border-2 border-transparent hover:border-teal-500"
           >
             <div className="text-5xl mb-4">🏛️</div>
-            <h3 className="display-sm text-charcoal mb-3">I&apos;m a Department</h3>
+            <h3 className="display-sm text-charcoal mb-3">Government</h3>
             <p className="text-slate-600 mb-6">
-              Find community publishers who can authentically reach your target
-              audiences with important city information.
+              Reach communities with important public information through
+              trusted local media voices.
             </p>
             <span className="inline-flex items-center gap-2 text-teal-500 font-semibold group-hover:gap-3 transition-all">
               Discover Publishers
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </span>
+          </Link>
+
+          {/* Advertise Card */}
+          <Link
+            href={getPath('/advertise')}
+            className="group bg-white rounded-2xl p-8 shadow-md hover:shadow-lg transition-all border-2 border-transparent hover:border-marigold-500"
+          >
+            <div className="text-5xl mb-4">🏪</div>
+            <h3 className="display-sm text-charcoal mb-3">Advertise</h3>
+            <p className="text-slate-600 mb-6">
+              Reach local customers while supporting the community
+              journalism that keeps neighborhoods strong.
+            </p>
+            <span className="inline-flex items-center gap-2 text-marigold-600 font-semibold group-hover:gap-3 transition-all">
+              Start a Campaign
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>

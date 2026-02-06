@@ -2,14 +2,15 @@
  * Resonate - Core Type Definitions
  *
  * This file defines the data models for the Resonate platform,
- * a civic marketplace connecting city departments with community publishers.
+ * a community media marketplace connecting advertisers (government, businesses,
+ * nonprofits) with community and ethnic publishers.
  */
 
 // =============================================================================
 // USER TYPES
 // =============================================================================
 
-export type UserRole = 'publisher' | 'advertiser' | 'admin';
+export type UserRole = 'publisher' | 'government' | 'advertiser' | 'admin';
 
 export interface User {
   id: string;
@@ -501,9 +502,15 @@ export type DeliverableType =
   | 'custom';                 // Custom deliverable
 
 // =============================================================================
-// ADVERTISER (DEPARTMENT) MODELS
+// GOVERNMENT DEPARTMENT MODELS
 // =============================================================================
 
+/**
+ * Government department advertiser profile.
+ * Uses department-specific fields (codes, budget, fiscal year).
+ * Future: a broader Advertiser type will encompass government, business,
+ * nonprofit, and foundation sources via a `source` discriminator.
+ */
 export interface Advertiser {
   id: string;
   userId: string;

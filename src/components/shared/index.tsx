@@ -6,12 +6,27 @@ import React from 'react';
 // =============================================================================
 
 interface NavProps {
-  variant?: 'default' | 'publisher' | 'advertiser';
+  variant?: 'default' | 'publisher' | 'government' | 'advertise';
 }
 
 export function Nav({ variant = 'default' }: NavProps) {
-  // Darker coral for better contrast, teal stays the same
-  const accentClass = variant === 'publisher' ? 'text-[#c45a3b]' : variant === 'advertiser' ? 'text-[var(--color-teal)]' : '';
+  const accentClass =
+    variant === 'publisher' ? 'text-[#c45a3b]' :
+    variant === 'government' ? 'text-[var(--color-teal)]' :
+    variant === 'advertise' ? 'text-[var(--color-marigold-dark)]' :
+    '';
+
+  const portalLabel =
+    variant === 'publisher' ? 'Publishers' :
+    variant === 'government' ? 'Government' :
+    variant === 'advertise' ? 'Advertise' :
+    null;
+
+  const btnClass =
+    variant === 'publisher' ? 'btn-coral' :
+    variant === 'government' ? 'btn-teal' :
+    variant === 'advertise' ? 'btn-marigold' :
+    'btn-coral';
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
@@ -20,11 +35,11 @@ export function Nav({ variant = 'default' }: NavProps) {
           <span className="text-2xl font-bold font-[family-name:var(--font-fraunces)] text-[var(--color-charcoal)]">
             Resonate
           </span>
-          {variant !== 'default' && (
+          {portalLabel && (
             <>
               <span className="text-[var(--color-mist)]">|</span>
               <span className={`text-sm font-bold tracking-wide uppercase ${accentClass}`}>
-                {variant === 'publisher' ? 'Publishers' : 'Departments'}
+                {portalLabel}
               </span>
             </>
           )}
@@ -35,11 +50,11 @@ export function Nav({ variant = 'default' }: NavProps) {
               <Link href="/publisher" className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
                 For Publishers
               </Link>
-              <Link href="/advertiser" className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
-                For Departments
+              <Link href="/government" className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+                For Government
               </Link>
-              <Link href="/about" className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
-                About
+              <Link href="/advertise" className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+                Advertise
               </Link>
             </>
           ) : (
@@ -54,7 +69,7 @@ export function Nav({ variant = 'default' }: NavProps) {
               </Link>
               <Link
                 href={`/${variant}/onboarding`}
-                className={`btn ${variant === 'publisher' ? 'btn-coral' : 'btn-teal'} text-sm py-2 px-4`}
+                className={`btn ${btnClass} text-sm py-2 px-4`}
               >
                 Get Started
               </Link>
@@ -72,7 +87,7 @@ export function Nav({ variant = 'default' }: NavProps) {
 
 interface ButtonProps {
   children: React.ReactNode;
-  variant?: 'coral' | 'teal' | 'outline' | 'ghost';
+  variant?: 'coral' | 'teal' | 'marigold' | 'outline' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   href?: string;
   className?: string;
@@ -84,6 +99,7 @@ export function Button({ children, variant = 'coral', size = 'md', href, classNa
   const variantClasses = {
     coral: 'btn-coral',
     teal: 'btn-teal',
+    marigold: 'btn-marigold',
     outline: 'btn-outline text-[var(--color-charcoal)]',
     ghost: 'bg-transparent hover:bg-[var(--color-cream-dark)] text-[var(--color-charcoal)]',
   };
@@ -139,13 +155,19 @@ interface TestimonialProps {
   author: string;
   role: string;
   org: string;
-  variant?: 'coral' | 'teal';
+  variant?: 'coral' | 'teal' | 'marigold';
 }
+
+const testimonialColor = {
+  coral: 'text-[var(--color-coral)]',
+  teal: 'text-[var(--color-teal)]',
+  marigold: 'text-[var(--color-marigold-dark)]',
+};
 
 export function Testimonial({ quote, author, role, org, variant = 'coral' }: TestimonialProps) {
   return (
     <div className="relative">
-      <div className={`quote-mark absolute -top-4 -left-2 ${variant === 'teal' ? 'text-[var(--color-teal)]' : 'text-[var(--color-coral)]'}`}>
+      <div className={`quote-mark absolute -top-4 -left-2 ${testimonialColor[variant]}`}>
         &ldquo;
       </div>
       <blockquote className="font-[family-name:var(--font-fraunces)] text-2xl md:text-3xl text-[var(--color-charcoal)] leading-snug pl-8">
@@ -154,7 +176,7 @@ export function Testimonial({ quote, author, role, org, variant = 'coral' }: Tes
       <div className="mt-6 pl-8">
         <div className="font-semibold text-[var(--color-charcoal)]">{author}</div>
         <div className="text-[var(--color-slate)]">{role}</div>
-        <div className={`text-sm font-medium ${variant === 'teal' ? 'text-[var(--color-teal)]' : 'text-[var(--color-coral)]'}`}>{org}</div>
+        <div className={`text-sm font-medium ${testimonialColor[variant]}`}>{org}</div>
       </div>
     </div>
   );
@@ -452,11 +474,11 @@ export function Footer({ variant = 'default' }: FooterProps) {
   return (
     <footer className="bg-[var(--color-charcoal)] text-white py-16 px-6">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-12">
           <div className="md:col-span-2">
             <div className="font-[family-name:var(--font-fraunces)] text-2xl font-bold mb-4">Resonate</div>
             <p className="text-white/70 max-w-md leading-relaxed">
-              Connecting city departments with community voices. Building bridges between public service and the communities they serve.
+              A community media marketplace connecting advertisers with trusted local publishers. Amplify your message while strengthening community journalism.
             </p>
           </div>
           <div>
@@ -468,11 +490,18 @@ export function Footer({ variant = 'default' }: FooterProps) {
             </ul>
           </div>
           <div>
-            <div className="font-semibold mb-4">Departments</div>
+            <div className="font-semibold mb-4">Government</div>
             <ul className="space-y-2 text-white/70">
-              <li><Link href="/advertiser" className="hover:text-white transition-colors">Why Resonate</Link></li>
-              <li><Link href="/advertiser/onboarding" className="hover:text-white transition-colors">Create Campaign</Link></li>
-              <li><Link href="/advertiser/faq" className="hover:text-white transition-colors">FAQ</Link></li>
+              <li><Link href="/government" className="hover:text-white transition-colors">Why Resonate</Link></li>
+              <li><Link href="/government/onboarding" className="hover:text-white transition-colors">Create Campaign</Link></li>
+              <li><Link href="/government/faq" className="hover:text-white transition-colors">FAQ</Link></li>
+            </ul>
+          </div>
+          <div>
+            <div className="font-semibold mb-4">Advertise</div>
+            <ul className="space-y-2 text-white/70">
+              <li><Link href="/advertise" className="hover:text-white transition-colors">Why Resonate</Link></li>
+              <li><Link href="/advertise/faq" className="hover:text-white transition-colors">FAQ</Link></li>
             </ul>
           </div>
         </div>

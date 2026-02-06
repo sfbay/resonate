@@ -4,4 +4,4 @@
  * Re-exports the main discover page with city context.
  */
 
-export { default } from '@/app/advertiser/discover/page';
+export { default } from '@/app/government/discover/page';

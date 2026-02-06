@@ -34,7 +34,8 @@
   --background: var(--color-cream);
   --foreground: var(--color-charcoal);
   --accent-publisher: var(--color-coral);
-  --accent-advertiser: var(--color-teal);
+  --accent-government: var(--color-teal);
+  --accent-advertise: var(--color-marigold);
 
   /* Typography */
   --font-display: 'Fraunces', Georgia, serif;
@@ -289,6 +290,17 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--color-teal-dark);
   transform: translateY(-2px);
   box-shadow: 0 8px 20px -4px rgba(11, 82, 91, 0.4);
+}
+
+.btn-marigold {
+  background: var(--color-marigold);
+  color: white;
+}
+
+.btn-marigold:hover {
+  background: var(--color-marigold-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -4px rgba(247, 179, 43, 0.4);
 }
 
 .btn-outline {

@@ -65,7 +65,8 @@ export interface CityConfig {
   // Feature flags
   features: {
     publisherDashboard: boolean;
-    advertiserDiscovery: boolean;
+    governmentDiscovery: boolean;
+    advertise: boolean;
     campaigns: boolean;
     reporting: boolean;
   };

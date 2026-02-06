@@ -1,8 +1,8 @@
 /**
  * Matching Algorithm
  *
- * Core logic for matching advertisers' target audiences with publishers' audience profiles.
- * This is the heart of Resonate's value proposition.
+ * Core logic for matching campaign target audiences with publishers' audience profiles.
+ * This is the heart of Resonate's value proposition — used by both government and private advertisers.
  *
  * Matching dimensions:
  * - Geographic: neighborhoods, zip codes, supervisorial districts

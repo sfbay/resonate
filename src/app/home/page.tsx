@@ -43,14 +43,14 @@ export default function Home() {
             {/* Left: Text */}
             <div className="relative z-10">
               <div className="text-sm font-semibold tracking-widest uppercase text-[var(--color-coral)] mb-4 animate-fade-in-up">
-                Civic Media Marketplace
+                Community Media Marketplace
               </div>
               <h1 className="font-[family-name:var(--font-fraunces)] text-[var(--color-charcoal)] mb-6 animate-fade-in-up stagger-1" style={{ fontSize: 'clamp(3rem, 7vw, 5rem)', fontWeight: 700, lineHeight: 1.05 }}>
                 Messages that
                 <span className="block text-gradient-coral">Resonate</span>
               </h1>
               <p className="text-2xl font-medium text-[var(--color-charcoal)]/75 max-w-xl mb-8 animate-fade-in-up stagger-2 leading-relaxed">
-                Connect city departments with community publishers. Reach real audiences through voices they know and trust.
+                Amplify your message through community publishers. Reach real audiences through voices they know and trust.
               </p>
               <div className="flex flex-wrap gap-4 animate-fade-in-up stagger-3">
                 <Link href="/publisher" className="btn btn-coral">
@@ -59,8 +59,14 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </Link>
-                <Link href="/advertiser" className="btn btn-teal">
-                  I&apos;m a Department
+                <Link href="/advertise" className="btn btn-marigold">
+                  Advertise
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </Link>
+                <Link href="/government" className="btn btn-teal">
+                  Government
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
@@ -115,10 +121,10 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="display-md font-[family-name:var(--font-fraunces)] text-[var(--color-charcoal)] mb-4">
-              Two sides, one mission
+              Three paths, one mission
             </h2>
             <p className="body-md text-[var(--color-slate)] max-w-2xl mx-auto">
-              Whether you&apos;re a community voice looking to grow, or a department trying to reach residents—Resonate connects you.
+              Whether you&apos;re a community voice, a government agency, or a business—Resonate connects you with the communities that matter.
             </p>
           </div>
 
@@ -167,9 +173,9 @@ export default function Home() {
               </div>
             </Link>
 
-            {/* Advertiser Card */}
+            {/* Government Card */}
             <Link
-              href="/advertiser"
+              href="/government"
               className="group relative bg-[var(--color-cream)] rounded-3xl p-8 overflow-hidden card-hover"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-teal)] rounded-bl-[80px] opacity-20 group-hover:opacity-40 transition-opacity" />
@@ -183,10 +189,10 @@ export default function Home() {
                 </div>
 
                 <h3 className="display-sm font-[family-name:var(--font-fraunces)] text-[var(--color-charcoal)] mb-3">
-                  For City Departments
+                  For Government Agencies
                 </h3>
                 <p className="text-[var(--color-slate)] mb-6">
-                  Stop shouting into the void. Find community publishers whose audiences match exactly who you need to reach—from Chinatown elders to Mission families.
+                  Reach residents through community publishers whose audiences match exactly who you need—from Chinatown elders to Mission families.
                 </p>
 
                 <ul className="space-y-3 mb-8">
@@ -317,14 +323,17 @@ export default function Home() {
             Ready to connect communities with messages that matter?
           </h2>
           <p className="body-lg text-white/70 max-w-2xl mx-auto mb-10">
-            Whether you&apos;re a community publisher looking to grow, or a city department trying to reach residents—we&apos;re here to help.
+            Whether you&apos;re a community publisher, a government agency, or a business looking to reach local communities—we&apos;re here to help.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/publisher/onboarding" className="btn btn-coral">
               Register as Publisher
             </Link>
-            <Link href="/advertiser/onboarding" className="btn bg-white text-[var(--color-charcoal)] hover:bg-[var(--color-cream)]">
-              Create a Campaign
+            <Link href="/advertise" className="btn btn-marigold">
+              Advertise
+            </Link>
+            <Link href="/government/onboarding" className="btn bg-white text-[var(--color-charcoal)] hover:bg-[var(--color-cream)]">
+              Government Campaigns
             </Link>
           </div>
         </div>

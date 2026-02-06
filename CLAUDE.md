@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Resonate is a civic marketplace platform connecting San Francisco city departments (advertisers) with community media publishers. The platform facilitates targeted, authentic local outreach by matching department campaigns with publishers who serve specific communities.
+Resonate is a community media advertising marketplace connecting advertisers (government departments, businesses, nonprofits, foundations) with community and ethnic media publishers. The platform facilitates targeted, authentic local outreach by matching campaigns with publishers who serve specific communities. Three portals: Publisher (coral), Government (teal), Advertise (marigold).
 
 ## Commands
 
@@ -34,15 +34,16 @@ src/
 │   ├── layout.tsx          # Root layout with fonts (DM Sans, Fraunces)
 │   ├── page.tsx            # Geographic selector entry (Mapbox US map)
 │   ├── home/               # Main landing page (after selecting SF)
-│   ├── publisher/          # Publisher-facing routes
+│   ├── publisher/          # Publisher-facing routes (coral theme)
 │   │   ├── dashboard/      # Publisher analytics dashboard
 │   │   └── onboarding/     # Multi-step publisher registration
-│   └── advertiser/         # Department-facing routes
-│       ├── discover/       # Publisher discovery map
-│       └── onboarding/     # Campaign creation wizard
+│   ├── government/         # Government department routes (teal theme)
+│   │   ├── discover/       # Publisher discovery map
+│   │   └── onboarding/     # Campaign creation wizard
+│   └── advertise/          # Private advertiser routes (marigold theme)
 ├── components/
 │   ├── map/                # SFNeighborhoodMap, ExpandableLegend
-│   ├── advertiser/         # PublisherDiscoveryMap
+│   ├── government/         # PublisherDiscoveryMap
 │   ├── publisher/          # AudienceDemographicsView
 │   └── shared/             # Reusable UI components (Nav, Button, Footer, etc.)
 ├── lib/
@@ -57,7 +58,7 @@ src/
 ### Core Domain Models (src/types/index.ts)
 
 - **Publisher**: Community media outlets with audience profiles, rate cards, and vendor status
-- **Advertiser**: City departments creating campaigns
+- **Advertiser**: Campaign creators (currently government departments; expanding to businesses, nonprofits, foundations)
 - **Campaign**: Outreach initiatives with target audiences and budgets
 - **Order**: Procurement layer connecting campaigns to publishers
 - **MatchResult**: Algorithm output with 5-dimension scoring breakdown
@@ -100,7 +101,10 @@ Custom CSS variables defined in globals.css:
 
 Shared components in `src/components/shared/` follow the color theming:
 - Publisher flows use coral accent
-- Advertiser/department flows use teal accent
+- Government flows use teal accent
+- Advertise flows use marigold accent
+
+See `docs/ADVERTISE_PORTAL_ARCHITECTURE.md` for the full three-portal architecture plan.
 
 ## Census Overlay System
 
@@ -151,7 +155,7 @@ Uses Mapbox GL JS via `react-map-gl` for interactive maps.
 
 - `src/components/map/SFNeighborhoodMap.tsx` - Interactive SF map with choropleth layers
 - `src/components/publisher/AudienceDemographicsView.tsx` - Publisher dashboard showing inferred demographics
-- `src/components/advertiser/PublisherDiscoveryMap.tsx` - Department view for finding publishers by area
+- `src/components/government/PublisherDiscoveryMap.tsx` - Government view for finding publishers by area
 - `src/lib/geo/sf-neighborhoods.geojson.ts` - GeoJSON polygon boundaries for all 45 SF neighborhoods
 
 **SFNeighborhoodMap Features:**

@@ -27,13 +27,14 @@ export const SF_CONFIG: ActiveCityConfig = {
   status: 'active',
 
   // Branding
-  tagline: 'Connecting community media with city departments',
+  tagline: 'Connecting community media with those who need to reach them',
   heroImage: '/images/cities/sf-hero.jpg',
 
   // Features - all enabled for SF
   features: {
     publisherDashboard: true,
-    advertiserDiscovery: true,
+    governmentDiscovery: true,
+    advertise: true,
     campaigns: true,
     reporting: true,
   },

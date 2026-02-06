@@ -1,38 +1,38 @@
 /**
  * Next.js Middleware
  *
- * Handles route redirects for backward compatibility:
+ * Handles route redirects to city-scoped versions:
  * - /publisher/* → /sf/publisher/*
- * - /advertiser/* → /sf/advertiser/*
+ * - /government/* → /sf/government/*
+ * - /advertise/* → /sf/advertise/*
  *
- * This allows existing links to continue working while
- * transitioning to the multi-city URL structure.
+ * This allows top-level portal links to route to the
+ * correct city-scoped pages.
  */
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Routes that should be redirected to city-scoped versions
-const LEGACY_ROUTES = [
+// Portal routes that redirect to city-scoped versions
+const PORTAL_ROUTES = [
   '/publisher',
-  '/advertiser',
+  '/government',
+  '/advertise',
 ];
 
-// Default city for legacy routes
+// Default city
 const DEFAULT_CITY = 'sf';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Check if this is a legacy route that needs redirecting
-  for (const route of LEGACY_ROUTES) {
+  // Check if this is a portal route that needs city-scoping
+  for (const route of PORTAL_ROUTES) {
     if (pathname === route || pathname.startsWith(`${route}/`)) {
-      // Build the new city-scoped URL
       const newPath = `/${DEFAULT_CITY}${pathname}`;
       const url = request.nextUrl.clone();
       url.pathname = newPath;
 
-      // Use 307 Temporary Redirect to preserve method and body
       return NextResponse.redirect(url, 307);
     }
   }
@@ -41,9 +41,9 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Only run middleware on these routes
   matcher: [
     '/publisher/:path*',
-    '/advertiser/:path*',
+    '/government/:path*',
+    '/advertise/:path*',
   ],
 };

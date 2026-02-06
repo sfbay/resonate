@@ -38,7 +38,8 @@ export const CHICAGO_CONFIG: ComingSoonCityConfig = {
   // Features - all disabled until launch
   features: {
     publisherDashboard: false,
-    advertiserDiscovery: false,
+    governmentDiscovery: false,
+    advertise: false,
     campaigns: false,
     reporting: false,
   },
@@ -75,7 +76,8 @@ export const NYC_CONFIG: ComingSoonCityConfig = {
   // Features - all disabled until launch
   features: {
     publisherDashboard: false,
-    advertiserDiscovery: false,
+    governmentDiscovery: false,
+    advertise: false,
     campaigns: false,
     reporting: false,
   },
