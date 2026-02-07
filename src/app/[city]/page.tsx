@@ -10,6 +10,7 @@
 
 import { useCity } from '@/lib/geo/city-context';
 import Link from 'next/link';
+import { SFMapTexture } from '@/components/SFMapTexture';
 
 export default function CityPage() {
   const { city, isActive, isComingSoon, getPath } = useCity();
@@ -21,8 +22,9 @@ export default function CityPage() {
   return (
     <div className="min-h-screen bg-cream">
       {/* Hero */}
-      <header className="bg-gradient-to-br from-coral-500 to-marigold-500 text-white">
-        <div className="max-w-5xl mx-auto px-6 py-16 text-center">
+      <header className="relative bg-gradient-to-br from-coral-500 to-marigold-500 text-white overflow-hidden">
+        <SFMapTexture variant="coral" />
+        <div className="relative z-10 max-w-5xl mx-auto px-6 py-16 text-center">
           <p className="text-coral-100 mb-2">{city.state}</p>
           <h1 className="display-lg mb-4">{city.name}</h1>
           <p className="text-xl opacity-90 max-w-2xl mx-auto">

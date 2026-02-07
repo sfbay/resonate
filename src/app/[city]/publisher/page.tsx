@@ -9,6 +9,7 @@
 
 import { useCity } from '@/lib/geo/city-context';
 import Link from 'next/link';
+import { SFMapTexture } from '@/components/SFMapTexture';
 
 export default function PublisherPage() {
   const { city, getPath } = useCity();
@@ -31,8 +32,9 @@ export default function PublisherPage() {
       </header>
 
       {/* Hero */}
-      <section className="bg-gradient-to-br from-coral-500 to-marigold-500 text-white">
-        <div className="max-w-5xl mx-auto px-6 py-16">
+      <section className="relative bg-gradient-to-br from-coral-500 to-marigold-500 text-white overflow-hidden">
+        <SFMapTexture variant="coral" />
+        <div className="relative z-10 max-w-5xl mx-auto px-6 py-16">
           <p className="text-coral-100 mb-2">For Publishers</p>
           <h1 className="display-lg mb-4">
             Grow Your Community Reach in {city.name}

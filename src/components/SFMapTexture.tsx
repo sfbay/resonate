@@ -26,7 +26,7 @@ const MAP_PUNCHOUTS = [
 
 interface SFMapTextureProps {
   className?: string;
-  variant?: "coral" | "teal";
+  variant?: "coral" | "teal" | "marigold";
 }
 
 export function SFMapTexture({ className = "", variant = "coral" }: SFMapTextureProps) {
@@ -54,6 +54,8 @@ export function SFMapTexture({ className = "", variant = "coral" }: SFMapTexture
   // Blend mode and opacity based on variant - subtle, barely visible
   const blendStyle = variant === "coral"
     ? { mixBlendMode: "multiply" as const, opacity: 0.12 }
+    : variant === "marigold"
+    ? { mixBlendMode: "multiply" as const, opacity: 0.10 }
     : { mixBlendMode: "multiply" as const, opacity: 0.15 };
 
   if (!mounted) return null;
@@ -93,6 +95,7 @@ export function SFMapTexture({ className = "", variant = "coral" }: SFMapTexture
           } 100%)`,
         }}
       />
+
     </div>
   );
 }

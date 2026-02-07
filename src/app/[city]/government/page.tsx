@@ -9,6 +9,7 @@
 
 import { useCity } from '@/lib/geo/city-context';
 import Link from 'next/link';
+import { SFMapTexture } from '@/components/SFMapTexture';
 
 export default function GovernmentPage() {
   const { city, getPath } = useCity();
@@ -31,8 +32,9 @@ export default function GovernmentPage() {
       </header>
 
       {/* Hero */}
-      <section className="bg-gradient-to-br from-teal-500 to-teal-700 text-white">
-        <div className="max-w-5xl mx-auto px-6 py-16">
+      <section className="relative bg-gradient-to-br from-teal-500 to-teal-700 text-white overflow-hidden">
+        <SFMapTexture variant="teal" />
+        <div className="relative z-10 max-w-5xl mx-auto px-6 py-16">
           <p className="text-teal-100 mb-2">For Government Agencies</p>
           <h1 className="display-lg mb-4">
             Reach {city.name} Communities

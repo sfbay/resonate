@@ -10,6 +10,7 @@
 
 import Link from "next/link";
 import { Nav, Testimonial, Footer } from "@/components/shared";
+import { SFMapTexture } from "@/components/SFMapTexture";
 import { ResonanceBeacon } from "@/components/ResonanceBeacon";
 
 export default function AdvertisePage() {
@@ -23,7 +24,7 @@ export default function AdvertisePage() {
         <ResonanceBeacon color="marigold" size="xl" intensity="subtle" className="bottom-10 right-10 z-0" delay={0} />
         <ResonanceBeacon color="coral" size="lg" intensity="whisper" className="top-32 left-1/4 z-0" delay={2000} />
 
-        {/* Marigold accent background */}
+        {/* Marigold accent background with Thomas Bros map texture */}
         <div
           className="absolute inset-0 z-[1]"
           style={{
@@ -31,6 +32,9 @@ export default function AdvertisePage() {
             clipPath: 'polygon(40% 0, 100% 0, 100% 100%, 50% 100%)',
           }}
         />
+        <div className="absolute inset-0 z-[1]" style={{ clipPath: 'polygon(40% 0, 100% 0, 100% 100%, 50% 100%)' }}>
+          <SFMapTexture variant="marigold" />
+        </div>
 
         <div className="relative max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[70vh]">
