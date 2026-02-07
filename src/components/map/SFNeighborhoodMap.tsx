@@ -96,9 +96,12 @@ const INCOME_BRACKET_SCALES: Record<string, [number, string][]> = {
   aboveModerate: [[0, '#f7fcf5'], [15, '#e5f5e0'], [30, '#c7e9c0'], [45, '#a1d99b'], [60, '#74c476'], [80, '#238b45']],
 };
 
-// Evictions scale
-const EVICTIONS_SCALE: [number, string][] = [
+// Evictions scales — separate ramps for 30-day vs 12-month totals
+const EVICTIONS_SCALE_12MO: [number, string][] = [
   [0, '#fef0d9'], [5, '#fdcc8a'], [10, '#fc8d59'], [15, '#e34a33'], [20, '#b30000'], [30, '#7a0000'],
+];
+const EVICTIONS_SCALE_30D: [number, string][] = [
+  [0, '#fef0d9'], [0.5, '#fdcc8a'], [1, '#fc8d59'], [2, '#e34a33'], [3, '#b30000'], [5, '#7a0000'],
 ];
 
 // =============================================================================
@@ -241,7 +244,7 @@ export function SFNeighborhoodMap({
     else if (colorBy === 'ethnicity' && selectedEthnicity) scale = ETHNICITY_COLOR_SCALES[selectedEthnicity];
     else if (colorBy === 'age' && selectedAge) scale = AGE_COLOR_SCALES[selectedAge];
     else if (colorBy === 'income' && selectedIncome) scale = INCOME_BRACKET_SCALES[selectedIncome];
-    else if (colorBy === 'evictions') scale = EVICTIONS_SCALE;
+    else if (colorBy === 'evictions') scale = timeRange === '30d' ? EVICTIONS_SCALE_30D : EVICTIONS_SCALE_12MO;
 
     if (!scale || scale.length < 2) return '#f1f5f9';
 
@@ -251,7 +254,7 @@ export function SFNeighborhoodMap({
     }
 
     return ['interpolate', ['linear'], ['get', 'dataValue'], ...stops];
-  }, [colorBy, selectedLanguage, selectedEthnicity, selectedAge, selectedIncome]);
+  }, [colorBy, selectedLanguage, selectedEthnicity, selectedAge, selectedIncome, timeRange]);
 
   // Layer styles
   /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -393,8 +396,9 @@ export function SFNeighborhoodMap({
       };
     }
     if (colorBy === 'evictions') {
+      const preset = timeRange === '30d' ? LEGEND_PRESETS.evictions_30d : LEGEND_PRESETS.evictions_12mo;
       return {
-        ...LEGEND_PRESETS.evictions,
+        ...preset,
         showTimeToggle: true,
       };
     }
@@ -403,7 +407,7 @@ export function SFNeighborhoodMap({
     }
 
     return null;
-  }, [colorBy, selectedLanguage, selectedEthnicity, selectedAge, selectedIncome]);
+  }, [colorBy, selectedLanguage, selectedEthnicity, selectedAge, selectedIncome, timeRange]);
 
   return (
     <div className="relative rounded-xl" style={{ height, overflow: 'visible' }}>

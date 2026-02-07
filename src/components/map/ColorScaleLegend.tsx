@@ -211,14 +211,27 @@ export const LEGEND_PRESETS = {
     sourceLabel: 'Census ACS 5-Year',
     sourceUrl: 'https://data.census.gov/',
   },
-  evictions: {
-    label: 'Eviction Rate',
+  evictions_12mo: {
+    label: 'Eviction Rate (12 mo)',
     scale: [
       { value: 0, color: '#fef0d9' },
       { value: 5, color: '#fdcc8a' },
       { value: 10, color: '#fc8d59' },
       { value: 20, color: '#e34a33' },
       { value: 30, color: '#b30000' },
+    ],
+    unit: '/1k',
+    sourceLabel: 'DataSF Eviction Notices',
+    sourceUrl: 'https://data.sfgov.org/Housing-and-Buildings/Eviction-Notices/5cei-gny5',
+  },
+  evictions_30d: {
+    label: 'Eviction Rate (30 days)',
+    scale: [
+      { value: 0, color: '#fef0d9' },
+      { value: 0.5, color: '#fdcc8a' },
+      { value: 1, color: '#fc8d59' },
+      { value: 2, color: '#e34a33' },
+      { value: 3, color: '#b30000' },
     ],
     unit: '/1k',
     sourceLabel: 'DataSF Eviction Notices',
