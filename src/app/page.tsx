@@ -26,24 +26,25 @@ const CITIES = {
     status: 'active' as const,
     launchEstimate: null,
   },
-  chicago: {
-    id: 'chicago',
-    name: 'Chicago',
-    state: 'IL',
-    lat: 41.8781,
-    lng: -87.6298,
-    status: 'coming_soon' as const,
-    launchEstimate: 'Q3 2025',
-  },
-  nyc: {
-    id: 'nyc',
-    name: 'New York City',
-    state: 'NY',
-    lat: 40.7128,
-    lng: -74.0060,
-    status: 'coming_soon' as const,
-    launchEstimate: 'Q4 2025',
-  },
+  // Future cities — uncomment when partnerships are established
+  // chicago: {
+  //   id: 'chicago',
+  //   name: 'Chicago',
+  //   state: 'IL',
+  //   lat: 41.8781,
+  //   lng: -87.6298,
+  //   status: 'coming_soon' as const,
+  //   launchEstimate: 'Q3 2025',
+  // },
+  // nyc: {
+  //   id: 'nyc',
+  //   name: 'New York City',
+  //   state: 'NY',
+  //   lat: 40.7128,
+  //   lng: -74.0060,
+  //   status: 'coming_soon' as const,
+  //   launchEstimate: 'Q4 2025',
+  // },
 };
 
 // For backward compatibility
@@ -264,135 +265,7 @@ export default function GeographicSelector() {
                     </button>
                   </Marker>
 
-                  {/* Chicago Marker - Coming Soon */}
-                  <Marker
-                    longitude={CITIES.chicago.lng}
-                    latitude={CITIES.chicago.lat}
-                    anchor="center"
-                  >
-                    <Link
-                      href="/chicago"
-                      className="relative cursor-pointer group focus:outline-none block"
-                    >
-                      {/* Outer ring */}
-                      <span
-                        className="absolute rounded-full border-2 border-slate-400 border-dashed"
-                        style={{
-                          width: '32px',
-                          height: '32px',
-                          left: '-8px',
-                          top: '-8px',
-                          opacity: 0.5,
-                        }}
-                      />
-                      {/* Main marker */}
-                      <span
-                        className="relative block rounded-full bg-slate-400 shadow-md transition-transform duration-300 group-hover:scale-125"
-                        style={{
-                          width: '16px',
-                          height: '16px',
-                        }}
-                      />
-                      {/* Inner dot */}
-                      <span
-                        className="absolute rounded-full bg-white"
-                        style={{
-                          width: '6px',
-                          height: '6px',
-                          left: '5px',
-                          top: '5px',
-                        }}
-                      />
-
-                      {/* Hover tooltip */}
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 pointer-events-none">
-                        <div className="bg-[var(--color-charcoal)] text-white px-4 py-3 rounded-xl shadow-xl whitespace-nowrap">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-semibold">{CITIES.chicago.name}</span>
-                            <span className="px-2 py-0.5 rounded-full bg-slate-500 text-xs font-medium">
-                              COMING SOON
-                            </span>
-                          </div>
-                          <p className="text-xs text-white/70">
-                            {CITIES.chicago.launchEstimate}
-                          </p>
-                        </div>
-                        <div
-                          className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-0 h-0"
-                          style={{
-                            borderLeft: '8px solid transparent',
-                            borderRight: '8px solid transparent',
-                            borderTop: '8px solid var(--color-charcoal)',
-                          }}
-                        />
-                      </div>
-                    </Link>
-                  </Marker>
-
-                  {/* NYC Marker - Coming Soon */}
-                  <Marker
-                    longitude={CITIES.nyc.lng}
-                    latitude={CITIES.nyc.lat}
-                    anchor="center"
-                  >
-                    <Link
-                      href="/nyc"
-                      className="relative cursor-pointer group focus:outline-none block"
-                    >
-                      {/* Outer ring */}
-                      <span
-                        className="absolute rounded-full border-2 border-slate-400 border-dashed"
-                        style={{
-                          width: '32px',
-                          height: '32px',
-                          left: '-8px',
-                          top: '-8px',
-                          opacity: 0.5,
-                        }}
-                      />
-                      {/* Main marker */}
-                      <span
-                        className="relative block rounded-full bg-slate-400 shadow-md transition-transform duration-300 group-hover:scale-125"
-                        style={{
-                          width: '16px',
-                          height: '16px',
-                        }}
-                      />
-                      {/* Inner dot */}
-                      <span
-                        className="absolute rounded-full bg-white"
-                        style={{
-                          width: '6px',
-                          height: '6px',
-                          left: '5px',
-                          top: '5px',
-                        }}
-                      />
-
-                      {/* Hover tooltip */}
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 pointer-events-none">
-                        <div className="bg-[var(--color-charcoal)] text-white px-4 py-3 rounded-xl shadow-xl whitespace-nowrap">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-semibold">{CITIES.nyc.name}</span>
-                            <span className="px-2 py-0.5 rounded-full bg-slate-500 text-xs font-medium">
-                              COMING SOON
-                            </span>
-                          </div>
-                          <p className="text-xs text-white/70">
-                            {CITIES.nyc.launchEstimate}
-                          </p>
-                        </div>
-                        <div
-                          className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-0 h-0"
-                          style={{
-                            borderLeft: '8px solid transparent',
-                            borderRight: '8px solid transparent',
-                            borderTop: '8px solid var(--color-charcoal)',
-                          }}
-                        />
-                      </div>
-                    </Link>
-                  </Marker>
+                  {/* Future city markers — uncomment when partnerships are established */}
                 </Map>
 
                 {/* San Francisco Callout Card - Fixed position */}
