@@ -172,6 +172,181 @@ export interface EvictionQueryOptions {
 }
 
 // =============================================================================
+// 311 SERVICE REQUESTS (vw6y-z8j6)
+// =============================================================================
+
+/**
+ * Raw 311 case record from DataSF API
+ * https://data.sfgov.org/City-Infrastructure/311-Cases/vw6y-z8j6
+ */
+export interface Case311Raw {
+  service_request_id: string;
+  requested_datetime?: string;
+  closed_date?: string;
+  status_description?: string;
+  agency_responsible?: string;
+  service_name?: string;
+  service_subtype?: string;
+  service_details?: string;
+  neighborhoods_sffind_boundaries?: string;
+  analysis_neighborhood?: string;
+  point?: { latitude: string; longitude: string };
+}
+
+/**
+ * Service request category groupings
+ */
+export type ServiceCategory =
+  | 'street_cleaning'
+  | 'graffiti'
+  | 'street_defects'
+  | 'encampments'
+  | 'noise'
+  | 'illegal_dumping'
+  | 'tree_maintenance'
+  | 'streetlight'
+  | 'other';
+
+/**
+ * All service category values for iteration
+ */
+export const SERVICE_CATEGORIES: ServiceCategory[] = [
+  'street_cleaning',
+  'graffiti',
+  'street_defects',
+  'encampments',
+  'noise',
+  'illegal_dumping',
+  'tree_maintenance',
+  'streetlight',
+  'other',
+];
+
+/**
+ * Human-readable labels for service categories
+ */
+export const SERVICE_CATEGORY_LABELS: Record<ServiceCategory, string> = {
+  street_cleaning: 'Street & Sidewalk Cleaning',
+  graffiti: 'Graffiti',
+  street_defects: 'Street Defects',
+  encampments: 'Encampments',
+  noise: 'Noise',
+  illegal_dumping: 'Illegal Dumping',
+  tree_maintenance: 'Tree Maintenance',
+  streetlight: 'Streetlight/Signal',
+  other: 'Other',
+};
+
+/**
+ * Aggregated 311 data for a single neighborhood
+ */
+export interface Neighborhood311Data {
+  neighborhood: SFNeighborhood;
+  total: number;
+  rate: number; // per 1,000 residents
+  topCategories: { category: ServiceCategory; count: number; percentage: number }[];
+}
+
+/**
+ * City-wide 311 statistics
+ */
+export interface City311Stats {
+  totalCases: number;
+  averageRate: number; // per 1,000 residents
+  rankings: { neighborhood: SFNeighborhood; rank: number; rate: number }[];
+  byNeighborhood: Record<string, Neighborhood311Data>;
+  byCategory: Partial<Record<ServiceCategory, number>>;
+}
+
+// =============================================================================
+// PUBLIC SAFETY (Fire: wr8u-xric + Police: wg3w-h783)
+// =============================================================================
+
+/**
+ * Raw fire incident record from DataSF API
+ * https://data.sfgov.org/Public-Safety/Fire-Incidents/wr8u-xric
+ */
+export interface FireIncidentRaw {
+  incident_number: string;
+  incident_date?: string;
+  neighborhood_district?: string;
+  primary_situation?: string;
+  battalion?: string;
+  station_area?: string;
+}
+
+/**
+ * Raw police report record from DataSF API
+ * https://data.sfgov.org/Public-Safety/Police-Department-Incident-Reports-2018-to-Present/wg3w-h783
+ */
+export interface PoliceReportRaw {
+  incident_number: string;
+  incident_date?: string;
+  incident_category?: string;
+  analysis_neighborhood?: string;
+  incident_subcategory?: string;
+  report_type_description?: string;
+}
+
+/**
+ * Safety incident category groupings (sensitive framing)
+ */
+export type SafetyCategory =
+  | 'property'
+  | 'personal_safety'
+  | 'fire'
+  | 'traffic'
+  | 'vandalism'
+  | 'other';
+
+/**
+ * All safety category values for iteration
+ */
+export const SAFETY_CATEGORIES: SafetyCategory[] = [
+  'property',
+  'personal_safety',
+  'fire',
+  'traffic',
+  'vandalism',
+  'other',
+];
+
+/**
+ * Human-readable labels for safety categories (sensitive framing)
+ */
+export const SAFETY_CATEGORY_LABELS: Record<SafetyCategory, string> = {
+  property: 'Property',
+  personal_safety: 'Personal Safety',
+  fire: 'Fire',
+  traffic: 'Traffic',
+  vandalism: 'Vandalism',
+  other: 'Other',
+};
+
+/**
+ * Aggregated safety data for a single neighborhood
+ */
+export interface NeighborhoodSafetyData {
+  neighborhood: SFNeighborhood;
+  total: number;
+  rate: number; // per 1,000 residents
+  fireCount: number;
+  policeCount: number;
+  topCategories: { category: SafetyCategory; count: number; percentage: number }[];
+}
+
+/**
+ * City-wide safety statistics
+ */
+export interface CitySafetyStats {
+  totalIncidents: number;
+  averageRate: number; // per 1,000 residents
+  rankings: { neighborhood: SFNeighborhood; rank: number; rate: number }[];
+  byNeighborhood: Record<string, NeighborhoodSafetyData>;
+  byCategory: Partial<Record<SafetyCategory, number>>;
+}
+
+// =============================================================================
 // DATASF CLIENT TYPES
 // =============================================================================
 

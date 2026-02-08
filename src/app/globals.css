@@ -404,6 +404,16 @@ h1, h2, h3, h4, h5, h6 {
   opacity: 0.3;
 }
 
+/* Marquee - infinite horizontal scroll for logo ribbon */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
 /* Selection Color */
 ::selection {
   background: var(--color-marigold-light);

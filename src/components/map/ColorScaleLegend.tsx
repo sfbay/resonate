@@ -250,6 +250,62 @@ export const LEGEND_PRESETS = {
     sourceLabel: 'Resonate Platform',
     sourceUrl: '#',
   },
+  three11_12mo: {
+    label: '311 Request Rate (12 mo)',
+    scale: [
+      { value: 0, color: '#eff6ff' },
+      { value: 50, color: '#93c5fd' },
+      { value: 100, color: '#3b82f6' },
+      { value: 200, color: '#1d4ed8' },
+      { value: 400, color: '#1e3a8a' },
+      { value: 800, color: '#172554' },
+    ],
+    unit: '/1k',
+    sourceLabel: 'DataSF 311 Cases',
+    sourceUrl: 'https://data.sfgov.org/City-Infrastructure/311-Cases/vw6y-z8j6',
+  },
+  three11_30d: {
+    label: '311 Request Rate (30 days)',
+    scale: [
+      { value: 0, color: '#eff6ff' },
+      { value: 5, color: '#93c5fd' },
+      { value: 10, color: '#3b82f6' },
+      { value: 20, color: '#1d4ed8' },
+      { value: 40, color: '#1e3a8a' },
+      { value: 80, color: '#172554' },
+    ],
+    unit: '/1k',
+    sourceLabel: 'DataSF 311 Cases',
+    sourceUrl: 'https://data.sfgov.org/City-Infrastructure/311-Cases/vw6y-z8j6',
+  },
+  safety_12mo: {
+    label: 'Safety Incident Rate (12 mo)',
+    scale: [
+      { value: 0, color: '#fefce8' },
+      { value: 20, color: '#fde047' },
+      { value: 50, color: '#f59e0b' },
+      { value: 100, color: '#dc2626' },
+      { value: 150, color: '#991b1b' },
+      { value: 250, color: '#450a0a' },
+    ],
+    unit: '/1k',
+    sourceLabel: 'SFPD + SFFD via DataSF',
+    sourceUrl: 'https://data.sfgov.org/',
+  },
+  safety_30d: {
+    label: 'Safety Incident Rate (30 days)',
+    scale: [
+      { value: 0, color: '#fefce8' },
+      { value: 2, color: '#fde047' },
+      { value: 5, color: '#f59e0b' },
+      { value: 10, color: '#dc2626' },
+      { value: 15, color: '#991b1b' },
+      { value: 25, color: '#450a0a' },
+    ],
+    unit: '/1k',
+    sourceLabel: 'SFPD + SFFD via DataSF',
+    sourceUrl: 'https://data.sfgov.org/',
+  },
 } as const;
 
 export type LegendPresetKey = keyof typeof LEGEND_PRESETS;

@@ -8,7 +8,25 @@ import { NeighborhoodSupercard } from '../map/NeighborhoodSupercard';
 import { SF_NEIGHBORHOODS } from '@/lib/geo/sf-geography';
 import { getSFCensusData } from '@/lib/census/sf-census-data';
 import { getEvictionStats, getEvictionMapData } from '@/lib/datasf/evictions';
-import type { TimeRange, CityEvictionStats, NeighborhoodEvictionData } from '@/lib/datasf/types';
+import { get311Stats, get311MapData } from '@/lib/datasf/three11';
+import { getSafetyStats, getSafetyMapData } from '@/lib/datasf/public-safety';
+import type {
+  TimeRange,
+  CityEvictionStats,
+  NeighborhoodEvictionData,
+  City311Stats,
+  Neighborhood311Data,
+  ServiceCategory,
+  CitySafetyStats,
+  NeighborhoodSafetyData,
+  SafetyCategory,
+} from '@/lib/datasf/types';
+import {
+  SERVICE_CATEGORY_LABELS as SERVICE_LABELS,
+  SAFETY_CATEGORY_LABELS as SAFETY_LABELS,
+  SERVICE_CATEGORIES,
+  SAFETY_CATEGORIES,
+} from '@/lib/datasf/types';
 
 // =============================================================================
 // TYPES
@@ -40,7 +58,7 @@ interface PublisherWithGrowth extends Publisher {
   };
 }
 
-type DemoFilterTab = 'languages' | 'communities' | 'income' | 'age' | 'housing';
+type DemoFilterTab = 'languages' | 'communities' | 'income' | 'age' | 'housing' | 'needs' | 'safety';
 type PublisherTab = 'neighborhood' | 'citywide';
 
 // =============================================================================
@@ -157,6 +175,27 @@ const DEMO_TABS: { id: DemoFilterTab; label: string }[] = [
   { id: 'income', label: 'Income' },
   { id: 'age', label: 'Age' },
   { id: 'housing', label: 'Housing' },
+  { id: 'needs', label: 'Community Needs' },
+  { id: 'safety', label: 'Public Safety' },
+];
+
+type NeedsPercentile = 'very_low' | 'low' | 'moderate' | 'high' | 'very_high';
+type SafetyPercentile = 'very_low' | 'low' | 'moderate' | 'high' | 'very_high';
+
+const NEEDS_PERCENTILE_OPTIONS: { value: NeedsPercentile; label: string; range: string }[] = [
+  { value: 'very_low', label: 'Very Low', range: '0-20%' },
+  { value: 'low', label: 'Low', range: '20-40%' },
+  { value: 'moderate', label: 'Moderate', range: '40-60%' },
+  { value: 'high', label: 'High', range: '60-80%' },
+  { value: 'very_high', label: 'Very High', range: '80-100%' },
+];
+
+const SAFETY_PERCENTILE_OPTIONS: { value: SafetyPercentile; label: string; range: string }[] = [
+  { value: 'very_low', label: 'Very Low', range: '0-20%' },
+  { value: 'low', label: 'Low', range: '20-40%' },
+  { value: 'moderate', label: 'Moderate', range: '40-60%' },
+  { value: 'high', label: 'High', range: '60-80%' },
+  { value: 'very_high', label: 'Very High', range: '80-100%' },
 ];
 
 // =============================================================================
@@ -183,10 +222,29 @@ export function PublisherDiscoveryMap({
 
   // Eviction data state
   const [evictionTimeRange, setEvictionTimeRange] = useState<TimeRange>('12mo');
+  const [evictionDisplayTimeRange, setEvictionDisplayTimeRange] = useState<TimeRange>('12mo');
   const [evictionData, setEvictionData] = useState<{ neighborhood: SFNeighborhood; rate: number }[]>([]);
   const [evictionStats, setEvictionStats] = useState<CityEvictionStats | null>(null);
   const [evictionLoading, setEvictionLoading] = useState(false);
   const [selectedEvictionPercentiles, setSelectedEvictionPercentiles] = useState<EvictionPercentile[]>([]);
+
+  // 311 data state
+  const [three11TimeRange, setThree11TimeRange] = useState<TimeRange>('12mo');
+  const [three11DisplayTimeRange, setThree11DisplayTimeRange] = useState<TimeRange>('12mo');
+  const [three11Data, setThree11Data] = useState<{ neighborhood: SFNeighborhood; rate: number }[]>([]);
+  const [three11Stats, setThree11Stats] = useState<City311Stats | null>(null);
+  const [three11Loading, setThree11Loading] = useState(false);
+  const [selectedServiceCategories, setSelectedServiceCategories] = useState<ServiceCategory[]>([]);
+  const [selectedNeedsPercentiles, setSelectedNeedsPercentiles] = useState<NeedsPercentile[]>([]);
+
+  // Safety data state
+  const [safetyTimeRange, setSafetyTimeRange] = useState<TimeRange>('12mo');
+  const [safetyDisplayTimeRange, setSafetyDisplayTimeRange] = useState<TimeRange>('12mo');
+  const [safetyData, setSafetyData] = useState<{ neighborhood: SFNeighborhood; rate: number }[]>([]);
+  const [safetyStats, setSafetyStats] = useState<CitySafetyStats | null>(null);
+  const [safetyLoading, setSafetyLoading] = useState(false);
+  const [selectedSafetyCategories, setSelectedSafetyCategories] = useState<SafetyCategory[]>([]);
+  const [selectedSafetyPercentiles, setSelectedSafetyPercentiles] = useState<SafetyPercentile[]>([]);
 
   // Map choropleth state (single-select for each demographic)
   const [selectedMapLanguage, setSelectedMapLanguage] = useState<CensusLanguageKey | null>(null);
@@ -232,9 +290,85 @@ export function PublisherDiscoveryMap({
     return selectedEvictionPercentiles.flatMap(p => neighborhoodsByPercentile[p] || []);
   }, [selectedEvictionPercentiles, neighborhoodsByPercentile]);
 
+  // Calculate neighborhoods by 311 percentile
+  const needsNeighborhoodsByPercentile = useMemo(() => {
+    if (!three11Data.length) return {} as Record<NeedsPercentile, SFNeighborhood[]>;
+    const sorted = [...three11Data].sort((a, b) => a.rate - b.rate);
+    const total = sorted.length;
+    const getIdx = (pct: number) => Math.floor((pct / 100) * total);
+    return {
+      very_low: sorted.slice(0, getIdx(20)).map(d => d.neighborhood),
+      low: sorted.slice(getIdx(20), getIdx(40)).map(d => d.neighborhood),
+      moderate: sorted.slice(getIdx(40), getIdx(60)).map(d => d.neighborhood),
+      high: sorted.slice(getIdx(60), getIdx(80)).map(d => d.neighborhood),
+      very_high: sorted.slice(getIdx(80)).map(d => d.neighborhood),
+    };
+  }, [three11Data]);
+
+  const needsFilteredNeighborhoods = useMemo(() => {
+    if (!selectedNeedsPercentiles.length) return [];
+    return selectedNeedsPercentiles.flatMap(p => needsNeighborhoodsByPercentile[p] || []);
+  }, [selectedNeedsPercentiles, needsNeighborhoodsByPercentile]);
+
+  // Calculate neighborhoods by safety percentile
+  const safetyNeighborhoodsByPercentile = useMemo(() => {
+    if (!safetyData.length) return {} as Record<SafetyPercentile, SFNeighborhood[]>;
+    const sorted = [...safetyData].sort((a, b) => a.rate - b.rate);
+    const total = sorted.length;
+    const getIdx = (pct: number) => Math.floor((pct / 100) * total);
+    return {
+      very_low: sorted.slice(0, getIdx(20)).map(d => d.neighborhood),
+      low: sorted.slice(getIdx(20), getIdx(40)).map(d => d.neighborhood),
+      moderate: sorted.slice(getIdx(40), getIdx(60)).map(d => d.neighborhood),
+      high: sorted.slice(getIdx(60), getIdx(80)).map(d => d.neighborhood),
+      very_high: sorted.slice(getIdx(80)).map(d => d.neighborhood),
+    };
+  }, [safetyData]);
+
+  const safetyFilteredNeighborhoods = useMemo(() => {
+    if (!selectedSafetyPercentiles.length) return [];
+    return selectedSafetyPercentiles.flatMap(p => safetyNeighborhoodsByPercentile[p] || []);
+  }, [selectedSafetyPercentiles, safetyNeighborhoodsByPercentile]);
+
   // Toggle eviction percentile filter
   const toggleEvictionPercentile = (percentile: EvictionPercentile) => {
     setSelectedEvictionPercentiles(prev =>
+      prev.includes(percentile)
+        ? prev.filter(p => p !== percentile)
+        : [...prev, percentile]
+    );
+  };
+
+  // Toggle 311 category filter
+  const toggleServiceCategory = (category: ServiceCategory) => {
+    setSelectedServiceCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
+  // Toggle needs percentile filter
+  const toggleNeedsPercentile = (percentile: NeedsPercentile) => {
+    setSelectedNeedsPercentiles(prev =>
+      prev.includes(percentile)
+        ? prev.filter(p => p !== percentile)
+        : [...prev, percentile]
+    );
+  };
+
+  // Toggle safety category filter
+  const toggleSafetyCategory = (category: SafetyCategory) => {
+    setSelectedSafetyCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
+  // Toggle safety percentile filter
+  const toggleSafetyPercentile = (percentile: SafetyPercentile) => {
+    setSelectedSafetyPercentiles(prev =>
       prev.includes(percentile)
         ? prev.filter(p => p !== percentile)
         : [...prev, percentile]
@@ -246,13 +380,15 @@ export function PublisherDiscoveryMap({
     if (activeDemoTab === 'housing') {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setEvictionLoading(true);
+      const fetchRange = evictionTimeRange;
       Promise.all([
-        getEvictionMapData({ timeRange: evictionTimeRange }),
-        getEvictionStats({ timeRange: evictionTimeRange }),
+        getEvictionMapData({ timeRange: fetchRange }),
+        getEvictionStats({ timeRange: fetchRange }),
       ])
         .then(([mapData, stats]) => {
           setEvictionData(mapData);
           setEvictionStats(stats);
+          setEvictionDisplayTimeRange(fetchRange);
         })
         .catch((error) => {
           console.error('Failed to fetch eviction data:', error);
@@ -262,6 +398,56 @@ export function PublisherDiscoveryMap({
         });
     }
   }, [activeDemoTab, evictionTimeRange]);
+
+  // Fetch 311 data when needs tab is active
+  useEffect(() => {
+    if (activeDemoTab === 'needs') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setThree11Loading(true);
+      const fetchRange = three11TimeRange;
+      const cats = selectedServiceCategories.length > 0 ? selectedServiceCategories : undefined;
+      Promise.all([
+        get311MapData({ timeRange: fetchRange, categories: cats }),
+        get311Stats({ timeRange: fetchRange, categories: cats }),
+      ])
+        .then(([mapData, stats]) => {
+          setThree11Data(mapData);
+          setThree11Stats(stats);
+          setThree11DisplayTimeRange(fetchRange);
+        })
+        .catch((error) => {
+          console.error('Failed to fetch 311 data:', error);
+        })
+        .finally(() => {
+          setThree11Loading(false);
+        });
+    }
+  }, [activeDemoTab, three11TimeRange, selectedServiceCategories]);
+
+  // Fetch safety data when safety tab is active
+  useEffect(() => {
+    if (activeDemoTab === 'safety') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSafetyLoading(true);
+      const fetchRange = safetyTimeRange;
+      const cats = selectedSafetyCategories.length > 0 ? selectedSafetyCategories : undefined;
+      Promise.all([
+        getSafetyMapData({ timeRange: fetchRange, categories: cats }),
+        getSafetyStats({ timeRange: fetchRange, categories: cats }),
+      ])
+        .then(([mapData, stats]) => {
+          setSafetyData(mapData);
+          setSafetyStats(stats);
+          setSafetyDisplayTimeRange(fetchRange);
+        })
+        .catch((error) => {
+          console.error('Failed to fetch safety data:', error);
+        })
+        .finally(() => {
+          setSafetyLoading(false);
+        });
+    }
+  }, [activeDemoTab, safetyTimeRange, selectedSafetyCategories]);
 
   // Toggle filter (for array fields only)
   type ArrayFilterKey = 'languages' | 'ethnicities' | 'incomelevels' | 'ageRanges' | 'neighborhoods';
@@ -283,27 +469,37 @@ export function PublisherDiscoveryMap({
     setSelectedMapEthnicity(null);
     setSelectedMapAge(null);
     setSelectedMapIncome(null);
+    setSelectedServiceCategories([]);
+    setSelectedNeedsPercentiles([]);
+    setSelectedSafetyCategories([]);
+    setSelectedSafetyPercentiles([]);
   };
 
   // Count active filters
   const activeFilterCount =
-    (selectedMapLanguage ? 1 : 0) + // Single-select language for map
-    (selectedMapEthnicity ? 1 : 0) + // Single-select ethnicity for map
-    (selectedMapAge ? 1 : 0) + // Single-select age for map
-    (selectedMapIncome ? 1 : 0) + // Single-select income for map
+    (selectedMapLanguage ? 1 : 0) +
+    (selectedMapEthnicity ? 1 : 0) +
+    (selectedMapAge ? 1 : 0) +
+    (selectedMapIncome ? 1 : 0) +
     filters.neighborhoods.length +
     selectedEvictionPercentiles.length +
+    selectedServiceCategories.length +
+    selectedNeedsPercentiles.length +
+    selectedSafetyCategories.length +
+    selectedSafetyPercentiles.length +
     (filters.risingStarsOnly ? 1 : 0) +
     (filters.verifiedOnly ? 1 : 0);
 
   // Get demo tab filter count
   const getDemoTabCount = (tab: DemoFilterTab) => {
     const counts: Record<DemoFilterTab, number> = {
-      languages: selectedMapLanguage ? 1 : 0, // Single-select
-      communities: selectedMapEthnicity ? 1 : 0, // Single-select
-      income: selectedMapIncome ? 1 : 0, // Single-select
-      age: selectedMapAge ? 1 : 0, // Single-select
+      languages: selectedMapLanguage ? 1 : 0,
+      communities: selectedMapEthnicity ? 1 : 0,
+      income: selectedMapIncome ? 1 : 0,
+      age: selectedMapAge ? 1 : 0,
       housing: selectedEvictionPercentiles.length,
+      needs: selectedServiceCategories.length + selectedNeedsPercentiles.length,
+      safety: selectedSafetyCategories.length + selectedSafetyPercentiles.length,
     };
     return counts[tab];
   };
@@ -379,8 +575,14 @@ export function PublisherDiscoveryMap({
     if (activeDemoTab === 'housing' && evictionFilteredNeighborhoods.length > 0) {
       return evictionFilteredNeighborhoods;
     }
+    if (activeDemoTab === 'needs' && needsFilteredNeighborhoods.length > 0) {
+      return needsFilteredNeighborhoods;
+    }
+    if (activeDemoTab === 'safety' && safetyFilteredNeighborhoods.length > 0) {
+      return safetyFilteredNeighborhoods;
+    }
     return filters.neighborhoods;
-  }, [hoveredPublisher, filteredPublishers, filters.neighborhoods, activeDemoTab, evictionFilteredNeighborhoods]);
+  }, [hoveredPublisher, filteredPublishers, filters.neighborhoods, activeDemoTab, evictionFilteredNeighborhoods, needsFilteredNeighborhoods, safetyFilteredNeighborhoods]);
 
   // Publisher coverage for map
   const publisherCoverage = useMemo(() => {
@@ -488,6 +690,10 @@ export function PublisherDiscoveryMap({
       };
     } else if (activeDemoTab === 'housing' && evictionData.length > 0) {
       getValue = (id) => evictionData.find(e => e.neighborhood === id)?.rate || 0;
+    } else if (activeDemoTab === 'needs' && three11Data.length > 0) {
+      getValue = (id) => three11Data.find(e => e.neighborhood === id)?.rate || 0;
+    } else if (activeDemoTab === 'safety' && safetyData.length > 0) {
+      getValue = (id) => safetyData.find(e => e.neighborhood === id)?.rate || 0;
     } else {
       return null;
     }
@@ -711,6 +917,132 @@ export function PublisherDiscoveryMap({
               )}
             </>
           )}
+          {activeDemoTab === 'needs' && (
+            <>
+              {/* Category filter pills */}
+              {SERVICE_CATEGORIES.filter(c => c !== 'other').map((cat) => (
+                <FilterPill
+                  key={cat}
+                  label={SERVICE_LABELS[cat]}
+                  isActive={selectedServiceCategories.includes(cat)}
+                  onClick={() => toggleServiceCategory(cat)}
+                  activeColor="#2563eb"
+                />
+              ))}
+
+              <div className="w-px h-5 bg-[var(--color-mist)] mx-1" />
+
+              {/* Percentile filter pills */}
+              {NEEDS_PERCENTILE_OPTIONS.map((opt) => (
+                <FilterPill
+                  key={opt.value}
+                  label={opt.label}
+                  isActive={selectedNeedsPercentiles.includes(opt.value)}
+                  onClick={() => toggleNeedsPercentile(opt.value)}
+                  activeColor="#1d4ed8"
+                />
+              ))}
+
+              <div className="w-px h-5 bg-[var(--color-mist)] mx-1" />
+
+              {/* Time range toggle */}
+              <div className="flex items-center bg-white rounded-md border border-[var(--color-mist)] p-0.5">
+                <button
+                  onClick={() => setThree11TimeRange('30d')}
+                  className={`px-2.5 py-1 text-xs font-medium rounded transition-colors ${
+                    three11TimeRange === '30d'
+                      ? 'bg-slate-700 text-white shadow-sm'
+                      : 'text-[var(--color-slate)] hover:text-[var(--color-charcoal)]'
+                  }`}
+                >
+                  30d
+                </button>
+                <button
+                  onClick={() => setThree11TimeRange('12mo')}
+                  className={`px-2.5 py-1 text-xs font-medium rounded transition-colors ${
+                    three11TimeRange === '12mo'
+                      ? 'bg-slate-700 text-white shadow-sm'
+                      : 'text-[var(--color-slate)] hover:text-[var(--color-charcoal)]'
+                  }`}
+                >
+                  12mo
+                </button>
+              </div>
+
+              {/* Status */}
+              {three11Loading && (
+                <span className="text-xs text-[var(--color-slate)] animate-pulse">Loading...</span>
+              )}
+              {!three11Loading && three11Stats && (
+                <span className="text-xs text-[var(--color-slate)]">
+                  {three11Stats.totalCases.toLocaleString()} requests
+                </span>
+              )}
+            </>
+          )}
+          {activeDemoTab === 'safety' && (
+            <>
+              {/* Category filter pills */}
+              {SAFETY_CATEGORIES.filter(c => c !== 'other').map((cat) => (
+                <FilterPill
+                  key={cat}
+                  label={SAFETY_LABELS[cat]}
+                  isActive={selectedSafetyCategories.includes(cat)}
+                  onClick={() => toggleSafetyCategory(cat)}
+                  activeColor="#dc2626"
+                />
+              ))}
+
+              <div className="w-px h-5 bg-[var(--color-mist)] mx-1" />
+
+              {/* Percentile filter pills */}
+              {SAFETY_PERCENTILE_OPTIONS.map((opt) => (
+                <FilterPill
+                  key={opt.value}
+                  label={opt.label}
+                  isActive={selectedSafetyPercentiles.includes(opt.value)}
+                  onClick={() => toggleSafetyPercentile(opt.value)}
+                  activeColor="#991b1b"
+                />
+              ))}
+
+              <div className="w-px h-5 bg-[var(--color-mist)] mx-1" />
+
+              {/* Time range toggle */}
+              <div className="flex items-center bg-white rounded-md border border-[var(--color-mist)] p-0.5">
+                <button
+                  onClick={() => setSafetyTimeRange('30d')}
+                  className={`px-2.5 py-1 text-xs font-medium rounded transition-colors ${
+                    safetyTimeRange === '30d'
+                      ? 'bg-slate-700 text-white shadow-sm'
+                      : 'text-[var(--color-slate)] hover:text-[var(--color-charcoal)]'
+                  }`}
+                >
+                  30d
+                </button>
+                <button
+                  onClick={() => setSafetyTimeRange('12mo')}
+                  className={`px-2.5 py-1 text-xs font-medium rounded transition-colors ${
+                    safetyTimeRange === '12mo'
+                      ? 'bg-slate-700 text-white shadow-sm'
+                      : 'text-[var(--color-slate)] hover:text-[var(--color-charcoal)]'
+                  }`}
+                >
+                  12mo
+                </button>
+              </div>
+
+              {/* Status */}
+              {safetyLoading && (
+                <span className="text-xs text-[var(--color-slate)] animate-pulse">Loading...</span>
+              )}
+              {!safetyLoading && safetyStats && (
+                <span className="text-xs text-[var(--color-slate)]">
+                  {safetyStats.totalIncidents.toLocaleString()} incidents
+                </span>
+              )}
+            </>
+          )}
         </div>
       </div>
 
@@ -755,23 +1087,29 @@ export function PublisherDiscoveryMap({
         <div className="flex-1 relative bg-white">
           <SFNeighborhoodMap
             mode="department"
-            publisherCoverage={activeDemoTab !== 'housing' ? publisherCoverage : undefined}
+            publisherCoverage={!['housing', 'needs', 'safety'].includes(activeDemoTab) ? publisherCoverage : undefined}
             evictionData={activeDemoTab === 'housing' ? evictionData : undefined}
+            three11Data={activeDemoTab === 'needs' ? three11Data : undefined}
+            safetyData={activeDemoTab === 'safety' ? safetyData : undefined}
             selectedNeighborhoods={mapHighlightedNeighborhoods}
             onNeighborhoodClick={handleNeighborhoodClick}
             publisherTerritory={publisherTerritoryOverlay}
             colorBy={
               activeDemoTab === 'housing'
                 ? 'evictions'
-                : activeDemoTab === 'languages'
-                  ? 'language'
-                  : activeDemoTab === 'communities'
-                    ? 'ethnicity'
-                    : activeDemoTab === 'age'
-                      ? 'age'
-                      : activeDemoTab === 'income'
-                        ? 'income'
-                        : 'none'
+                : activeDemoTab === 'needs'
+                  ? '311'
+                  : activeDemoTab === 'safety'
+                    ? 'safety'
+                    : activeDemoTab === 'languages'
+                      ? 'language'
+                      : activeDemoTab === 'communities'
+                        ? 'ethnicity'
+                        : activeDemoTab === 'age'
+                          ? 'age'
+                          : activeDemoTab === 'income'
+                            ? 'income'
+                            : 'none'
             }
             selectedLanguage={activeDemoTab === 'languages' ? selectedMapLanguage : undefined}
             selectedEthnicity={activeDemoTab === 'communities' ? selectedMapEthnicity : undefined}
@@ -779,8 +1117,16 @@ export function PublisherDiscoveryMap({
             selectedIncome={activeDemoTab === 'income' ? selectedMapIncome : undefined}
             height="100%"
             showLegend={true}
-            timeRange={evictionTimeRange}
-            onTimeRangeChange={setEvictionTimeRange}
+            timeRange={
+              activeDemoTab === 'needs' ? three11DisplayTimeRange
+              : activeDemoTab === 'safety' ? safetyDisplayTimeRange
+              : evictionDisplayTimeRange
+            }
+            onTimeRangeChange={
+              activeDemoTab === 'needs' ? setThree11TimeRange
+              : activeDemoTab === 'safety' ? setSafetyTimeRange
+              : setEvictionTimeRange
+            }
             initialViewState={{
               longitude: -122.4394,
               latitude: 37.7595,
@@ -821,6 +1167,22 @@ export function PublisherDiscoveryMap({
                     }
                   : undefined
               }
+              three11Data={
+                activeDemoTab === 'needs' && three11Stats?.byNeighborhood[clickedNeighborhood.id]
+                  ? {
+                      rate: three11Stats.byNeighborhood[clickedNeighborhood.id].rate,
+                      total: three11Stats.byNeighborhood[clickedNeighborhood.id].total,
+                    }
+                  : undefined
+              }
+              safetyData={
+                activeDemoTab === 'safety' && safetyStats?.byNeighborhood[clickedNeighborhood.id]
+                  ? {
+                      rate: safetyStats.byNeighborhood[clickedNeighborhood.id].rate,
+                      total: safetyStats.byNeighborhood[clickedNeighborhood.id].total,
+                    }
+                  : undefined
+              }
               rank={getNeighborhoodRank(clickedNeighborhood.id)?.rank}
               totalNeighborhoods={getNeighborhoodRank(clickedNeighborhood.id)?.total}
               onExpand={() => setPopoverMode('supercard')}
@@ -835,6 +1197,8 @@ export function PublisherDiscoveryMap({
               position={clickedNeighborhood.position}
               censusData={censusData[clickedNeighborhood.id]}
               evictionData={evictionStats?.byNeighborhood[clickedNeighborhood.id]}
+              three11Data={three11Stats?.byNeighborhood[clickedNeighborhood.id] as Neighborhood311Data | undefined}
+              safetyData={safetyStats?.byNeighborhood[clickedNeighborhood.id] as NeighborhoodSafetyData | undefined}
               publishersInArea={getPublishersForNeighborhood(clickedNeighborhood.id)}
               onDismiss={dismissNeighborhoodPopover}
               onPublisherClick={(pub) => {

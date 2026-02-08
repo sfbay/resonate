@@ -39,7 +39,7 @@ interface SimpleCensusData {
 // TYPES
 // =============================================================================
 
-export type DemoTabType = 'languages' | 'communities' | 'income' | 'age' | 'housing';
+export type DemoTabType = 'languages' | 'communities' | 'income' | 'age' | 'housing' | 'needs' | 'safety';
 
 export interface NeighborhoodPopoverProps {
   /** The neighborhood being displayed */
@@ -54,6 +54,10 @@ export interface NeighborhoodPopoverProps {
   censusData: SimpleCensusData;
   /** Eviction data if in housing tab */
   evictionData?: { rate: number; total: number };
+  /** 311 data if in needs tab */
+  three11Data?: { rate: number; total: number };
+  /** Safety data if in safety tab */
+  safetyData?: { rate: number; total: number };
   /** Ranking info */
   rank?: number;
   totalNeighborhoods?: number;
@@ -79,6 +83,8 @@ const TAB_COLORS: Record<DemoTabType, string> = {
   income: '#16a34a',       // green-600
   age: '#0d9488',          // teal-600
   housing: '#dc2626',      // red-600
+  needs: '#2563eb',        // blue-600
+  safety: '#dc2626',       // red-600 (amber-red tone)
 };
 
 // =============================================================================
@@ -92,6 +98,8 @@ export function NeighborhoodPopover({
   selectedDemographic,
   censusData,
   evictionData,
+  three11Data,
+  safetyData,
   rank,
   totalNeighborhoods,
   onExpand,
@@ -243,6 +251,30 @@ export function NeighborhoodPopover({
         };
       }
 
+      case 'needs': {
+        if (three11Data) {
+          return {
+            value: three11Data.total.toLocaleString(),
+            label: '311 requests',
+            subtext: `${three11Data.rate.toFixed(1)} per 1,000 residents`,
+            accentColor,
+          };
+        }
+        return { value: 'N/A', label: 'No data', accentColor };
+      }
+
+      case 'safety': {
+        if (safetyData) {
+          return {
+            value: safetyData.total.toLocaleString(),
+            label: 'safety incidents',
+            subtext: `${safetyData.rate.toFixed(1)} per 1,000 residents`,
+            accentColor,
+          };
+        }
+        return { value: 'N/A', label: 'No data', accentColor };
+      }
+
       default:
         return {
           value: (censusData.population?.total ?? 0).toLocaleString(),
@@ -250,7 +282,7 @@ export function NeighborhoodPopover({
           accentColor: '#64748b',
         };
     }
-  }, [activeDemoTab, selectedDemographic, censusData, evictionData]);
+  }, [activeDemoTab, selectedDemographic, censusData, evictionData, three11Data, safetyData]);
 
   // Calculate popover position (ensure it stays on screen)
   const popoverStyle = useMemo(() => {

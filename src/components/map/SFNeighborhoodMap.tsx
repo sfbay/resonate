@@ -104,6 +104,22 @@ const EVICTIONS_SCALE_30D: [number, string][] = [
   [0, '#fef0d9'], [0.5, '#fdcc8a'], [1, '#fc8d59'], [2, '#e34a33'], [3, '#b30000'], [5, '#7a0000'],
 ];
 
+// 311 scales — blue civic tone, per 1k residents
+const THREE11_SCALE_12MO: [number, string][] = [
+  [0, '#eff6ff'], [50, '#93c5fd'], [100, '#3b82f6'], [200, '#1d4ed8'], [400, '#1e3a8a'], [800, '#172554'],
+];
+const THREE11_SCALE_30D: [number, string][] = [
+  [0, '#eff6ff'], [5, '#93c5fd'], [10, '#3b82f6'], [20, '#1d4ed8'], [40, '#1e3a8a'], [80, '#172554'],
+];
+
+// Safety scales — amber→red caution tone, per 1k residents
+const SAFETY_SCALE_12MO: [number, string][] = [
+  [0, '#fefce8'], [20, '#fde047'], [50, '#f59e0b'], [100, '#dc2626'], [150, '#991b1b'], [250, '#450a0a'],
+];
+const SAFETY_SCALE_30D: [number, string][] = [
+  [0, '#fefce8'], [2, '#fde047'], [5, '#f59e0b'], [10, '#dc2626'], [15, '#991b1b'], [25, '#450a0a'],
+];
+
 // =============================================================================
 // TYPES
 // =============================================================================
@@ -124,11 +140,13 @@ export interface SFNeighborhoodMapProps {
   audienceDistribution?: { neighborhood: SFNeighborhood; percentage: number }[];
   publisherCoverage?: { neighborhood: SFNeighborhood; publisherCount: number; totalReach: number }[];
   evictionData?: { neighborhood: SFNeighborhood; rate: number }[];
+  three11Data?: { neighborhood: SFNeighborhood; rate: number }[];
+  safetyData?: { neighborhood: SFNeighborhood; rate: number }[];
   selectedNeighborhoods?: SFNeighborhood[];
   onNeighborhoodClick?: (neighborhood: SFNeighborhood, screenPosition: { x: number; y: number }) => void;
   onNeighborhoodHover?: (neighborhood: SFNeighborhood | null) => void;
   showLegend?: boolean;
-  colorBy?: 'none' | 'audience' | 'income' | 'language' | 'coverage' | 'evictions' | 'ethnicity' | 'age';
+  colorBy?: 'none' | 'audience' | 'income' | 'language' | 'coverage' | 'evictions' | 'ethnicity' | 'age' | '311' | 'safety';
   selectedLanguage?: LanguageKey | null;
   selectedEthnicity?: EthnicityKey | null;
   selectedAge?: AgeKey | null;
@@ -150,6 +168,8 @@ export function SFNeighborhoodMap({
   audienceDistribution,
   publisherCoverage,
   evictionData,
+  three11Data,
+  safetyData,
   selectedNeighborhoods = [],
   onNeighborhoodClick,
   onNeighborhoodHover,
@@ -214,6 +234,12 @@ export function SFNeighborhoodMap({
       } else if (colorBy === 'evictions' && evictionData) {
         const eviction = evictionData.find((d) => d.neighborhood === id);
         dataValue = eviction?.rate || 0;
+      } else if (colorBy === '311' && three11Data) {
+        const entry = three11Data.find((d) => d.neighborhood === id);
+        dataValue = entry?.rate || 0;
+      } else if (colorBy === 'safety' && safetyData) {
+        const entry = safetyData.find((d) => d.neighborhood === id);
+        dataValue = entry?.rate || 0;
       }
 
       return {
@@ -228,7 +254,7 @@ export function SFNeighborhoodMap({
     });
 
     return { type: 'FeatureCollection' as const, features } as GeoJSON.FeatureCollection;
-  }, [audienceDistribution, publisherCoverage, evictionData, colorBy, selectedLanguage, selectedEthnicity, selectedAge, selectedIncome, selectedNeighborhoods, hoveredNeighborhood, censusData]);
+  }, [audienceDistribution, publisherCoverage, evictionData, three11Data, safetyData, colorBy, selectedLanguage, selectedEthnicity, selectedAge, selectedIncome, selectedNeighborhoods, hoveredNeighborhood, censusData]);
 
   // Build color interpolation expression
   const fillColorExpression = useMemo(() => {
@@ -245,6 +271,8 @@ export function SFNeighborhoodMap({
     else if (colorBy === 'age' && selectedAge) scale = AGE_COLOR_SCALES[selectedAge];
     else if (colorBy === 'income' && selectedIncome) scale = INCOME_BRACKET_SCALES[selectedIncome];
     else if (colorBy === 'evictions') scale = timeRange === '30d' ? EVICTIONS_SCALE_30D : EVICTIONS_SCALE_12MO;
+    else if (colorBy === '311') scale = timeRange === '30d' ? THREE11_SCALE_30D : THREE11_SCALE_12MO;
+    else if (colorBy === 'safety') scale = timeRange === '30d' ? SAFETY_SCALE_30D : SAFETY_SCALE_12MO;
 
     if (!scale || scale.length < 2) return '#f1f5f9';
 
@@ -402,6 +430,20 @@ export function SFNeighborhoodMap({
         showTimeToggle: true,
       };
     }
+    if (colorBy === '311') {
+      const preset = timeRange === '30d' ? LEGEND_PRESETS.three11_30d : LEGEND_PRESETS.three11_12mo;
+      return {
+        ...preset,
+        showTimeToggle: true,
+      };
+    }
+    if (colorBy === 'safety') {
+      const preset = timeRange === '30d' ? LEGEND_PRESETS.safety_30d : LEGEND_PRESETS.safety_12mo;
+      return {
+        ...preset,
+        showTimeToggle: true,
+      };
+    }
     if (colorBy === 'coverage') {
       return LEGEND_PRESETS.coverage;
     }
@@ -454,7 +496,7 @@ export function SFNeighborhoodMap({
           {...legendConfig}
           timeRange={timeRange}
           onTimeRangeChange={onTimeRangeChange}
-          showTimeToggle={colorBy === 'evictions'}
+          showTimeToggle={colorBy === 'evictions' || colorBy === '311' || colorBy === 'safety'}
         />
       )}
 

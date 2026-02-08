@@ -12,7 +12,8 @@
 
 import { useMemo } from 'react';
 import type { SFNeighborhood, Publisher } from '@/types';
-import type { NeighborhoodEvictionData } from '@/lib/datasf/types';
+import type { NeighborhoodEvictionData, Neighborhood311Data, NeighborhoodSafetyData } from '@/lib/datasf/types';
+import { SERVICE_CATEGORY_LABELS, SAFETY_CATEGORY_LABELS } from '@/lib/datasf/types';
 import { SF_NEIGHBORHOODS } from '@/lib/geo/sf-geography';
 
 // Simplified census data type matching actual data structure
@@ -50,6 +51,10 @@ export interface NeighborhoodSupercardProps {
   censusData: SimpleCensusData;
   /** Eviction data */
   evictionData?: NeighborhoodEvictionData;
+  /** 311 data */
+  three11Data?: Neighborhood311Data;
+  /** Safety data */
+  safetyData?: NeighborhoodSafetyData;
   /** Publishers serving this area */
   publishersInArea: Publisher[];
   /** Callbacks */
@@ -123,6 +128,8 @@ export function NeighborhoodSupercard({
   position,
   censusData,
   evictionData,
+  three11Data,
+  safetyData,
   publishersInArea,
   onDismiss,
   onPublisherClick,
@@ -399,6 +406,79 @@ export function NeighborhoodSupercard({
                   </div>
                 )}
               </Section>
+
+              {/* 311 Community Needs */}
+              {three11Data && (
+                <Section title="Community Needs (311)" color="#2563eb">
+                  <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold text-blue-700">
+                        {three11Data.total.toLocaleString()}
+                      </span>
+                      <span className="text-sm text-blue-600">requests</span>
+                    </div>
+                    <div className="text-xs text-blue-500 mt-1">
+                      {three11Data.rate.toFixed(1)} per 1,000 residents
+                    </div>
+                    {three11Data.topCategories && three11Data.topCategories.length > 0 && (
+                      <div className="mt-2 pt-2 border-t border-blue-100">
+                        <div className="text-[10px] text-blue-500 mb-1">Top categories:</div>
+                        <div className="flex flex-wrap gap-1">
+                          {three11Data.topCategories.slice(0, 4).map(c => (
+                            <span
+                              key={c.category}
+                              className="text-[10px] px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded"
+                            >
+                              {SERVICE_CATEGORY_LABELS[c.category]} ({c.percentage}%)
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </Section>
+              )}
+
+              {/* Public Safety */}
+              {safetyData && (
+                <Section title="Public Safety" color="#dc2626">
+                  <div className="bg-amber-50 border border-amber-100 rounded-lg p-3">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold text-amber-700">
+                        {safetyData.total.toLocaleString()}
+                      </span>
+                      <span className="text-sm text-amber-600">incidents</span>
+                    </div>
+                    <div className="text-xs text-amber-500 mt-1">
+                      {safetyData.rate.toFixed(1)} per 1,000 residents
+                    </div>
+                    <div className="flex gap-3 mt-2 text-xs">
+                      <span className="text-amber-600">
+                        {safetyData.policeCount.toLocaleString()} SFPD
+                      </span>
+                      <span className="text-amber-400">·</span>
+                      <span className="text-amber-600">
+                        {safetyData.fireCount.toLocaleString()} SFFD
+                      </span>
+                    </div>
+                    {safetyData.topCategories && safetyData.topCategories.length > 0 && (
+                      <div className="mt-2 pt-2 border-t border-amber-100">
+                        <div className="text-[10px] text-amber-500 mb-1">Top categories:</div>
+                        <div className="flex flex-wrap gap-1">
+                          {safetyData.topCategories.slice(0, 4).map(c => (
+                            <span
+                              key={c.category}
+                              className="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded"
+                            >
+                              {SAFETY_CATEGORY_LABELS[c.category]} ({c.percentage}%)
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </Section>
+              )}
 
               {/* Publishers */}
               {publishersInArea.length > 0 && (
