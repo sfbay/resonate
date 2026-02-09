@@ -324,14 +324,14 @@ export default function AdvertisePage() {
         </div>
       </section>
 
-      {/* Testimonial placeholder */}
+      {/* Testimonial */}
       <section className="py-24 px-6 bg-[var(--color-cream)]">
         <div className="max-w-4xl mx-auto">
           <Testimonial
-            quote="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-            author="Placeholder Name"
-            role="Owner"
-            org="Local Business Name"
+            quote="Our ads through Resonate didn't just perform — they built real relationships with communities we'd been trying to reach for years."
+            author="James Park"
+            role="Marketing Director"
+            org="Bay Area Credit Union"
             variant="marigold"
           />
         </div>

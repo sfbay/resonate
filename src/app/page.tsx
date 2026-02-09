@@ -115,7 +115,6 @@ export default function LandingPage() {
               <span className="text-xl font-bold font-serif text-white">Resonate</span>
             </div>
             <nav className="hidden md:flex items-center gap-6">
-              <Link href="/about" className="text-sm text-white/50 hover:text-white transition-colors">About</Link>
               <Link
                 href="/sf"
                 className="text-sm font-semibold px-5 py-2 rounded-full bg-white/10 border border-white/15 hover:bg-white/15 transition-all"
@@ -439,9 +438,9 @@ export default function LandingPage() {
               </span>
             </div>
             <div className="flex items-center gap-6 text-sm text-white/30">
-              <Link href="/about" className="hover:text-white/60 transition-colors">About</Link>
-              <Link href="/privacy" className="hover:text-white/60 transition-colors">Privacy</Link>
-              <Link href="/terms" className="hover:text-white/60 transition-colors">Terms</Link>
+              <span className="cursor-default">About</span>
+              <span className="cursor-default">Privacy</span>
+              <span className="cursor-default">Terms</span>
             </div>
           </div>
         </div>

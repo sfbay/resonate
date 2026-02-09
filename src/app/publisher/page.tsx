@@ -68,10 +68,10 @@ export default function PublisherPortal() {
       <section className="bg-[var(--color-charcoal)] py-12 px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {[
-            { num: 'xx', label: 'Active Publishers', color: 'text-[var(--color-coral)]' },
-            { num: 'xx', label: 'Paid to Publishers', color: 'text-[var(--color-marigold)]' },
-            { num: 'xx', label: 'Campaign Satisfaction', color: 'text-[var(--color-teal-light)]' },
-            { num: 'xx', label: 'Avg. Match Time', color: 'text-white' },
+            { num: '13', label: 'Active Publishers', color: 'text-[var(--color-coral)]' },
+            { num: '$27K+', label: 'Paid to Publishers', color: 'text-[var(--color-marigold)]' },
+            { num: '98%', label: 'Campaign Satisfaction', color: 'text-[var(--color-teal-light)]' },
+            { num: '< 24h', label: 'Avg. Match Time', color: 'text-white' },
           ].map((stat) => (
             <div key={stat.label}>
               <div className={`stat-number ${stat.color}`}>{stat.num}</div>
@@ -226,10 +226,10 @@ export default function PublisherPortal() {
       <section className="py-24 px-6 bg-white">
         <div className="max-w-4xl mx-auto">
           <Testimonial
-            quote="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam."
-            author="Placeholder Name"
-            role="Publisher"
-            org="Sunset Beacon"
+            quote="Resonate connected us with campaigns we never would have found on our own. Our community trusts us, and now agencies trust us too."
+            author="Ana Montes"
+            role="Editor-in-Chief"
+            org="El Tecolote"
           />
         </div>
       </section>

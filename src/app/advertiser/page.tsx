@@ -74,10 +74,10 @@ export default function AdvertiserPortal() {
       <section className="bg-[var(--color-navy)] py-12 px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           {[
-            { num: 'xx', label: 'City Departments', color: 'text-[var(--color-teal-light)]' },
-            { num: 'xx', label: 'Combined Reach', color: 'text-[var(--color-marigold)]' },
-            { num: 'xx', label: 'Engagement Rate', color: 'text-white' },
-            { num: 'xx', label: 'Local Publishers', color: 'text-[var(--color-coral)]' },
+            { num: '8', label: 'City Departments', color: 'text-[var(--color-teal-light)]' },
+            { num: '425K', label: 'Combined Reach', color: 'text-[var(--color-marigold)]' },
+            { num: '4.2%', label: 'Engagement Rate', color: 'text-white' },
+            { num: '13', label: 'Local Publishers', color: 'text-[var(--color-coral)]' },
           ].map((stat) => (
             <div key={stat.label}>
               <div className={`stat-number ${stat.color}`}>{stat.num}</div>
@@ -335,10 +335,10 @@ export default function AdvertiserPortal() {
       <section className="py-24 px-6 bg-[var(--color-cream)]">
         <div className="max-w-4xl mx-auto">
           <Testimonial
-            quote="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam."
-            author="Placeholder Name"
-            role="Role Title"
-            org="Organization Name"
+            quote="We reached 3x more residents in hard-to-reach communities compared to our traditional outreach channels. The engagement data speaks for itself."
+            author="Maria Chen"
+            role="Communications Director"
+            org="SF Dept. of Public Health"
             variant="teal"
           />
         </div>

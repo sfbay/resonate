@@ -197,12 +197,18 @@ export default function OrderInboxPage() {
                         </>
                       )}
                       {order.status === 'in_progress' && (
-                        <Link
-                          href={`/publisher/dashboard/orders/${order.id}`}
+                        <button
                           className="btn btn-coral text-sm px-5 py-2"
+                          onClick={() => {
+                            const el = document.createElement('div');
+                            el.className = 'fixed top-4 right-4 bg-emerald-500 text-white px-5 py-3 rounded-lg shadow-lg z-50 text-sm font-medium';
+                            el.textContent = 'Deliverable submission opening soon';
+                            document.body.appendChild(el);
+                            setTimeout(() => el.remove(), 2500);
+                          }}
                         >
                           Submit Deliverables
-                        </Link>
+                        </button>
                       )}
                       {order.status === 'completed' && (
                         <span className="text-sm text-emerald-600 font-medium py-2">
