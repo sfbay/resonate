@@ -1,21 +1,21 @@
 /**
  * Demo Data for Media Kit
  *
- * Hardcoded demo data for SFBay and other demo publishers.
+ * Hardcoded demo data for 48 Hills and other demo publishers.
  * Used when database doesn't have full data, or for demos.
  */
 
 import type { MediaKitData } from './types';
 
 export const DEMO_PUBLISHERS: Record<string, MediaKitData> = {
-  sfbay: {
+  '48hills': {
     publisher: {
-      id: 'demo-sfbay',
-      name: 'SFBay',
-      slug: 'sfbay',
+      id: 'demo-48hills',
+      name: '48 Hills',
+      slug: '48hills',
       description:
-        'SFBay is a community news platform covering the San Francisco Bay Area with a focus on local politics, housing, transit, and community stories that matter to Bay Area residents.',
-      tagline: 'Bay Area News That Matters',
+        '48 Hills is San Francisco\'s independent online news magazine covering local politics, culture, arts, and community issues. Founded in 2013, we provide in-depth reporting on housing, development, and the stories that shape the city.',
+      tagline: 'San Francisco\'s Independent Online Magazine',
       logoUrl: null,
       coverImageUrl: null,
       accentColor: '#0B525B', // Teal
@@ -27,28 +27,28 @@ export const DEMO_PUBLISHERS: Record<string, MediaKitData> = {
       platforms: [
         {
           platform: 'instagram',
-          handle: 'sfbay',
+          handle: '48aborhoods',
           followers: 28000,
           engagementRate: 4.2,
           verified: true,
-          url: 'https://instagram.com/sfbay',
+          url: 'https://instagram.com/48hills_sf',
         },
         {
           platform: 'twitter',
-          handle: 'sfbay',
+          handle: '48aborhoods',
           followers: 19500,
           engagementRate: 2.8,
           verified: true,
-          url: 'https://twitter.com/sfbay',
+          url: 'https://twitter.com/48aborhoods',
         },
       ],
     },
 
     demographics: {
       topLanguages: [
-        { language: 'English', percentage: 78 },
-        { language: 'Spanish', percentage: 15 },
-        { language: 'Chinese', percentage: 7 },
+        { language: 'English', percentage: 82 },
+        { language: 'Spanish', percentage: 12 },
+        { language: 'Chinese', percentage: 6 },
       ],
       incomeDistribution: {
         veryLow: 12,
@@ -57,15 +57,15 @@ export const DEMO_PUBLISHERS: Record<string, MediaKitData> = {
         aboveModerate: 28,
       },
       ageDistribution: {
-        under25: 18,
-        age25to44: 45,
-        age45to64: 25,
-        age65plus: 12,
+        under25: 15,
+        age25to44: 42,
+        age45to64: 30,
+        age65plus: 13,
       },
       topEthnicities: [
-        { ethnicity: 'White', percentage: 38 },
-        { ethnicity: 'Asian', percentage: 32 },
-        { ethnicity: 'Latino/Hispanic', percentage: 20 },
+        { ethnicity: 'White', percentage: 40 },
+        { ethnicity: 'Asian', percentage: 28 },
+        { ethnicity: 'Latino/Hispanic', percentage: 22 },
         { ethnicity: 'Black', percentage: 10 },
       ],
     },
@@ -153,7 +153,7 @@ export const DEMO_PUBLISHERS: Record<string, MediaKitData> = {
 
     contact: {
       showEmail: true,
-      email: 'partnerships@sfbay.news',
+      email: 'info@48hills.org',
       bookingUrl: null,
     },
 
@@ -176,7 +176,7 @@ export const DEMO_PUBLISHERS: Record<string, MediaKitData> = {
         {
           author: 'Maria Chen',
           organization: 'SF Department of Public Health',
-          quote: 'SFBay helped us reach diverse Bay Area communities with critical health information. Their engagement rates exceeded our expectations.',
+          quote: '48 Hills helped us reach engaged San Franciscans with critical health information. Their readership is deeply connected to the city.',
           date: '2025-11',
         },
       ],
