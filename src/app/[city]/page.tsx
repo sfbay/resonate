@@ -1,10 +1,11 @@
 'use client';
 
 /**
- * City Landing Page — Editorial "Choose Your Path" Experience
+ * City Landing Page — Bold "Choose Your Path" Experience
  *
- * Dark dramatic hero with three color-coded CTA buttons, then
- * bright colorful portal sections for Publisher, Government, and Advertise.
+ * Dark dramatic hero → three saturated portal teasers echoing
+ * the actual Publisher / Government / Advertise pages.
+ * Each panel uses bold color blocks, SFMapTexture, and diagonal clip-paths.
  */
 
 import { useState, useEffect, useRef } from 'react';
@@ -38,7 +39,7 @@ function useCountUp(end: number, duration: number = 1800, start: boolean = true)
     const step = (timestamp: number) => {
       if (!startTime) startTime = timestamp;
       const progress = Math.min((timestamp - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
       setCount(Math.floor(eased * end));
       if (progress < 1) requestAnimationFrame(step);
     };
@@ -74,32 +75,23 @@ export default function CityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-cream)] overflow-hidden">
+    <div className="min-h-screen bg-[var(--color-charcoal)] overflow-hidden">
 
       {/* ============================================================
           HERO: Dark dramatic opening with color-coded CTAs
           ============================================================ */}
       <header className="relative min-h-[92vh] flex flex-col justify-end bg-gradient-to-b from-[var(--color-charcoal)] via-[#1a2a2a] to-[var(--color-charcoal)] overflow-hidden">
-        {/* Map texture — desaturated, moody */}
         <SFMapTexture variant="teal" />
-
-        {/* Gradient wash */}
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-charcoal)] via-transparent to-[var(--color-charcoal)]/40 z-[1]" />
 
-        {/* Resonance beacons — scattered ambient glow */}
         <ResonanceBeacon color="coral" size="xl" intensity="subtle" className="top-[15%] left-[10%] z-[2]" />
         <ResonanceBeacon color="teal" size="lg" intensity="subtle" className="top-[25%] right-[15%] z-[2]" delay={2000} />
         <ResonanceBeacon color="marigold" size="md" intensity="subtle" className="bottom-[35%] left-[60%] z-[2]" delay={4000} />
 
-        {/* Hero content */}
         <div className="relative z-10 max-w-6xl mx-auto px-6 pb-20 w-full">
-          {/* Overline */}
           <div
             className="flex items-center gap-3 mb-6 transition-all duration-1000"
-            style={{
-              opacity: mounted ? 1 : 0,
-              transform: mounted ? 'translateY(0)' : 'translateY(20px)',
-            }}
+            style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(20px)' }}
           >
             <div className="h-px w-12 bg-[var(--color-coral)]" />
             <span className="text-[var(--color-coral)] text-sm font-semibold tracking-[0.2em] uppercase">
@@ -107,7 +99,6 @@ export default function CityPage() {
             </span>
           </div>
 
-          {/* City name — massive editorial type */}
           <h1
             className="font-serif leading-[0.9] tracking-tight text-white mb-6 transition-all duration-1000 delay-150"
             style={{
@@ -119,24 +110,16 @@ export default function CityPage() {
             {city.name}
           </h1>
 
-          {/* Tagline */}
           <p
             className="text-xl md:text-2xl text-white/80 max-w-xl leading-relaxed mb-10 transition-all duration-1000 delay-300"
-            style={{
-              opacity: mounted ? 1 : 0,
-              transform: mounted ? 'translateY(0)' : 'translateY(20px)',
-            }}
+            style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(20px)' }}
           >
             Where community and ethnic media serve neighbors, neighborhoods and communities.
           </p>
 
-          {/* Choose your path — Three color-coded CTAs */}
           <div
             className="flex items-center gap-5 flex-wrap transition-all duration-1000 delay-500"
-            style={{
-              opacity: mounted ? 1 : 0,
-              transform: mounted ? 'translateY(0)' : 'translateY(15px)',
-            }}
+            style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(15px)' }}
           >
             <span className="text-white/50 text-sm font-semibold tracking-[0.15em] uppercase">
               Choose your path
@@ -173,7 +156,7 @@ export default function CityPage() {
           </div>
         </div>
 
-        {/* Publisher logo marquee — social proof ribbon */}
+        {/* Publisher logo marquee */}
         <div
           className="relative z-10 border-t border-white/15 bg-white/[0.05] backdrop-blur-sm transition-all duration-1000 delay-700"
           style={{ opacity: mounted ? 1 : 0 }}
@@ -182,13 +165,7 @@ export default function CityPage() {
             <div className="flex animate-marquee gap-12 items-center">
               {[...PUBLISHER_LOGOS, ...PUBLISHER_LOGOS].map((pub, i) => (
                 <div key={`${pub.name}-${i}`} className="flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
-                  <Image
-                    src={pub.src}
-                    alt={pub.name}
-                    width={100}
-                    height={36}
-                    className="h-7 w-auto object-contain invert"
-                  />
+                  <Image src={pub.src} alt={pub.name} width={100} height={36} className="h-7 w-auto object-contain invert" />
                 </div>
               ))}
             </div>
@@ -197,53 +174,22 @@ export default function CityPage() {
       </header>
 
       {/* ============================================================
-          PORTAL PANELS: Three bright, colorful full-width sections
+          PUBLISHER PORTAL TEASER — Coral diagonal, left-anchored
+          Echoes: publisher/page.tsx hero (coral clip-path left)
           ============================================================ */}
+      <CoralPublisherPanel getPath={getPath} />
 
-      {/* --- PUBLISHER PORTAL --- */}
-      <PortalPanel
-        theme="coral"
-        overline="For Publishers"
-        headline="Your stories sustain communities."
-        subhead="Connect your platforms. Track your reach. Get matched with campaigns that amplify what you already do."
-        stats={[
-          { value: 13, label: 'Coalition publishers', suffix: '' },
-          { value: 19, label: 'Languages served', suffix: '' },
-          { value: 45, label: 'Neighborhoods covered', suffix: '' },
-        ]}
-        cta={{ label: 'Open Dashboard', href: getPath('/publisher') }}
-        align="left"
-      />
+      {/* ============================================================
+          GOVERNMENT PORTAL TEASER — Teal diagonal, right-anchored
+          Echoes: government/page.tsx hero (teal clip-path right)
+          ============================================================ */}
+      <TealGovernmentPanel getPath={getPath} />
 
-      {/* --- GOVERNMENT PORTAL --- */}
-      <PortalPanel
-        theme="teal"
-        overline="For Government"
-        headline="Reach the people. Through trusted voices."
-        subhead="Discover which trusted local voices already serve the neighborhoods you need to reach — by language, ethnicity, income, and more."
-        stats={[
-          { value: 11, label: 'Supervisorial districts', suffix: '' },
-          { value: 41, label: 'Neighborhood profiles', suffix: '' },
-          { value: 5, label: 'Demographic overlays', suffix: '' },
-        ]}
-        cta={{ label: 'Discover Publishers', href: getPath('/government') }}
-        align="right"
-      />
-
-      {/* --- ADVERTISE PORTAL --- */}
-      <PortalPanel
-        theme="marigold"
-        overline="For Businesses & Nonprofits"
-        headline="Advertise where it matters. Fund what matters more."
-        subhead="Every ad dollar placed through Resonate sustains the community journalism that keeps San Francisco&apos;s neighborhoods informed and connected."
-        stats={[
-          { value: 850, label: 'Avg. cost per thousand', suffix: '', prefix: '$' },
-          { value: 3, label: 'Campaign types', suffix: '' },
-          { value: 100, label: 'Of spend goes to publishers', suffix: '%' },
-        ]}
-        cta={{ label: 'Start a Campaign', href: getPath('/advertise') }}
-        align="left"
-      />
+      {/* ============================================================
+          ADVERTISE PORTAL TEASER — Marigold diagonal, left-anchored
+          Echoes: advertise/page.tsx hero (marigold clip-path right)
+          ============================================================ */}
+      <MarigoldAdvertisePanel getPath={getPath} />
 
       {/* ============================================================
           CLOSING: Mission statement (dark bookend)
@@ -253,160 +199,113 @@ export default function CityPage() {
   );
 }
 
+
 // =============================================================================
-// PORTAL PANEL — Light, colorful backgrounds with decorative accents
+// PUBLISHER TEASER — Coral block on left, cream on right
 // =============================================================================
 
-interface PortalPanelProps {
-  theme: 'coral' | 'teal' | 'marigold';
-  overline: string;
-  headline: string;
-  subhead: string;
-  stats: { value: number; label: string; suffix: string; prefix?: string }[];
-  cta: { label: string; href: string };
-  align: 'left' | 'right';
-}
-
-const themeConfig = {
-  coral: {
-    accent: 'var(--color-coral)',
-    bg: 'bg-gradient-to-br from-[#fef2f2] via-white to-[#fff7ed]',
-    btnClass: 'bg-[var(--color-coral)] hover:bg-[var(--color-coral-dark)] text-white shadow-[0_4px_14px_rgba(241,81,82,0.25)] hover:shadow-[0_6px_20px_rgba(241,81,82,0.35)]',
-    decorBg: 'rgba(241,81,82,0.06)',
-    decorBorder: 'rgba(241,81,82,0.15)',
-    topBorder: 'var(--color-coral)',
-  },
-  teal: {
-    accent: 'var(--color-teal)',
-    bg: 'bg-gradient-to-br from-[#f0fdfa] via-white to-[#ecfeff]',
-    btnClass: 'bg-[var(--color-teal)] hover:bg-[var(--color-teal-dark)] text-white shadow-[0_4px_14px_rgba(11,82,91,0.25)] hover:shadow-[0_6px_20px_rgba(11,82,91,0.35)]',
-    decorBg: 'rgba(11,82,91,0.05)',
-    decorBorder: 'rgba(11,82,91,0.12)',
-    topBorder: 'var(--color-teal)',
-  },
-  marigold: {
-    accent: 'var(--color-marigold)',
-    bg: 'bg-gradient-to-br from-[#fffbeb] via-white to-[#fef9f0]',
-    btnClass: 'bg-[var(--color-marigold)] hover:bg-[var(--color-marigold-dark)] text-[var(--color-charcoal)] shadow-[0_4px_14px_rgba(247,179,43,0.25)] hover:shadow-[0_6px_20px_rgba(247,179,43,0.35)]',
-    decorBg: 'rgba(247,179,43,0.06)',
-    decorBorder: 'rgba(247,179,43,0.15)',
-    topBorder: 'var(--color-marigold)',
-  },
-};
-
-function PortalPanel({ theme, overline, headline, subhead, stats, cta, align }: PortalPanelProps) {
-  const { ref, inView } = useInView(0.2);
-  const config = themeConfig[theme];
+function CoralPublisherPanel({ getPath }: { getPath: (p: string) => string }) {
+  const { ref, inView } = useInView(0.15);
 
   return (
-    <section ref={ref} className={`relative min-h-[70vh] flex items-center ${config.bg} overflow-hidden`}>
-      {/* Colored top border accent */}
-      <div className="absolute top-0 left-0 right-0 h-1" style={{ background: config.topBorder }} />
-
-      {/* Decorative circles — subtle colored geometry */}
+    <section ref={ref} className="relative min-h-[70vh] flex items-center overflow-hidden bg-[var(--color-cream)]">
+      {/* Coral block — diagonal clip-path on left (echoing publisher page) */}
       <div
-        className="absolute rounded-full"
-        style={{
-          width: 500,
-          height: 500,
-          background: config.decorBg,
-          border: `1px solid ${config.decorBorder}`,
-          ...(align === 'left'
-            ? { right: '-5%', top: '10%' }
-            : { left: '-5%', bottom: '10%' }
-          ),
-        }}
+        className="absolute inset-0 z-[1] bg-[var(--color-coral)]"
+        style={{ clipPath: 'polygon(0 0, 60% 0, 48% 100%, 0 100%)' }}
       />
       <div
-        className="absolute rounded-full"
-        style={{
-          width: 200,
-          height: 200,
-          background: config.decorBg,
-          border: `1px solid ${config.decorBorder}`,
-          ...(align === 'left'
-            ? { right: '20%', bottom: '15%' }
-            : { left: '25%', top: '15%' }
-          ),
-        }}
-      />
+        className="absolute inset-0 z-[1]"
+        style={{ clipPath: 'polygon(0 0, 60% 0, 48% 100%, 0 100%)' }}
+      >
+        <SFMapTexture variant="coral" />
+      </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 py-24 w-full">
-        <div className={`max-w-2xl ${align === 'right' ? 'ml-auto text-right' : ''}`}>
-          {/* Overline */}
+      {/* Ambient beacon */}
+      <ResonanceBeacon color="marigold" size="lg" intensity="whisper" className="bottom-[15%] left-[35%] z-[2]" delay={1000} />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 w-full">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left: Content on coral */}
           <div
-            className={`flex items-center gap-3 mb-6 transition-all duration-700 ${align === 'right' ? 'justify-end' : ''}`}
-            style={{
-              opacity: inView ? 1 : 0,
-              transform: inView ? 'translateY(0)' : 'translateY(20px)',
-            }}
+            className="transition-all duration-700"
+            style={{ opacity: inView ? 1 : 0, transform: inView ? 'translateY(0)' : 'translateY(30px)' }}
           >
-            {align === 'left' && <div className="h-px w-10" style={{ background: config.accent }} />}
-            <span
-              className="text-xs font-bold tracking-[0.25em] uppercase"
-              style={{ color: config.accent }}
+            <div className="flex items-center gap-3 mb-5">
+              <div className="h-px w-10 bg-white/50" />
+              <span className="text-white/80 text-xs font-bold tracking-[0.25em] uppercase">
+                For Publishers
+              </span>
+            </div>
+
+            <h2
+              className="font-serif text-white leading-[1.05] tracking-tight mb-5"
+              style={{ fontSize: 'clamp(2rem, 4.5vw, 3.2rem)' }}
             >
-              {overline}
-            </span>
-            {align === 'right' && <div className="h-px w-10" style={{ background: config.accent }} />}
-          </div>
+              Transform reach<br />
+              <span className="text-[var(--color-marigold)]">into revenue</span>
+            </h2>
 
-          {/* Headline */}
-          <h2
-            className="font-serif text-[var(--color-charcoal)] leading-[1.05] tracking-tight mb-6 transition-all duration-700 delay-100"
-            style={{
-              fontSize: 'clamp(2.2rem, 5vw, 3.8rem)',
-              opacity: inView ? 1 : 0,
-              transform: inView ? 'translateY(0)' : 'translateY(25px)',
-            }}
-          >
-            {headline}
-          </h2>
+            <p className="text-lg text-white/85 leading-relaxed mb-8 max-w-md">
+              Connect your platforms. Track your reach. Get matched with campaigns that amplify what you already do.
+            </p>
 
-          {/* Subhead */}
-          <p
-            className="text-lg text-[var(--color-slate)] leading-relaxed mb-10 transition-all duration-700 delay-200"
-            style={{
-              opacity: inView ? 1 : 0,
-              transform: inView ? 'translateY(0)' : 'translateY(20px)',
-            }}
-          >
-            {subhead}
-          </p>
+            <div className="flex gap-8 mb-8">
+              <StatCounter value={13} label="Publishers" color="white" inView={inView} delay={0} />
+              <StatCounter value={19} label="Languages" color="var(--color-marigold)" inView={inView} delay={150} />
+              <StatCounter value={45} label="Neighborhoods" color="white" inView={inView} delay={300} />
+            </div>
 
-          {/* Stats row */}
-          <div
-            className={`flex gap-10 mb-10 transition-all duration-700 delay-300 ${align === 'right' ? 'justify-end' : ''}`}
-            style={{
-              opacity: inView ? 1 : 0,
-              transform: inView ? 'translateY(0)' : 'translateY(15px)',
-            }}
-          >
-            {stats.map((stat, i) => (
-              <StatCounter key={i} {...stat} color={config.accent} inView={inView} delay={i * 200} light />
-            ))}
-          </div>
-
-          {/* CTA */}
-          <div
-            className={`transition-all duration-700 delay-500 ${align === 'right' ? 'flex justify-end' : ''}`}
-            style={{
-              opacity: inView ? 1 : 0,
-              transform: inView ? 'translateY(0)' : 'translateY(15px)',
-            }}
-          >
             <Link
-              href={cta.href}
-              className={`group inline-flex items-center gap-3 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-[1.02] ${config.btnClass}`}
+              href={getPath('/publisher')}
+              className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full bg-white text-[var(--color-coral)] font-semibold transition-all duration-300 hover:bg-[var(--color-cream)] hover:scale-[1.02] shadow-lg"
             >
-              {cta.label}
-              <svg
-                className="w-5 h-5 transition-transform group-hover:translate-x-1"
-                fill="none" viewBox="0 0 24 24" stroke="currentColor"
-              >
+              Open Dashboard
+              <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
             </Link>
+          </div>
+
+          {/* Right: Floating preview card on cream background */}
+          <div
+            className="relative transition-all duration-700 delay-200"
+            style={{ opacity: inView ? 1 : 0, transform: inView ? 'translateY(0)' : 'translateY(20px)' }}
+          >
+            <div className="animate-float">
+              <div className="bg-white rounded-2xl p-6 shadow-float max-w-sm ml-auto border border-gray-100">
+                <div className="text-xs font-semibold uppercase tracking-widest text-[var(--color-coral)] mb-4">
+                  Analytics Dashboard
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[var(--color-slate)] text-sm">Social Reach</span>
+                    <span className="font-bold text-[var(--color-charcoal)]">24,500</span>
+                  </div>
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-[var(--color-coral)] rounded-full" style={{ width: '72%' }} />
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[var(--color-slate)] text-sm">Campaign Revenue</span>
+                    <span className="font-bold text-[var(--color-coral)]">$2,400</span>
+                  </div>
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-[var(--color-marigold)] rounded-full" style={{ width: '58%' }} />
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+                    <span className="text-[var(--color-slate)] text-sm">Engagement</span>
+                    <span className="font-bold text-[var(--color-teal)]">+24%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Secondary floating badge */}
+            <div className="absolute -bottom-3 left-8 bg-white rounded-xl px-4 py-3 shadow-lg animate-float-delayed border border-gray-100">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-[var(--color-coral)] animate-pulse" />
+                <span className="text-sm font-semibold text-[var(--color-charcoal)]">3 active campaigns</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -414,13 +313,250 @@ function PortalPanel({ theme, overline, headline, subhead, stats, cta, align }: 
   );
 }
 
+
+// =============================================================================
+// GOVERNMENT TEASER — Teal block on right, cream on left
+// =============================================================================
+
+function TealGovernmentPanel({ getPath }: { getPath: (p: string) => string }) {
+  const { ref, inView } = useInView(0.15);
+
+  return (
+    <section ref={ref} className="relative min-h-[70vh] flex items-center overflow-hidden bg-[var(--color-cream)]">
+      {/* Teal block — diagonal clip-path on right (echoing government page) */}
+      <div
+        className="absolute inset-0 z-[1] bg-[var(--color-teal)]"
+        style={{ clipPath: 'polygon(40% 0, 100% 0, 100% 100%, 52% 100%)' }}
+      />
+      <div
+        className="absolute inset-0 z-[1]"
+        style={{ clipPath: 'polygon(40% 0, 100% 0, 100% 100%, 52% 100%)' }}
+      >
+        <SFMapTexture variant="teal" />
+      </div>
+
+      {/* Ambient beacon */}
+      <ResonanceBeacon color="marigold" size="md" intensity="whisper" className="top-[20%] right-[25%] z-[2]" delay={2000} />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 w-full">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left: Floating preview card on cream */}
+          <div
+            className="relative order-2 lg:order-1 transition-all duration-700 delay-200"
+            style={{ opacity: inView ? 1 : 0, transform: inView ? 'translateY(0)' : 'translateY(20px)' }}
+          >
+            <div className="animate-float">
+              <div className="bg-white rounded-2xl p-6 shadow-float max-w-sm border border-gray-100">
+                <div className="text-xs font-semibold uppercase tracking-widest text-[var(--color-teal)] mb-4">
+                  Publisher Discovery
+                </div>
+                <div className="space-y-3">
+                  {[
+                    { name: 'El Tecolote', reach: '12K', lang: 'Spanish', match: 94 },
+                    { name: 'Mission Local', reach: '18K', lang: 'English', match: 87 },
+                    { name: 'The Bay View', reach: '9K', lang: 'English', match: 82 },
+                  ].map((pub) => (
+                    <div key={pub.name} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                      <div>
+                        <div className="text-sm font-semibold text-[var(--color-charcoal)]">{pub.name}</div>
+                        <div className="text-xs text-[var(--color-slate)]">{pub.reach} reach &middot; {pub.lang}</div>
+                      </div>
+                      <div className="text-sm font-bold text-[var(--color-teal)]">{pub.match}%</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            {/* Floating campaign card */}
+            <div className="absolute -bottom-3 right-4 bg-white rounded-xl px-4 py-3 shadow-lg animate-float-delayed border border-gray-100">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-[var(--color-teal)] animate-pulse" />
+                <span className="text-sm font-semibold text-[var(--color-charcoal)]">Flu Shot Outreach</span>
+                <span className="text-xs text-[var(--color-slate)]">4 publishers</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Content on teal */}
+          <div
+            className="order-1 lg:order-2 transition-all duration-700"
+            style={{ opacity: inView ? 1 : 0, transform: inView ? 'translateY(0)' : 'translateY(30px)' }}
+          >
+            <div className="flex items-center gap-3 mb-5 lg:justify-end">
+              <span className="text-white/80 text-xs font-bold tracking-[0.25em] uppercase">
+                For Government
+              </span>
+              <div className="h-px w-10 bg-white/50" />
+            </div>
+
+            <h2
+              className="font-serif text-white leading-[1.05] tracking-tight mb-5 lg:text-right"
+              style={{ fontSize: 'clamp(2rem, 4.5vw, 3.2rem)' }}
+            >
+              Meet communities<br />
+              <span className="text-[var(--color-marigold)]">where they are</span>
+            </h2>
+
+            <p className="text-lg text-white/85 leading-relaxed mb-8 max-w-md lg:ml-auto lg:text-right">
+              Discover which trusted local voices already serve the neighborhoods you need to reach — by language, ethnicity, income, and more.
+            </p>
+
+            <div className="flex gap-8 mb-8 lg:justify-end">
+              <StatCounter value={11} label="Districts" color="white" inView={inView} delay={0} />
+              <StatCounter value={41} label="Profiles" color="var(--color-marigold)" inView={inView} delay={150} />
+              <StatCounter value={5} label="Overlays" color="white" inView={inView} delay={300} />
+            </div>
+
+            <div className="lg:text-right">
+              <Link
+                href={getPath('/government')}
+                className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full bg-white text-[var(--color-teal)] font-semibold transition-all duration-300 hover:bg-[var(--color-cream)] hover:scale-[1.02] shadow-lg"
+              >
+                Discover Publishers
+                <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+// =============================================================================
+// ADVERTISE TEASER — Marigold block on left, navy on right
+// =============================================================================
+
+function MarigoldAdvertisePanel({ getPath }: { getPath: (p: string) => string }) {
+  const { ref, inView } = useInView(0.15);
+
+  return (
+    <section ref={ref} className="relative min-h-[70vh] flex items-center overflow-hidden bg-[var(--color-navy)]">
+      {/* Marigold block — diagonal clip-path on left */}
+      <div
+        className="absolute inset-0 z-[1]"
+        style={{
+          background: 'linear-gradient(135deg, var(--color-marigold) 0%, var(--color-marigold-dark) 100%)',
+          clipPath: 'polygon(0 0, 58% 0, 46% 100%, 0 100%)',
+        }}
+      />
+      <div
+        className="absolute inset-0 z-[1]"
+        style={{ clipPath: 'polygon(0 0, 58% 0, 46% 100%, 0 100%)' }}
+      >
+        <SFMapTexture variant="marigold" />
+      </div>
+
+      {/* Ambient beacons */}
+      <ResonanceBeacon color="coral" size="md" intensity="whisper" className="top-[25%] right-[20%] z-[2]" delay={3000} />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-20 w-full">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left: Content on marigold */}
+          <div
+            className="transition-all duration-700"
+            style={{ opacity: inView ? 1 : 0, transform: inView ? 'translateY(0)' : 'translateY(30px)' }}
+          >
+            <div className="flex items-center gap-3 mb-5">
+              <div className="h-px w-10 bg-[var(--color-charcoal)]/30" />
+              <span className="text-[var(--color-charcoal)]/70 text-xs font-bold tracking-[0.25em] uppercase">
+                For Businesses &amp; Nonprofits
+              </span>
+            </div>
+
+            <h2
+              className="font-serif text-[var(--color-charcoal)] leading-[1.05] tracking-tight mb-5"
+              style={{ fontSize: 'clamp(2rem, 4.5vw, 3.2rem)' }}
+            >
+              Amplify your message.<br />
+              <span className="text-[var(--color-teal)]">Strengthen communities.</span>
+            </h2>
+
+            <p className="text-lg text-[var(--color-charcoal)]/80 leading-relaxed mb-8 max-w-md">
+              Every ad dollar placed through Resonate sustains the community journalism that keeps neighborhoods informed and connected.
+            </p>
+
+            <div className="flex gap-8 mb-8">
+              <StatCounter value={850} label="Avg. CPM" color="var(--color-charcoal)" inView={inView} delay={0} prefix="$" />
+              <StatCounter value={3} label="Campaign types" color="var(--color-teal)" inView={inView} delay={150} />
+              <StatCounter value={100} label="To publishers" color="var(--color-charcoal)" inView={inView} delay={300} suffix="%" />
+            </div>
+
+            <Link
+              href={getPath('/advertise')}
+              className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full bg-[var(--color-charcoal)] text-white font-semibold transition-all duration-300 hover:bg-[var(--color-navy)] hover:scale-[1.02] shadow-lg"
+            >
+              Start a Campaign
+              <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
+          </div>
+
+          {/* Right: Floating impact card on navy */}
+          <div
+            className="relative transition-all duration-700 delay-200"
+            style={{ opacity: inView ? 1 : 0, transform: inView ? 'translateY(0)' : 'translateY(20px)' }}
+          >
+            <div className="animate-float">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 max-w-sm ml-auto border border-white/20">
+                <div className="text-xs font-semibold uppercase tracking-widest text-[var(--color-marigold)] mb-4">
+                  Your Impact
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-white/70 text-sm">Impressions</span>
+                    <span className="font-bold text-white">24,500</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-white/70 text-sm">Engagement Rate</span>
+                    <span className="font-bold text-white">4.8%</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-white/70 text-sm">Publishers Supported</span>
+                    <span className="font-bold text-[var(--color-marigold)]">3</span>
+                  </div>
+                  <div className="pt-3 border-t border-white/15">
+                    <div className="flex justify-between items-center">
+                      <span className="text-white/70 text-sm">Community Impact</span>
+                      <span className="font-bold text-[var(--color-teal-light)]">$2,400 to journalism</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Secondary floating card */}
+            <div className="absolute -bottom-3 left-8 bg-white rounded-xl px-4 py-3 shadow-lg animate-float-delayed">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-[var(--color-coral)]/15 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-[var(--color-coral)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-[var(--color-charcoal)]">El Tecolote</div>
+                  <div className="text-xs text-[var(--color-slate)]">Your ad supports bilingual journalism</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
 // =============================================================================
 // STAT COUNTER
 // =============================================================================
 
-function StatCounter({ value, label, suffix, prefix, color, inView, delay, light }: {
-  value: number; label: string; suffix: string; prefix?: string;
-  color: string; inView: boolean; delay: number; light?: boolean;
+function StatCounter({ value, label, color, inView, delay, prefix, suffix }: {
+  value: number; label: string; color: string;
+  inView: boolean; delay: number; prefix?: string; suffix?: string;
 }) {
   const [started, setStarted] = useState(false);
   useEffect(() => {
@@ -436,13 +572,14 @@ function StatCounter({ value, label, suffix, prefix, color, inView, delay, light
       <div className="text-3xl md:text-4xl font-bold tabular-nums" style={{ color }}>
         {prefix}{count}{suffix}
       </div>
-      <div className={`text-sm mt-1 ${light ? 'text-[var(--color-slate)]' : 'text-white/60'}`}>{label}</div>
+      <div className="text-sm mt-1 opacity-60" style={{ color }}>{label}</div>
     </div>
   );
 }
 
+
 // =============================================================================
-// CLOSING SECTION — Dark bookend for contrast
+// CLOSING SECTION — Dark bookend
 // =============================================================================
 
 function ClosingSection() {
@@ -470,9 +607,7 @@ function ClosingSection() {
 
         <div
           className="mt-12 flex items-center justify-center gap-2 text-white/50 text-sm transition-all duration-1000 delay-300"
-          style={{
-            opacity: inView ? 1 : 0,
-          }}
+          style={{ opacity: inView ? 1 : 0 }}
         >
           <div className="w-2 h-2 rounded-full bg-[var(--color-coral)]" />
           <div className="w-2 h-2 rounded-full bg-[var(--color-teal-light)]" />
@@ -484,8 +619,9 @@ function ClosingSection() {
   );
 }
 
+
 // =============================================================================
-// COMING SOON PAGE (unchanged)
+// COMING SOON PAGE
 // =============================================================================
 
 function ComingSoonPage() {
