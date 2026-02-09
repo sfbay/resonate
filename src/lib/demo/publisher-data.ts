@@ -83,7 +83,7 @@ export function getDemoOrders(): Order[] {
         },
       ],
       subtotal: 60000,
-      total: 60000,
+      total: 69000, // subtotal + 15% service fee
       status: 'in_progress',
       procurementStatus: 'po_generated',
       purchaseOrderNumber: 'PO-DPH-26-0142',
@@ -150,7 +150,7 @@ export function getDemoOrders(): Order[] {
         },
       ],
       subtotal: 47500,
-      total: 47500,
+      total: 54625, // subtotal + 15% service fee
       status: 'pending_publisher',
       procurementStatus: 'approved',
       deliveryDeadline: new Date(now.getTime() + 21 * 24 * 60 * 60 * 1000),
@@ -187,7 +187,7 @@ export function getDemoOrders(): Order[] {
         },
       ],
       subtotal: 27000,
-      total: 27000,
+      total: 31050, // subtotal + 15% service fee
       status: 'completed',
       procurementStatus: 'paid',
       purchaseOrderNumber: 'PO-SFMTA-25-0891',
@@ -234,9 +234,9 @@ export function getDemoOrders(): Order[] {
 // =============================================================================
 
 export interface RevenueSummary {
-  totalEarnings: number;       // Cents — total from completed orders
+  totalEarnings: number;       // Cents — total from completed orders (publisher keeps 100%)
   pendingEarnings: number;     // Cents — from in-progress orders
-  platformFees: number;        // Cents — 15% platform fee
+  platformFees: number;        // Cents — 15% service fee charged to advertisers (not deducted)
   activeOrders: number;
   completedOrders: number;
   totalDeliverables: number;
@@ -246,9 +246,9 @@ export interface RevenueSummary {
 
 export function getDemoRevenueSummary(): RevenueSummary {
   return {
-    totalEarnings: 229500,       // $2,295 from completed orders
+    totalEarnings: 270000,       // $2,700 from completed orders (publisher keeps 100%)
     pendingEarnings: 107500,     // $1,075 from active orders
-    platformFees: 34425,         // 15% of completed
+    platformFees: 40500,         // 15% service fee charged to advertisers (not deducted from publisher)
     activeOrders: 2,
     completedOrders: 5,
     totalDeliverables: 18,

@@ -19,7 +19,6 @@ import {
   PLATFORM_DELIVERABLE_TYPES,
   SUGGESTED_RATES,
   formatCents,
-  calculatePublisherPayout,
   PLATFORM_FEE_RATE,
 } from '@/lib/transactions/pricing';
 import type { RateCard, Rate, DeliverableType, SocialPlatform } from '@/types';
@@ -120,8 +119,8 @@ export default function RateCardPage() {
             <div>
               <p className="font-medium text-[var(--color-charcoal)]">How pricing works</p>
               <p className="text-sm text-slate-500 mt-1">
-                Set your full rate below. Resonate charges a {(PLATFORM_FEE_RATE * 100)}% platform fee — you receive {((1 - PLATFORM_FEE_RATE) * 100)}% of the listed price.
-                For example, a {formatCents(15000)} post earns you {formatCents(calculatePublisherPayout(15000))}.
+                You keep 100% of your listed rate. Resonate adds a {(PLATFORM_FEE_RATE * 100)}% service fee on top, charged to the advertiser.
+                For example, if you set a rate of {formatCents(15000)}, you receive {formatCents(15000)} — the advertiser pays {formatCents(15000 + Math.round(15000 * PLATFORM_FEE_RATE))}.
               </p>
             </div>
           </div>
@@ -149,7 +148,7 @@ export default function RateCardPage() {
                     <div className="flex items-center gap-6">
                       <div className="text-right">
                         <p className="font-semibold text-[var(--color-charcoal)] text-lg">{formatCents(rate.price)}</p>
-                        <p className="text-xs text-slate-400">You earn {formatCents(calculatePublisherPayout(rate.price))}</p>
+                        <p className="text-xs text-slate-400">You keep 100%</p>
                       </div>
                       <button
                         onClick={() => handleRemoveRate(globalIndex)}

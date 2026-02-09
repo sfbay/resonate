@@ -4,7 +4,8 @@
  * Defines the Resonate product bundles and rate card calculation helpers.
  * Based on business.md Part 6: Transaction Model.
  *
- * Revenue model: 15% platform fee on advertiser spend.
+ * Revenue model: 15% platform service fee added on top of publisher rates.
+ * Publishers receive 100% of their listed rate. Fees are itemized to advertisers.
  * Pricing: Flat-fee per publisher placement (not CPM/CPC).
  *
  * STUB: Demo-ready pricing logic. Wire to real payment processing when Stripe is integrated.
@@ -93,17 +94,17 @@ export const PRODUCT_BUNDLES: ProductBundle[] = [
 // PLATFORM FEE
 // =============================================================================
 
-/** Platform fee percentage (15% of advertiser spend) */
+/** Platform service fee percentage (15% added on top of publisher rates) */
 export const PLATFORM_FEE_RATE = 0.15;
 
-/** Calculate platform fee from gross amount (in cents) */
-export function calculatePlatformFee(grossAmountCents: number): number {
-  return Math.round(grossAmountCents * PLATFORM_FEE_RATE);
+/** Calculate platform service fee from publisher rate total (in cents) */
+export function calculatePlatformFee(publisherRateCents: number): number {
+  return Math.round(publisherRateCents * PLATFORM_FEE_RATE);
 }
 
-/** Calculate publisher payout from gross amount (in cents) */
-export function calculatePublisherPayout(grossAmountCents: number): number {
-  return grossAmountCents - calculatePlatformFee(grossAmountCents);
+/** Calculate publisher payout — publishers receive 100% of their listed rate */
+export function calculatePublisherPayout(publisherRateCents: number): number {
+  return publisherRateCents;
 }
 
 // =============================================================================
@@ -172,7 +173,7 @@ export function calculateOrderSubtotal(lineItems: OrderLineItem[]): number {
   return lineItems.reduce((sum, item) => sum + item.totalPrice, 0);
 }
 
-/** Calculate order total with platform fee (in cents) */
+/** Calculate order total with platform fee added on top (in cents) */
 export function calculateOrderTotal(lineItems: OrderLineItem[]): {
   subtotal: number;
   platformFee: number;
@@ -184,8 +185,8 @@ export function calculateOrderTotal(lineItems: OrderLineItem[]): {
   return {
     subtotal,
     platformFee,
-    total: subtotal, // Advertiser pays full amount; fee comes from platform's share
-    publisherPayout: calculatePublisherPayout(subtotal),
+    total: subtotal + platformFee, // Advertiser pays publisher rate + service fee
+    publisherPayout: subtotal,     // Publisher receives 100% of their listed rates
   };
 }
 
