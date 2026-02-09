@@ -28,8 +28,6 @@ const SF_PUBLISHERS = [
   { name: 'Nichi Bei', src: '/images/publishers/nichi-bei.png', lang: 'English/Japanese', since: '2009' },
   { name: 'Richmond Review', src: '/images/publishers/richmond-review.png', lang: 'English', since: '1980' },
   { name: 'Sunset Beacon', src: '/images/publishers/sunset-beacon.png', lang: 'English', since: '1980' },
-  { name: 'Potrero View', src: '/images/publishers/potrero-view.png', lang: 'English', since: '1970' },
-  { name: 'Noe Valley Voice', src: '/images/publishers/noe-valley-voice.png', lang: 'English', since: '1976' },
   { name: 'J. Weekly', src: '/images/publishers/j-weekly.png', lang: 'English', since: '1946' },
   { name: 'Ingleside Light', src: '/images/publishers/ingleside-light.png', lang: 'English', since: '2019' },
 ];

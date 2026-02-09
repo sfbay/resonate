@@ -25,8 +25,6 @@ const PUBLISHER_LOGOS = [
   { src: '/images/publishers/nichi-bei.png', name: 'Nichi Bei' },
   { src: '/images/publishers/richmond-review.png', name: 'Richmond Review' },
   { src: '/images/publishers/sunset-beacon.png', name: 'Sunset Beacon' },
-  { src: '/images/publishers/potrero-view.png', name: 'Potrero View' },
-  { src: '/images/publishers/noe-valley-voice.png', name: 'Noe Valley Voice' },
   { src: '/images/publishers/j-weekly.png', name: 'J. Weekly' },
   { src: '/images/publishers/ingleside-light.png', name: 'Ingleside Light' },
 ];
