@@ -22,7 +22,7 @@ const SF_PUBLISHERS = [
   { name: 'El Tecolote', src: '/images/publishers/el-tecolote.png', lang: 'Spanish/English', since: '1970' },
   { name: 'Mission Local', src: '/images/publishers/mission-local.png', lang: 'English/Spanish', since: '2009' },
   { name: 'The Bay View', src: '/images/publishers/bay-view.png', lang: 'English', since: '1976' },
-  { name: 'Sing Tao Daily', src: '/images/publishers/sing-tao.png', lang: 'Chinese', since: '1938' },
+  { name: 'The Wind', src: '/images/publishers/wind-newspaper.png', lang: 'Chinese', since: '2009' },
   { name: '48 Hills', src: '/images/publishers/48-hills.png', lang: 'English', since: '2013' },
   { name: 'SF Public Press', src: '/images/publishers/sf-public-press.png', lang: 'English', since: '2009' },
   { name: 'Nichi Bei', src: '/images/publishers/nichi-bei.png', lang: 'English/Japanese', since: '2009' },

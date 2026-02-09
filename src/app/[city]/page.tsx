@@ -19,7 +19,7 @@ const PUBLISHER_LOGOS = [
   { src: '/images/publishers/el-tecolote.png', name: 'El Tecolote' },
   { src: '/images/publishers/mission-local.png', name: 'Mission Local' },
   { src: '/images/publishers/bay-view.png', name: 'The Bay View' },
-  { src: '/images/publishers/sing-tao.png', name: 'Sing Tao Daily' },
+  { src: '/images/publishers/wind-newspaper.png', name: 'The Wind' },
   { src: '/images/publishers/48-hills.png', name: '48 Hills' },
   { src: '/images/publishers/sf-public-press.png', name: 'SF Public Press' },
   { src: '/images/publishers/nichi-bei.png', name: 'Nichi Bei' },

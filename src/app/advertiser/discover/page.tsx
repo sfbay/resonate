@@ -1,7 +1,7 @@
 "use client";
 
 import { Nav, Footer } from "@/components/shared";
-import { PublisherDiscoveryMap } from "@/components/government/PublisherDiscoveryMap";
+import { PublisherDiscoveryMap } from "@/components/advertiser/PublisherDiscoveryMap";
 import type { Publisher } from "@/types";
 
 // Extended publisher type with logo
@@ -373,7 +373,7 @@ const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
 export default function DiscoverPublishersPage() {
   return (
     <div className="min-h-screen bg-[var(--color-cream)]">
-      <Nav variant="government" />
+      <Nav variant="advertiser" />
 
       {/* Header */}
       <section className="pt-32 pb-12 px-6">
