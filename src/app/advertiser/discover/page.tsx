@@ -406,7 +406,7 @@ const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
 export default function DiscoverPublishersPage() {
   return (
     <div className="min-h-screen bg-[var(--color-cream)]">
-      <Nav variant="advertiser" />
+      <Nav variant="advertise" />
 
       {/* Header */}
       <section className="pt-32 pb-12 px-6">

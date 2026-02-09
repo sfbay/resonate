@@ -8,7 +8,7 @@
  * Each panel uses bold color blocks, SFMapTexture, and diagonal clip-paths.
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import { useCity } from '@/lib/geo/city-context';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -66,9 +66,7 @@ function useInView(threshold = 0.3) {
 
 export default function CityPage() {
   const { city, isComingSoon, getPath } = useCity();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => { setMounted(true); }, []);
+  const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
 
   if (isComingSoon) {
     return <ComingSoonPage />;
