@@ -76,31 +76,69 @@ export default function CityPage() {
     <div className="min-h-screen bg-[var(--color-charcoal)] overflow-hidden">
 
       {/* ============================================================
-          HERO: Dark dramatic opening with color-coded CTAs
+          BRANDING BAR — Slim Resonate identity strip
           ============================================================ */}
-      <header className="relative min-h-[92vh] flex flex-col justify-end bg-gradient-to-b from-[var(--color-charcoal)] via-[#1a2a2a] to-[var(--color-charcoal)] overflow-hidden">
+      <div className="relative z-50 bg-[var(--color-charcoal)] border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5">
+            {/* Resonance mark — three concentric arcs */}
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+              <circle cx="13" cy="13" r="4" fill="var(--color-coral)" />
+              <path d="M13 5a8 8 0 010 16" stroke="var(--color-teal-light)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+              <path d="M13 2a11 11 0 010 22" stroke="var(--color-marigold)" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.7" />
+            </svg>
+            <span className="text-xl font-bold font-serif text-white tracking-tight">
+              Resonate
+            </span>
+          </Link>
+          <div className="flex items-center gap-1">
+            <Link
+              href={getPath('/publisher')}
+              className="px-3.5 py-1.5 text-sm font-medium text-white/70 hover:text-white rounded-full hover:bg-white/10 transition-all"
+            >
+              Publishers
+            </Link>
+            <Link
+              href={getPath('/government')}
+              className="px-3.5 py-1.5 text-sm font-medium text-white/70 hover:text-white rounded-full hover:bg-white/10 transition-all"
+            >
+              Government
+            </Link>
+            <Link
+              href={getPath('/advertise')}
+              className="px-3.5 py-1.5 text-sm font-medium text-white/70 hover:text-white rounded-full hover:bg-white/10 transition-all"
+            >
+              Advertise
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* ============================================================
+          HERO: Brighter, shallower — teal-to-charcoal gradient
+          ============================================================ */}
+      <header className="relative min-h-[60vh] flex flex-col justify-end bg-gradient-to-b from-[var(--color-teal)] via-[#0a4a52] to-[var(--color-charcoal)] overflow-hidden">
         <SFMapTexture variant="teal" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-charcoal)] via-transparent to-[var(--color-charcoal)]/40 z-[1]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-charcoal)]/80 via-transparent to-transparent z-[1]" />
 
-        <ResonanceBeacon color="coral" size="xl" intensity="subtle" className="top-[15%] left-[10%] z-[2]" />
-        <ResonanceBeacon color="teal" size="lg" intensity="subtle" className="top-[25%] right-[15%] z-[2]" delay={2000} />
-        <ResonanceBeacon color="marigold" size="md" intensity="subtle" className="bottom-[35%] left-[60%] z-[2]" delay={4000} />
+        <ResonanceBeacon color="coral" size="lg" intensity="subtle" className="top-[10%] left-[8%] z-[2]" />
+        <ResonanceBeacon color="marigold" size="md" intensity="subtle" className="top-[15%] right-[12%] z-[2]" delay={2000} />
 
-        <div className="relative z-10 max-w-6xl mx-auto px-6 pb-20 w-full">
+        <div className="relative z-10 max-w-6xl mx-auto px-6 pb-16 pt-12 w-full">
           <div
-            className="flex items-center gap-3 mb-6 transition-all duration-1000"
+            className="flex items-center gap-3 mb-5 transition-all duration-1000"
             style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(20px)' }}
           >
             <div className="h-px w-12 bg-[var(--color-coral)]" />
-            <span className="text-[var(--color-coral)] text-sm font-semibold tracking-[0.2em] uppercase">
+            <span className="text-[var(--color-coral-light)] text-sm font-semibold tracking-[0.2em] uppercase">
               {city.state} &middot; Live Now
             </span>
           </div>
 
           <h1
-            className="font-serif leading-[0.9] tracking-tight text-white mb-6 transition-all duration-1000 delay-150"
+            className="font-serif leading-[0.9] tracking-tight text-white mb-5 transition-all duration-1000 delay-150"
             style={{
-              fontSize: 'clamp(4rem, 12vw, 9rem)',
+              fontSize: 'clamp(3.5rem, 10vw, 7.5rem)',
               opacity: mounted ? 1 : 0,
               transform: mounted ? 'translateY(0)' : 'translateY(30px)',
             }}
@@ -109,20 +147,20 @@ export default function CityPage() {
           </h1>
 
           <p
-            className="text-xl md:text-2xl text-white/80 max-w-xl leading-relaxed mb-10 transition-all duration-1000 delay-300"
+            className="text-lg md:text-xl text-white/80 max-w-lg leading-relaxed mb-8 transition-all duration-1000 delay-300"
             style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(20px)' }}
           >
-            Where community and ethnic media serve neighbors, neighborhoods and communities.
+            Community media serving neighbors, neighborhoods, and the stories that connect them.
           </p>
 
           <div
-            className="flex items-center gap-5 flex-wrap transition-all duration-1000 delay-500"
+            className="flex items-center gap-4 flex-wrap transition-all duration-1000 delay-500"
             style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(15px)' }}
           >
-            <span className="text-white/50 text-sm font-semibold tracking-[0.15em] uppercase">
+            <span className="text-white/40 text-xs font-semibold tracking-[0.15em] uppercase">
               Choose your path
             </span>
-            <div className="flex gap-3">
+            <div className="flex gap-2.5">
               <Link
                 href={getPath('/publisher')}
                 className="group px-5 py-2.5 rounded-full bg-[var(--color-coral)] text-white font-semibold text-sm transition-all duration-300 hover:bg-[var(--color-coral-dark)] hover:scale-105 hover:shadow-lg hover:shadow-[rgba(241,81,82,0.3)]"
@@ -134,7 +172,7 @@ export default function CityPage() {
               </Link>
               <Link
                 href={getPath('/government')}
-                className="group px-5 py-2.5 rounded-full bg-[var(--color-teal)] text-white font-semibold text-sm transition-all duration-300 hover:bg-[var(--color-teal-dark)] hover:scale-105 hover:shadow-lg hover:shadow-[rgba(11,82,91,0.3)]"
+                className="group px-5 py-2.5 rounded-full bg-white/15 text-white font-semibold text-sm backdrop-blur-sm transition-all duration-300 hover:bg-white/25 hover:scale-105"
               >
                 Government
                 <svg className="inline-block w-4 h-4 ml-1.5 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -156,14 +194,14 @@ export default function CityPage() {
 
         {/* Publisher logo marquee */}
         <div
-          className="relative z-10 border-t border-white/15 bg-white/[0.05] backdrop-blur-sm transition-all duration-1000 delay-700"
+          className="relative z-10 border-t border-white/10 bg-white/[0.04] backdrop-blur-sm transition-all duration-1000 delay-700"
           style={{ opacity: mounted ? 1 : 0 }}
         >
-          <div className="overflow-hidden py-4">
+          <div className="overflow-hidden py-3.5">
             <div className="flex animate-marquee gap-12 items-center">
               {[...PUBLISHER_LOGOS, ...PUBLISHER_LOGOS].map((pub, i) => (
-                <div key={`${pub.name}-${i}`} className="flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
-                  <Image src={pub.src} alt={pub.name} width={100} height={36} className="h-7 w-auto object-contain invert" />
+                <div key={`${pub.name}-${i}`} className="flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
+                  <Image src={pub.src} alt={pub.name} width={100} height={36} className="h-6 w-auto object-contain invert" />
                 </div>
               ))}
             </div>
@@ -581,36 +619,86 @@ function StatCounter({ value, label, color, inView, delay, prefix, suffix }: {
 // =============================================================================
 
 function ClosingSection() {
-  const { ref, inView } = useInView(0.3);
+  const { ref, inView } = useInView(0.2);
 
   return (
-    <section ref={ref} className="relative py-32 bg-[var(--color-charcoal)] overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-charcoal)] via-transparent to-[var(--color-charcoal)]" />
+    <section ref={ref} className="relative py-28 bg-[var(--color-charcoal)] overflow-hidden">
+      {/* Subtle teal glow at top */}
+      <div
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] rounded-full blur-[120px]"
+        style={{ background: 'var(--color-teal)', opacity: 0.08 }}
+      />
 
-      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+      <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
+        {/* Main kicker */}
         <p
-          className="font-serif text-white/90 leading-relaxed transition-all duration-1000"
+          className="font-serif text-white leading-[1.45] transition-all duration-1000"
           style={{
-            fontSize: 'clamp(1.4rem, 3vw, 2.2rem)',
+            fontSize: 'clamp(1.5rem, 3.5vw, 2.4rem)',
             opacity: inView ? 1 : 0,
-            transform: inView ? 'translateY(0)' : 'translateY(20px)',
+            transform: inView ? 'translateY(0)' : 'translateY(24px)',
           }}
         >
-          In a city of <span style={{ color: 'var(--color-coral)' }}>41 neighborhoods</span>,{' '}
-          <span style={{ color: 'var(--color-marigold)' }}>19 languages</span>, and{' '}
-          <span style={{ color: 'var(--color-teal-light)' }}>one million stories</span> —
-          the question isn&apos;t whether your message matters. It&apos;s whether it reaches
-          the people who need to hear it.
+          In a city of{' '}
+          <span className="font-bold" style={{ color: 'var(--color-coral)' }}>41 neighborhoods</span>,{' '}
+          <span className="font-bold" style={{ color: 'var(--color-marigold)' }}>19 languages</span>,{' '}
+          and millions of stories — make your message{' '}
+          <span
+            className="relative inline-block font-bold italic"
+            style={{ color: 'var(--color-teal-light)' }}
+          >
+            Resonate
+          </span>.
         </p>
 
+        {/* Supporting line */}
+        <p
+          className="mt-6 text-white/55 leading-relaxed transition-all duration-1000 delay-200 max-w-xl mx-auto"
+          style={{
+            fontSize: 'clamp(1rem, 1.8vw, 1.15rem)',
+            opacity: inView ? 1 : 0,
+            transform: inView ? 'translateY(0)' : 'translateY(16px)',
+          }}
+        >
+          Reach the people and communities through trusted, authentic voices and publications.
+        </p>
+
+        {/* CTA row */}
         <div
-          className="mt-12 flex items-center justify-center gap-2 text-white/50 text-sm transition-all duration-1000 delay-300"
+          className="mt-10 flex items-center justify-center gap-4 flex-wrap transition-all duration-1000 delay-400"
+          style={{ opacity: inView ? 1 : 0, transform: inView ? 'translateY(0)' : 'translateY(12px)' }}
+        >
+          <Link
+            href="/publisher"
+            className="px-6 py-2.5 rounded-full bg-[var(--color-coral)] text-white font-semibold text-sm transition-all hover:bg-[var(--color-coral-dark)] hover:scale-105"
+          >
+            I&apos;m a Publisher
+          </Link>
+          <Link
+            href="/government/onboarding"
+            className="px-6 py-2.5 rounded-full bg-[var(--color-teal)] text-white font-semibold text-sm transition-all hover:bg-[var(--color-teal-dark)] hover:scale-105"
+          >
+            Start a Campaign
+          </Link>
+          <Link
+            href="/advertise"
+            className="px-6 py-2.5 rounded-full bg-[var(--color-marigold)] text-[var(--color-charcoal)] font-semibold text-sm transition-all hover:bg-[var(--color-marigold-dark)] hover:scale-105"
+          >
+            Advertise
+          </Link>
+        </div>
+
+        {/* Brand footer mark */}
+        <div
+          className="mt-14 flex items-center justify-center gap-2 text-white/35 text-sm transition-all duration-1000 delay-500"
           style={{ opacity: inView ? 1 : 0 }}
         >
-          <div className="w-2 h-2 rounded-full bg-[var(--color-coral)]" />
-          <div className="w-2 h-2 rounded-full bg-[var(--color-teal-light)]" />
-          <div className="w-2 h-2 rounded-full bg-[var(--color-marigold)]" />
-          <span className="ml-2">Resonate &middot; San Francisco</span>
+          <svg width="18" height="18" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+            <circle cx="13" cy="13" r="4" fill="var(--color-coral)" opacity="0.6" />
+            <path d="M13 5a8 8 0 010 16" stroke="var(--color-teal-light)" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.4" />
+            <path d="M13 2a11 11 0 010 22" stroke="var(--color-marigold)" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.3" />
+          </svg>
+          <span>Resonate &middot; San Francisco</span>
         </div>
       </div>
     </section>
