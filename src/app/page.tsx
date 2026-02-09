@@ -86,21 +86,21 @@ export default function LandingPage() {
       <section className="relative min-h-screen flex flex-col">
 
         {/* Background atmosphere — base gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0d1b1e] via-[var(--color-charcoal)] to-[#1a1210]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#183338] via-[#1a2e36] to-[#1a1210]" />
 
         {/* Dark Mapbox map of the continental US — atmospheric, non-interactive.
             No z-index on this container so beacons' z-20 (inside HeroMap)
             can escape to the section's stacking context and paint above hero content. */}
         <div className="absolute inset-0">
           <HeroMap />
-          {/* Radial vignette — fades map edges to dark */}
+          {/* Radial vignette — gently fades map edges */}
           <div
             className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse 85% 75% at 50% 45%, transparent 35%, rgba(13,27,30,0.45) 65%, #0d1b1e 90%)' }}
+            style={{ background: 'radial-gradient(ellipse 90% 80% at 50% 45%, transparent 45%, rgba(21,42,48,0.35) 70%, #152a30 95%)' }}
           />
           {/* Top and bottom fade for seamless blending */}
-          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#0d1b1e] to-transparent pointer-events-none" />
-          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#1a1210] to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#152a30] to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#1a1210]/80 to-transparent pointer-events-none" />
         </div>
 
         {/* Nav */}

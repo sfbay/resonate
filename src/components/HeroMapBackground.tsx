@@ -72,8 +72,8 @@ export default function HeroMapBackground() {
           style={{ width: '100%', height: '100%' }}
         />
 
-        {/* Dark overlay to dim the map tiles — beacons render above this */}
-        <div className="absolute inset-0 bg-[#0d1b1e]/[0.55]" />
+        {/* Subtle overlay to soften the map tiles — beacons render above this */}
+        <div className="absolute inset-0 bg-[#0d1b1e]/[0.18]" />
       </div>
 
       {/* City beacons — rendered OUTSIDE the map at projected screen coords.
