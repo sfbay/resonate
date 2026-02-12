@@ -6,17 +6,44 @@
  * Dashboard for government departments to manage their community media campaigns.
  * Shows campaigns at all lifecycle stages with budget tracking and compliance status.
  *
- * DEMO: Powered by mock data from src/lib/demo/campaign-data.ts
+ * Powered by real Supabase data from campaigns, campaign_matches, and orders tables.
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
-import { getDemoCampaigns, type DemoCampaign } from '@/lib/demo/campaign-data';
 import { formatCents } from '@/lib/transactions/pricing';
-import { MANDATES } from '@/lib/transactions/procurement';
+import { MANDATES, type MandateType } from '@/lib/transactions/procurement';
 import type { CampaignStatus } from '@/types';
 
 type FilterTab = 'all' | 'draft' | 'active' | 'completed';
+
+interface CampaignRow {
+  id: string;
+  name: string;
+  description: string;
+  department: string;
+  status: CampaignStatus;
+  budget_min: number;
+  budget_max: number;
+  start_date: string;
+  end_date: string;
+  target_neighborhoods: string[];
+  target_languages: string[];
+  created_at: string;
+  matchCount: number;
+  orderCount: number;
+  totalSpend: number;
+  mandates: MandateType[];
+}
+
+const STATUS_MAP: Record<string, CampaignStatus> = {
+  draft: 'draft',
+  pending_review: 'draft',
+  active: 'in_progress',
+  paused: 'in_progress',
+  completed: 'completed',
+  cancelled: 'cancelled',
+};
 
 const STATUS_DISPLAY: Record<CampaignStatus, { label: string; color: string; bg: string }> = {
   draft: { label: 'Draft', color: 'text-slate-600', bg: 'bg-slate-100' },
@@ -27,8 +54,82 @@ const STATUS_DISPLAY: Record<CampaignStatus, { label: string; color: string; bg:
 };
 
 export default function CampaignManagementPage() {
-  const [campaigns] = useState<DemoCampaign[]>(getDemoCampaigns());
+  const [campaigns, setCampaigns] = useState<CampaignRow[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
+
+  useEffect(() => {
+    async function fetchCampaigns() {
+      try {
+        // Fetch campaigns from API
+        const res = await fetch('/api/campaigns');
+        const data = await res.json();
+        if (!data.success || !data.campaigns?.length) {
+          setCampaigns([]);
+          setLoading(false);
+          return;
+        }
+
+        // Fetch match counts and order data per campaign
+        const enriched: CampaignRow[] = await Promise.all(
+          data.campaigns.map(async (c: Record<string, unknown>) => {
+            // Fetch orders for this campaign
+            const ordersRes = await fetch(`/api/orders?campaignId=${c.id}`);
+            const ordersData = await ordersRes.json();
+            const orders = ordersData.orders || [];
+
+            // Fetch match count
+            let matchCount = 0;
+            try {
+              const matchRes = await fetch(`/api/campaigns/${c.id}/matches`);
+              const matchData = await matchRes.json();
+              matchCount = matchData.matches?.length || 0;
+            } catch { /* no matches yet */ }
+
+            const totalSpend = orders.reduce(
+              (sum: number, o: { total: number; status: string }) =>
+                ['accepted', 'in_progress', 'delivered', 'completed'].includes(o.status)
+                  ? sum + o.total
+                  : sum,
+              0
+            );
+
+            // Map DB status to app CampaignStatus
+            const dbStatus = c.status as string;
+            let appStatus: CampaignStatus = STATUS_MAP[dbStatus] || 'draft';
+            if (matchCount > 0 && appStatus === 'draft') appStatus = 'matching';
+            if (orders.length > 0 && appStatus === 'matching') appStatus = 'in_progress';
+
+            return {
+              id: c.id as string,
+              name: c.name as string,
+              description: (c.description as string) || '',
+              department: (c.department as string) || '',
+              status: appStatus,
+              budget_min: (c.budgetRange as { min: number; max: number })?.min || 0,
+              budget_max: (c.budgetRange as { min: number; max: number })?.max || 0,
+              start_date: (c.dates as { start: string; end: string })?.start || '',
+              end_date: (c.dates as { start: string; end: string })?.end || '',
+              target_neighborhoods: (c.targetNeighborhoods as string[]) || [],
+              target_languages: (c.targetLanguages as string[]) || [],
+              created_at: c.createdAt as string,
+              matchCount,
+              orderCount: orders.length,
+              totalSpend,
+              mandates: [] as MandateType[], // Mandates aren't stored in campaigns table yet
+            };
+          })
+        );
+
+        setCampaigns(enriched);
+      } catch (err) {
+        console.error('Failed to load campaigns:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchCampaigns();
+  }, []);
 
   const filtered = useMemo(() => {
     switch (activeTab) {
@@ -39,7 +140,7 @@ export default function CampaignManagementPage() {
     }
   }, [campaigns, activeTab]);
 
-  const totalBudget = campaigns.reduce((sum, c) => sum + c.budget.max, 0);
+  const totalBudget = campaigns.reduce((sum, c) => sum + c.budget_max, 0);
   const totalSpend = campaigns.reduce((sum, c) => sum + c.totalSpend, 0);
   const activeCampaigns = campaigns.filter(c => ['matching', 'in_progress'].includes(c.status)).length;
 
@@ -112,78 +213,102 @@ export default function CampaignManagementPage() {
 
       {/* Campaign List */}
       <main className="max-w-6xl mx-auto px-6 py-6 space-y-4">
-        {filtered.map(campaign => {
-          const status = STATUS_DISPLAY[campaign.status];
-          const budgetUtilization = campaign.budget.max > 0
-            ? (campaign.totalSpend / campaign.budget.max * 100).toFixed(0)
-            : '0';
-
-          return (
-            <Link
-              key={campaign.id}
-              href={`/government/campaigns/${campaign.id}`}
-              className="block bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-6"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-1">
-                    <h2 className="font-semibold text-[var(--color-charcoal)] text-lg">{campaign.name}</h2>
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${status.bg} ${status.color}`}>
-                      {status.label}
-                    </span>
-                  </div>
-                  <p className="text-sm text-slate-500">{campaign.department} ({campaign.departmentCode})</p>
-                  <p className="text-sm text-slate-500 mt-1 line-clamp-1">{campaign.description}</p>
-
-                  {/* Mandates */}
-                  {campaign.mandates.length > 0 && (
-                    <div className="flex gap-2 mt-3">
-                      {campaign.mandates.map(mandate => (
-                        <span key={mandate} className="px-2 py-0.5 bg-teal-50 text-teal-700 rounded text-xs font-medium">
-                          {MANDATES[mandate]?.label || mandate}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="text-right ml-6">
-                  <p className="text-sm text-slate-400">Budget</p>
-                  <p className="font-semibold text-[var(--color-charcoal)]">
-                    {formatCents(campaign.budget.min)} – {formatCents(campaign.budget.max)}
-                  </p>
-                  {campaign.totalSpend > 0 && (
-                    <div className="mt-2">
-                      <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-teal-500 rounded-full"
-                          style={{ width: `${Math.min(100, parseInt(budgetUtilization))}%` }}
-                        />
-                      </div>
-                      <p className="text-xs text-slate-400 mt-1">{budgetUtilization}% spent</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Campaign Metrics Row */}
-              <div className="flex items-center gap-6 mt-4 pt-4 border-t border-gray-50 text-sm">
-                <span className="text-slate-400">
-                  {campaign.matchCount} publishers matched
-                </span>
-                <span className="text-slate-400">
-                  {campaign.orderCount} orders placed
-                </span>
-                <span className="text-slate-400">
-                  {campaign.targetLanguages.length} languages targeted
-                </span>
-                <span className="text-slate-400 ml-auto">
-                  {new Date(campaign.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – {new Date(campaign.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                </span>
-              </div>
+        {loading ? (
+          <div className="bg-white rounded-xl p-12 text-center border border-gray-100">
+            <div className="w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-slate-400">Loading campaigns...</p>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="bg-white rounded-xl p-12 text-center border border-gray-100">
+            <p className="text-slate-400 text-lg">No campaigns found</p>
+            <Link href="/government/onboarding" className="text-teal-600 text-sm mt-2 inline-block hover:underline">
+              Create your first campaign
             </Link>
-          );
-        })}
+          </div>
+        ) : (
+          filtered.map(campaign => {
+            const status = STATUS_DISPLAY[campaign.status];
+            const budgetUtilization = campaign.budget_max > 0
+              ? (campaign.totalSpend / campaign.budget_max * 100).toFixed(0)
+              : '0';
+
+            return (
+              <Link
+                key={campaign.id}
+                href={`/government/campaigns/${campaign.id}`}
+                className="block bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-6"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-1">
+                      <h2 className="font-semibold text-[var(--color-charcoal)] text-lg">{campaign.name}</h2>
+                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${status.bg} ${status.color}`}>
+                        {status.label}
+                      </span>
+                    </div>
+                    {campaign.department && (
+                      <p className="text-sm text-slate-500">{campaign.department}</p>
+                    )}
+                    {campaign.description && (
+                      <p className="text-sm text-slate-500 mt-1 line-clamp-1">{campaign.description}</p>
+                    )}
+
+                    {/* Mandates */}
+                    {campaign.mandates.length > 0 && (
+                      <div className="flex gap-2 mt-3">
+                        {campaign.mandates.map(mandate => (
+                          <span key={mandate} className="px-2 py-0.5 bg-teal-50 text-teal-700 rounded text-xs font-medium">
+                            {MANDATES[mandate]?.label || mandate}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="text-right ml-6">
+                    <p className="text-sm text-slate-400">Budget</p>
+                    <p className="font-semibold text-[var(--color-charcoal)]">
+                      {campaign.budget_min || campaign.budget_max
+                        ? `${formatCents(campaign.budget_min)} – ${formatCents(campaign.budget_max)}`
+                        : 'Not set'}
+                    </p>
+                    {campaign.totalSpend > 0 && (
+                      <div className="mt-2">
+                        <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-teal-500 rounded-full"
+                            style={{ width: `${Math.min(100, parseInt(budgetUtilization))}%` }}
+                          />
+                        </div>
+                        <p className="text-xs text-slate-400 mt-1">{budgetUtilization}% spent</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Campaign Metrics Row */}
+                <div className="flex items-center gap-6 mt-4 pt-4 border-t border-gray-50 text-sm">
+                  <span className="text-slate-400">
+                    {campaign.matchCount} publishers matched
+                  </span>
+                  <span className="text-slate-400">
+                    {campaign.orderCount} orders placed
+                  </span>
+                  {campaign.target_languages?.length > 0 && (
+                    <span className="text-slate-400">
+                      {campaign.target_languages.length} languages targeted
+                    </span>
+                  )}
+                  {campaign.start_date && campaign.end_date && (
+                    <span className="text-slate-400 ml-auto">
+                      {new Date(campaign.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – {new Date(campaign.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            );
+          })
+        )}
       </main>
     </div>
   );
