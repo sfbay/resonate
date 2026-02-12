@@ -53,7 +53,7 @@ export default function AdvertisePage() {
                 neighborhoods informed and connected.
               </p>
               <div className="flex flex-wrap gap-4 animate-fade-in-up stagger-3">
-                <Link href="/sf/advertise" className="btn btn-marigold">
+                <Link href="/advertise/onboarding" className="btn btn-marigold">
                   Start Advertising
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -351,7 +351,7 @@ export default function AdvertisePage() {
             in the community journalism that keeps neighborhoods strong.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Link href="/sf/advertise" className="btn btn-marigold text-lg">
+            <Link href="/advertise/onboarding" className="btn btn-marigold text-lg">
               Start a Campaign
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />

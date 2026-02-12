@@ -28,6 +28,10 @@ interface CreateCampaignBody {
   weightEconomic?: number;
   weightCultural?: number;
   weightReach?: number;
+  // Advertise portal fields
+  source?: string;
+  goal?: string;
+  advertiserProfile?: Record<string, unknown>;
 }
 
 export async function POST(request: NextRequest) {
@@ -66,6 +70,9 @@ export async function POST(request: NextRequest) {
         weight_economic: body.weightEconomic ?? 20,
         weight_cultural: body.weightCultural ?? 20,
         weight_reach: body.weightReach ?? 15,
+        source: body.source ?? 'government',
+        goal: body.goal ?? null,
+        advertiser_profile: body.advertiserProfile ?? {},
         status: 'draft',
       })
       .select()
@@ -102,6 +109,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const citySlug = searchParams.get('city') || 'sf';
+    const sources = searchParams.getAll('source');
 
     const supabase = await createServerClient();
 
@@ -114,6 +122,10 @@ export async function GET(request: NextRequest) {
 
     if (status) {
       query = query.eq('status', status);
+    }
+
+    if (sources.length > 0) {
+      query = query.in('source', sources);
     }
 
     const { data: campaigns, error } = await query;
@@ -141,6 +153,9 @@ export async function GET(request: NextRequest) {
         start_date: string;
         end_date: string;
         created_at: string;
+        source: string;
+        goal: string;
+        advertiser_profile: Record<string, unknown>;
       }) => ({
         id: c.id,
         name: c.name,
@@ -156,6 +171,9 @@ export async function GET(request: NextRequest) {
           ? { start: c.start_date, end: c.end_date }
           : null,
         createdAt: c.created_at,
+        source: c.source || 'government',
+        goal: c.goal,
+        advertiserProfile: c.advertiser_profile,
       })),
       count: campaigns.length,
     });

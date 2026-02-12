@@ -125,7 +125,7 @@ function calculateMatch(
     demographic: target.priorityWeights?.demographic ?? DEFAULT_WEIGHTS.demographic,
     economic: target.priorityWeights?.economic ?? DEFAULT_WEIGHTS.economic,
     cultural: target.priorityWeights?.cultural ?? DEFAULT_WEIGHTS.cultural,
-    reach: DEFAULT_WEIGHTS.reach, // Reach weight is fixed
+    reach: target.priorityWeights?.reach ?? DEFAULT_WEIGHTS.reach,
   };
 
   // Normalize weights to sum to 100

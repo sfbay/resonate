@@ -611,6 +611,7 @@ export interface TargetAudience {
     demographic?: number;
     economic?: number;
     cultural?: number;
+    reach?: number;
   };
 
   // Free-form description for context

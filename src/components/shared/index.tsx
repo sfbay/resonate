@@ -65,7 +65,7 @@ export function Nav({ variant = 'default' }: NavProps) {
                 </Link>
               )}
               <Link
-                href={variant === 'advertise' ? '/advertise' : `/${variant}/onboarding`}
+                href={`/${variant}/onboarding`}
                 className={`btn ${btnClass} text-sm py-2 px-4`}
               >
                 Get Started

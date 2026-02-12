@@ -76,6 +76,7 @@ export async function GET(
         demographic: campaign.weight_demographic,
         economic: campaign.weight_economic,
         cultural: campaign.weight_cultural,
+        reach: campaign.weight_reach,
       },
       description: campaign.description || '',
     };
