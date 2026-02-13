@@ -89,47 +89,75 @@ export async function GET(
       }
     }
 
-    // Transform DB publishers to match algorithm input
-    // For demo, create minimal publisher profiles
+    // Fetch real audience profiles for all publishers
+    const publisherIds_all = publishers.map((p: { id: string }) => p.id);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: audienceProfiles } = await (supabase as any)
+      .from('audience_profiles')
+      .select('publisher_id, neighborhoods, languages, ethnicities, income_levels, age_ranges, citywide')
+      .in('publisher_id', publisherIds_all);
+
+    // Index audience profiles by publisher_id
+    const profileMap = new Map<string, {
+      neighborhoods: string[];
+      languages: string[];
+      ethnicities: string[];
+      income_levels: string[];
+      age_ranges: string[];
+      citywide: boolean;
+    }>();
+    for (const ap of (audienceProfiles || [])) {
+      profileMap.set(ap.publisher_id, ap);
+    }
+
+    // Transform DB publishers to match algorithm input using real audience data
     const publisherProfiles: Publisher[] = publishers.map((p: {
       id: string;
       name: string;
       description: string;
       website: string;
       logo_url: string;
-    }) => ({
-      id: p.id,
-      userId: '',
-      name: p.name,
-      description: p.description || '',
-      website: p.website,
-      audienceProfile: {
-        geographic: {
-          neighborhoods: campaign.target_neighborhoods?.slice(0, 3) || [],
-          citywide: true,
+    }) => {
+      const profile = profileMap.get(p.id);
+      return {
+        id: p.id,
+        userId: '',
+        name: p.name,
+        description: p.description || '',
+        website: p.website,
+        audienceProfile: {
+          geographic: {
+            neighborhoods: (profile?.neighborhoods || []) as SFNeighborhood[],
+            citywide: profile ? (profile.citywide || false) : true, // No profile → citywide fallback
+          },
+          demographic: {
+            languages: (profile?.languages || ['english']) as Language[],
+            ageRanges: profile?.age_ranges,
+          },
+          economic: {
+            incomeLevel: profile?.income_levels,
+          },
+          cultural: {
+            ethnicities: profile?.ethnicities,
+          },
+          dataSource: {
+            type: 'platform_reported' as const,
+            verificationLevel: 'partially_verified' as const,
+            lastVerified: new Date(),
+          },
+          lastUpdated: new Date(),
         },
-        demographic: {
-          languages: campaign.target_languages || ['english'],
+        platforms: [],
+        rateCard: {
+          rates: [],
+          currency: 'USD',
         },
-        economic: {},
-        cultural: {},
-        dataSource: {
-          type: 'platform_reported' as const,
-          verificationLevel: 'partially_verified' as const,
-          lastVerified: new Date(),
-        },
-        lastUpdated: new Date(),
-      },
-      platforms: [],
-      rateCard: {
-        rates: [],
-        currency: 'USD',
-      },
-      vendorStatus: 'registered' as const,
-      status: 'active' as const,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }));
+        vendorStatus: 'registered' as const,
+        status: 'active' as const,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+    });
 
     // Run matching algorithm
     const matches = findMatchingPublishers(
@@ -194,6 +222,7 @@ export async function GET(
       campaignId,
       matches: matches.map((m) => {
         const metrics = metricsMap.get(m.publisher.id);
+        const profile = profileMap.get(m.publisher.id);
         return {
           publisher: {
             id: m.publisher.id,
@@ -212,6 +241,7 @@ export async function GET(
           },
           matchingNeighborhoods: m.matchDetails.geographic?.matchedNeighborhoods || [],
           matchingLanguages: m.matchDetails.demographic?.matchedLanguages || [],
+          publisherNeighborhoods: profile?.neighborhoods || [],
           keyStrengths: m.matchReasons,
           metrics: metrics || { followers: 0, engagement: 0 },
         };

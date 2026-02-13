@@ -11,8 +11,9 @@
  * After matching, links to campaign management & detail views.
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 // ─────────────────────────────────────────────────
 // TYPES
@@ -91,26 +92,26 @@ const NEIGHBORHOODS: { id: string; label: string }[] = [
   { id: 'chinatown', label: 'Chinatown' },
   { id: 'tenderloin', label: 'Tenderloin' },
   { id: 'soma', label: 'SoMa' },
-  { id: 'financial-district', label: 'Financial District' },
-  { id: 'bayview-hunters-point', label: 'Bayview-Hunters Point' },
+  { id: 'financial_district', label: 'Financial District' },
+  { id: 'bayview_hunters_point', label: 'Bayview-Hunters Point' },
   { id: 'excelsior', label: 'Excelsior' },
   { id: 'sunset', label: 'Sunset' },
   { id: 'richmond', label: 'Richmond' },
-  { id: 'noe-valley', label: 'Noe Valley' },
-  { id: 'bernal-heights', label: 'Bernal Heights' },
-  { id: 'potrero-hill', label: 'Potrero Hill' },
+  { id: 'noe_valley', label: 'Noe Valley' },
+  { id: 'bernal_heights', label: 'Bernal Heights' },
+  { id: 'potrero_hill', label: 'Potrero Hill' },
   { id: 'marina', label: 'Marina' },
-  { id: 'north-beach', label: 'North Beach' },
-  { id: 'haight-ashbury', label: 'Haight-Ashbury' },
-  { id: 'outer-mission', label: 'Outer Mission' },
-  { id: 'visitacion-valley', label: 'Visitacion Valley' },
+  { id: 'north_beach', label: 'North Beach' },
+  { id: 'haight_ashbury', label: 'Haight-Ashbury' },
+  { id: 'outer_mission', label: 'Outer Mission' },
+  { id: 'visitacion_valley', label: 'Visitacion Valley' },
 ];
 
 const LANGUAGES = [
   { code: 'english', label: 'English' },
   { code: 'spanish', label: 'Spanish' },
-  { code: 'chinese-cantonese', label: 'Cantonese' },
-  { code: 'chinese-mandarin', label: 'Mandarin' },
+  { code: 'chinese_cantonese', label: 'Cantonese' },
+  { code: 'chinese_mandarin', label: 'Mandarin' },
   { code: 'tagalog', label: 'Tagalog' },
   { code: 'vietnamese', label: 'Vietnamese' },
   { code: 'russian', label: 'Russian' },
@@ -162,7 +163,20 @@ const STEPS: { id: WizardStep; num: number; label: string; subtitle: string }[] 
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────
 
-export default function GovernmentOnboarding() {
+export default function GovernmentOnboardingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <GovernmentOnboarding />
+    </Suspense>
+  );
+}
+
+function GovernmentOnboarding() {
+  const searchParams = useSearchParams();
   const [step, setStep] = useState<WizardStep>('brief');
   const [form, setForm] = useState<CampaignFormData>(INITIAL_FORM);
   const [campaignId, setCampaignId] = useState<string | null>(null);
@@ -170,6 +184,24 @@ export default function GovernmentOnboarding() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedPublishers, setSelectedPublishers] = useState<Set<string>>(new Set());
+
+  // Pre-fill from URL params (e.g., from discover page publisher selection)
+  useEffect(() => {
+    const neighborhoodsParam = searchParams.get('neighborhoods');
+    const languagesParam = searchParams.get('languages');
+    if (neighborhoodsParam || languagesParam) {
+      const updates: Partial<CampaignFormData> = {};
+      if (neighborhoodsParam) {
+        updates.targetNeighborhoods = neighborhoodsParam.split(',').filter(Boolean);
+      }
+      if (languagesParam) {
+        updates.targetLanguages = languagesParam.split(',').filter(Boolean);
+      }
+      setForm(prev => ({ ...prev, ...updates }));
+      // Auto-advance to audience step so user sees pre-filled selections
+      setStep('audience');
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const stepIndex = STEPS.findIndex(s => s.id === step);
 

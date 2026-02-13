@@ -11,6 +11,7 @@
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import {
   formatCents,
@@ -21,7 +22,12 @@ import {
   PLATFORM_LABELS,
 } from '@/lib/transactions/pricing';
 import { ORDER_STATUS_DISPLAY } from '@/lib/transactions/order-state';
-import type { SocialPlatform, DeliverableType, OrderStatus } from '@/types';
+import type { SocialPlatform, DeliverableType, OrderStatus, SFNeighborhood } from '@/types';
+
+const SFNeighborhoodMap = dynamic(
+  () => import('@/components/map/SFNeighborhoodMap').then(mod => ({ default: mod.SFNeighborhoodMap })),
+  { ssr: false }
+);
 
 type DetailTab = 'matches' | 'orders' | 'compliance';
 
@@ -33,6 +39,7 @@ interface MatchData {
   breakdown: { geographic: number; demographic: number; economic: number; cultural: number; reach: number };
   matchingNeighborhoods: string[];
   matchingLanguages: string[];
+  publisherNeighborhoods?: string[];
   keyStrengths: string[];
   metrics?: { followers: number; engagement: number };
 }
@@ -123,6 +130,25 @@ export default function CampaignDetailPage() {
   }, [orders]);
 
   const orderedMatches = matches.filter(m => ordersByPublisher.has(m.publisher.id));
+
+  // Build publisher coverage data for the neighborhood map
+  const publisherCoverage = useMemo(() => {
+    const coverageMap = new Map<string, { publisherCount: number; totalReach: number }>();
+    for (const m of matches) {
+      const neighborhoods = m.publisherNeighborhoods || m.matchingNeighborhoods || [];
+      const reach = m.metrics?.followers || 0;
+      for (const n of neighborhoods) {
+        const entry = coverageMap.get(n) || { publisherCount: 0, totalReach: 0 };
+        entry.publisherCount += 1;
+        entry.totalReach += reach;
+        coverageMap.set(n, entry);
+      }
+    }
+    return Array.from(coverageMap.entries()).map(([neighborhood, data]) => ({
+      neighborhood: neighborhood as SFNeighborhood,
+      ...data,
+    }));
+  }, [matches]);
 
   // Compliance data derived from real orders
   const compliance = useMemo(() => {
@@ -277,6 +303,26 @@ export default function CampaignDetailPage() {
                 Refresh Matches
               </button>
             </div>
+
+            {/* Coverage Map */}
+            {publisherCoverage.length > 0 && (
+              <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-100">
+                  <h3 className="font-semibold text-[var(--color-charcoal)]">Publisher Coverage Map</h3>
+                  <p className="text-sm text-slate-500 mt-0.5">
+                    Darker neighborhoods have more matched publishers. Outlined neighborhoods are your campaign targets.
+                  </p>
+                </div>
+                <SFNeighborhoodMap
+                  mode="department"
+                  colorBy="coverage"
+                  publisherCoverage={publisherCoverage}
+                  selectedNeighborhoods={(campaign.targetNeighborhoods || []) as SFNeighborhood[]}
+                  height="400px"
+                  showLegend={true}
+                />
+              </div>
+            )}
 
             {matches.length === 0 ? (
               <div className="bg-white rounded-xl p-12 text-center border border-gray-100">

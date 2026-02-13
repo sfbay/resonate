@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Nav, Footer } from "@/components/shared";
 import { PublisherDiscoveryMap } from "@/components/government/PublisherDiscoveryMap";
 import type { Publisher } from "@/types";
@@ -404,6 +405,25 @@ const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
 ];
 
 export default function DiscoverPublishersPage() {
+  const router = useRouter();
+
+  const handlePublisherSelect = (pub: Publisher) => {
+    const params = new URLSearchParams();
+    const neighborhoods = pub.audienceProfile?.geographic?.neighborhoods || [];
+    if (neighborhoods.length > 0) {
+      params.set('neighborhoods', neighborhoods.join(','));
+    }
+    const languages = pub.audienceProfile?.demographic?.languages || [];
+    if (languages.length > 0) {
+      params.set('languages', languages.join(','));
+    }
+    router.push(`/government/onboarding?${params.toString()}`);
+  };
+
+  const handleStartCampaign = () => {
+    router.push('/government/onboarding');
+  };
+
   return (
     <div className="min-h-screen bg-[var(--color-cream)]">
       <Nav variant="government" />
@@ -418,18 +438,43 @@ export default function DiscoverPublishersPage() {
             Discover Publishers by Geography
           </h1>
           <p className="text-xl text-[var(--color-slate)] max-w-2xl">
-            Explore our network of community publishers across San Francisco. Click neighborhoods to see which publishers serve those communities and view demographic insights.
+            Explore our network of community publishers across San Francisco. Click a publisher to start a campaign targeting their audience, or browse neighborhoods to view demographic insights.
           </p>
         </div>
       </section>
 
       {/* Map */}
-      <section className="pb-24 px-6">
+      <section className="pb-12 px-6">
         <div className="max-w-7xl mx-auto">
           <PublisherDiscoveryMap
             publishers={SAMPLE_PUBLISHERS}
-            onPublisherSelect={(pub) => console.log("Selected publisher:", pub)}
+            onPublisherSelect={handlePublisherSelect}
           />
+        </div>
+      </section>
+
+      {/* Start Campaign CTA */}
+      <section className="pb-24 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-[var(--color-teal)] rounded-2xl p-8 flex items-center justify-between">
+            <div>
+              <h2 className="font-[family-name:var(--font-fraunces)] text-white text-xl font-semibold">
+                Ready to start a campaign?
+              </h2>
+              <p className="text-teal-100 mt-1 max-w-lg">
+                Select a publisher above to pre-fill your audience targets, or start from scratch with our guided campaign builder.
+              </p>
+            </div>
+            <button
+              onClick={handleStartCampaign}
+              className="flex-shrink-0 bg-white text-[var(--color-teal)] px-6 py-3 rounded-full text-sm font-semibold hover:bg-white/90 transition-colors flex items-center gap-2"
+            >
+              Start Campaign
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
         </div>
       </section>
 
