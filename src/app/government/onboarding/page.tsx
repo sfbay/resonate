@@ -13,7 +13,14 @@
 
 import { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
+import type { SFNeighborhood } from '@/types';
+
+const SFNeighborhoodMap = dynamic(
+  () => import('@/components/map/SFNeighborhoodMap').then(mod => ({ default: mod.SFNeighborhoodMap })),
+  { ssr: false }
+);
 
 // ─────────────────────────────────────────────────
 // TYPES
@@ -56,6 +63,7 @@ interface MatchedPublisher {
     reach: number;
   };
   matchingNeighborhoods: string[];
+  publisherNeighborhoods?: string[];  // Full territory from audience_profiles
   matchingLanguages: string[];
   keyStrengths: string[];
   metrics: { followers: number; engagement: number };
@@ -822,6 +830,25 @@ function StepMatch({
     return n.toString();
   };
 
+  // Aggregate publisher neighborhoods into coverage data for the map
+  const publisherCoverage = useMemo(() => {
+    const coverageMap = new Map<string, { publisherCount: number; totalReach: number }>();
+    for (const m of matches) {
+      const neighborhoods = m.publisherNeighborhoods || m.matchingNeighborhoods || [];
+      const reach = m.metrics?.followers || 0;
+      for (const n of neighborhoods) {
+        const entry = coverageMap.get(n) || { publisherCount: 0, totalReach: 0 };
+        entry.publisherCount += 1;
+        entry.totalReach += reach;
+        coverageMap.set(n, entry);
+      }
+    }
+    return Array.from(coverageMap.entries()).map(([neighborhood, data]) => ({
+      neighborhood: neighborhood as SFNeighborhood,
+      ...data,
+    }));
+  }, [matches]);
+
   return (
     <div className="space-y-6">
       {/* Campaign summary banner */}
@@ -889,6 +916,27 @@ function StepMatch({
               {selectedPublishers.size} selected
             </span>
           )}
+        </div>
+      )}
+
+      {/* Coverage map */}
+      {!isLoading && matches.length > 0 && publisherCoverage.length > 0 && (
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-5 pt-4 pb-2">
+            <h4 className="font-[family-name:var(--font-fraunces)] text-base font-semibold text-[var(--color-charcoal)]">
+              Publisher Coverage
+            </h4>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Darker areas have more matched publishers. Outlined areas are your targets.
+            </p>
+          </div>
+          <SFNeighborhoodMap
+            mode="department"
+            colorBy="coverage"
+            publisherCoverage={publisherCoverage}
+            selectedNeighborhoods={(form.citywide ? [] : form.targetNeighborhoods) as SFNeighborhood[]}
+            height="300px"
+          />
         </div>
       )}
 
