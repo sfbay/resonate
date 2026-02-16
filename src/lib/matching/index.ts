@@ -17,7 +17,6 @@ import type {
   TargetAudience,
   AudienceProfile,
   MatchResult,
-  SFNeighborhood,
   SFDistrict,
   Language,
   AgeRange,
@@ -205,7 +204,7 @@ function calculateMatch(
 
 interface GeographicScoreResult {
   score: number;
-  matchedNeighborhoods: SFNeighborhood[];
+  matchedNeighborhoods: string[];  // SF neighborhoods or Chicago community areas
   matchedDistricts: SFDistrict[];
 }
 
@@ -253,7 +252,7 @@ function calculateGeographicScore(
 
     for (const neighborhood of targetSet) {
       if (profileSet.has(neighborhood)) {
-        result.matchedNeighborhoods.push(neighborhood as SFNeighborhood);
+        result.matchedNeighborhoods.push(neighborhood);
       }
     }
 
@@ -785,7 +784,7 @@ function determineConfidenceLevel(profile: AudienceProfile): MatchResult['confid
 /**
  * Format neighborhood for display
  */
-function formatNeighborhood(neighborhood: SFNeighborhood): string {
+function formatNeighborhood(neighborhood: string): string {
   return neighborhood
     .split('_')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))

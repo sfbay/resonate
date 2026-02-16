@@ -763,7 +763,7 @@ export interface MatchResult {
   // Detailed match breakdown (for transparency)
   matchDetails: {
     geographic?: {
-      matchedNeighborhoods: SFNeighborhood[];
+      matchedNeighborhoods: string[];  // SF neighborhoods or Chicago community areas
       matchedDistricts: SFDistrict[];
       coverageStrength: 'strong' | 'moderate' | 'weak';
     };

@@ -22,6 +22,8 @@ import type { MatchDetails } from '@/components/government/MatchExplanationModal
 import { getPublisherAddValue } from '@/lib/matching/mix-analysis';
 import { optimizePublisherMix } from '@/lib/matching/budget-optimizer';
 import type { MatchPublisherData } from '@/lib/matching/mix-analysis';
+import { useCityOptional } from '@/lib/geo/city-context';
+import { getCityOnboardingData, type CityOnboardingData } from '@/lib/geo/city-onboarding-data';
 
 const SFNeighborhoodMap = dynamic(
   () => import('@/components/map/SFNeighborhoodMap').then(mod => ({ default: mod.SFNeighborhoodMap })),
@@ -195,6 +197,9 @@ export default function GovernmentOnboardingPage() {
 
 function GovernmentOnboarding() {
   const searchParams = useSearchParams();
+  const cityCtx = useCityOptional();
+  const citySlug = cityCtx?.slug ?? 'sf';
+  const onboardingData = useMemo(() => getCityOnboardingData(citySlug), [citySlug]);
   const [step, setStep] = useState<WizardStep>('brief');
   const [form, setForm] = useState<CampaignFormData>(INITIAL_FORM);
   const [campaignId, setCampaignId] = useState<string | null>(null);
@@ -236,11 +241,12 @@ function GovernmentOnboarding() {
   }, []);
 
   // Audience summary for the sidebar
+  const regionTerm = onboardingData.regionLabel.toLowerCase();
   const audienceSummary = useMemo(() => {
     const geo = form.citywide
       ? 'Citywide'
       : form.targetNeighborhoods.length > 0
-      ? `${form.targetNeighborhoods.length} neighborhood${form.targetNeighborhoods.length > 1 ? 's' : ''}`
+      ? `${form.targetNeighborhoods.length} ${regionTerm}${form.targetNeighborhoods.length > 1 ? 's' : ''}`
       : null;
     const langs = form.targetLanguages.length > 0
       ? form.targetLanguages.map(l => LANGUAGES.find(la => la.code === l)?.label || l).join(', ')
@@ -252,7 +258,7 @@ function GovernmentOnboarding() {
       ? `${form.targetCommunities.length} communit${form.targetCommunities.length > 1 ? 'ies' : 'y'}`
       : null;
     return { geo, langs, ages, comms };
-  }, [form]);
+  }, [form, regionTerm]);
 
   // Create campaign + fetch matches
   const createAndMatch = useCallback(async () => {
@@ -275,7 +281,7 @@ function GovernmentOnboarding() {
           budgetMax: budget.max,
           startDate: form.startDate || undefined,
           endDate: form.endDate || undefined,
-          citySlug: 'sf',
+          citySlug,
         }),
       });
       if (!res.ok) throw new Error('Failed to create campaign');
@@ -406,10 +412,10 @@ function GovernmentOnboarding() {
           {/* ── Left: Form Steps ───────────────── */}
           <div>
             {step === 'brief' && (
-              <StepBrief form={form} update={update} />
+              <StepBrief form={form} update={update} onboardingData={onboardingData} />
             )}
             {step === 'audience' && (
-              <StepAudience form={form} update={update} toggle={toggle} />
+              <StepAudience form={form} update={update} toggle={toggle} onboardingData={onboardingData} />
             )}
             {step === 'match' && (
               <StepMatch
@@ -598,9 +604,11 @@ function SummaryChip({ label, color }: { label: string; color: 'teal' | 'slate' 
 function StepBrief({
   form,
   update,
+  onboardingData,
 }: {
   form: CampaignFormData;
   update: (u: Partial<CampaignFormData>) => void;
+  onboardingData: CityOnboardingData;
 }) {
   return (
     <div className="space-y-6">
@@ -614,8 +622,8 @@ function StepBrief({
               className="form-select"
             >
               <option value="">Select your department...</option>
-              {DEPARTMENTS.map(d => (
-                <option key={d.code} value={d.code}>{d.name}</option>
+              {onboardingData.departments.map(d => (
+                <option key={d} value={d}>{d}</option>
               ))}
               <option value="other">Other</option>
             </select>
@@ -725,27 +733,60 @@ function StepAudience({
   form,
   update,
   toggle,
+  onboardingData,
 }: {
   form: CampaignFormData;
   update: (u: Partial<CampaignFormData>) => void;
   toggle: (field: keyof CampaignFormData, item: string) => void;
+  onboardingData: CityOnboardingData;
 }) {
+  const regionLabel = onboardingData.regionLabel || 'Neighborhood';
+
   return (
     <div className="space-y-6">
       {/* Geographic */}
-      <FormSection title="Geography" subtitle="Which neighborhoods should this reach?">
+      <FormSection title="Geography" subtitle={`Which ${regionLabel.toLowerCase()}s should this reach?`}>
         <div>
-          <div className="flex flex-wrap gap-2 mb-3">
-            {NEIGHBORHOODS.map(n => (
-              <PillButton
-                key={n.id}
-                label={n.label}
-                isSelected={form.targetNeighborhoods.includes(n.id)}
-                isDisabled={form.citywide}
-                onClick={() => toggle('targetNeighborhoods', n.id)}
-              />
-            ))}
-          </div>
+          {onboardingData.regions.length > 1 ? (
+            /* Grouped regions (e.g., Chicago community areas by side) */
+            <div className="space-y-4 mb-3">
+              {onboardingData.regions.map(group => (
+                <div key={group.label}>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{group.label}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {group.items.map(item => {
+                      const id = item.toLowerCase().replace(/[\s'-]+/g, '_').replace(/[()]/g, '');
+                      return (
+                        <PillButton
+                          key={id}
+                          label={item}
+                          isSelected={form.targetNeighborhoods.includes(id)}
+                          isDisabled={form.citywide}
+                          onClick={() => toggle('targetNeighborhoods', id)}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* Flat list (e.g., SF neighborhoods) */
+            <div className="flex flex-wrap gap-2 mb-3">
+              {onboardingData.regions[0]?.items.map(item => {
+                const id = item.toLowerCase().replace(/[\s'-]+/g, '_').replace(/[()]/g, '');
+                return (
+                  <PillButton
+                    key={id}
+                    label={item}
+                    isSelected={form.targetNeighborhoods.includes(id)}
+                    isDisabled={form.citywide}
+                    onClick={() => toggle('targetNeighborhoods', id)}
+                  />
+                );
+              })}
+            </div>
+          )}
           <label className="flex items-center gap-2 text-sm text-slate-600 mt-2">
             <input
               type="checkbox"
@@ -753,7 +794,7 @@ function StepAudience({
               onChange={e => update({ citywide: e.target.checked, targetNeighborhoods: [] })}
               className="rounded border-slate-300 text-[var(--color-teal)] focus:ring-[var(--color-teal)]"
             />
-            Citywide (all neighborhoods)
+            Citywide (all {regionLabel.toLowerCase()}s)
           </label>
         </div>
       </FormSection>
@@ -761,14 +802,17 @@ function StepAudience({
       {/* Languages */}
       <FormSection title="Languages" subtitle="What languages does your audience speak?">
         <div className="flex flex-wrap gap-2">
-          {LANGUAGES.map(l => (
-            <PillButton
-              key={l.code}
-              label={l.label}
-              isSelected={form.targetLanguages.includes(l.code)}
-              onClick={() => toggle('targetLanguages', l.code)}
-            />
-          ))}
+          {onboardingData.languages.map(lang => {
+            const code = lang.toLowerCase().replace(/[\s()]+/g, '_');
+            return (
+              <PillButton
+                key={code}
+                label={lang}
+                isSelected={form.targetLanguages.includes(code)}
+                onClick={() => toggle('targetLanguages', code)}
+              />
+            );
+          })}
         </div>
       </FormSection>
 
