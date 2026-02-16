@@ -7,7 +7,8 @@
 
 import type { CityConfig, CitySlug } from '../types';
 import { SF_CONFIG } from './sf';
-import { CHICAGO_CONFIG, NYC_CONFIG } from './placeholder';
+import { CHICAGO_CONFIG } from './chicago';
+import { NYC_CONFIG } from './placeholder';
 
 // =============================================================================
 // CITY REGISTRY
@@ -27,8 +28,8 @@ export const CITIES: Record<CitySlug, CityConfig> = {
  */
 export const CITY_LIST: CityConfig[] = [
   SF_CONFIG,      // Active first
-  CHICAGO_CONFIG,
-  NYC_CONFIG,
+  CHICAGO_CONFIG, // Active
+  NYC_CONFIG,     // Coming soon
 ];
 
 /**
@@ -81,4 +82,5 @@ export function getDefaultCity(): CityConfig {
 // =============================================================================
 
 export { SF_CONFIG } from './sf';
-export { CHICAGO_CONFIG, NYC_CONFIG } from './placeholder';
+export { CHICAGO_CONFIG } from './chicago';
+export { NYC_CONFIG } from './placeholder';

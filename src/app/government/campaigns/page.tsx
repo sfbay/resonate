@@ -57,6 +57,8 @@ export default function CampaignManagementPage() {
   const [campaigns, setCampaigns] = useState<CampaignRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'date' | 'name' | 'budget' | 'status'>('date');
 
   useEffect(() => {
     async function fetchCampaigns() {
@@ -132,13 +134,38 @@ export default function CampaignManagementPage() {
   }, []);
 
   const filtered = useMemo(() => {
+    let result = campaigns;
+
+    // Tab filter
     switch (activeTab) {
-      case 'draft': return campaigns.filter(c => c.status === 'draft');
-      case 'active': return campaigns.filter(c => ['matching', 'in_progress'].includes(c.status));
-      case 'completed': return campaigns.filter(c => ['completed', 'cancelled'].includes(c.status));
-      default: return campaigns;
+      case 'draft': result = result.filter(c => c.status === 'draft'); break;
+      case 'active': result = result.filter(c => ['matching', 'in_progress'].includes(c.status)); break;
+      case 'completed': result = result.filter(c => ['completed', 'cancelled'].includes(c.status)); break;
     }
-  }, [campaigns, activeTab]);
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(c =>
+        c.name.toLowerCase().includes(q) ||
+        c.department.toLowerCase().includes(q) ||
+        c.description.toLowerCase().includes(q)
+      );
+    }
+
+    // Sort
+    result = [...result].sort((a, b) => {
+      switch (sortBy) {
+        case 'name': return a.name.localeCompare(b.name);
+        case 'budget': return b.budget_max - a.budget_max;
+        case 'status': return a.status.localeCompare(b.status);
+        case 'date':
+        default: return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+    });
+
+    return result;
+  }, [campaigns, activeTab, searchQuery, sortBy]);
 
   const totalBudget = campaigns.reduce((sum, c) => sum + c.budget_max, 0);
   const totalSpend = campaigns.reduce((sum, c) => sum + c.totalSpend, 0);
@@ -213,6 +240,34 @@ export default function CampaignManagementPage() {
 
       {/* Campaign List */}
       <main className="max-w-6xl mx-auto px-6 py-6 space-y-4">
+        {/* Search + Sort */}
+        {!loading && campaigns.length > 0 && (
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search campaigns..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-teal-200 focus:border-teal-300"
+              />
+            </div>
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value as typeof sortBy)}
+              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white text-slate-600"
+            >
+              <option value="date">Newest first</option>
+              <option value="name">Name A–Z</option>
+              <option value="budget">Highest budget</option>
+              <option value="status">By status</option>
+            </select>
+          </div>
+        )}
+
         {loading ? (
           <div className="bg-white rounded-xl p-12 text-center border border-gray-100">
             <div className="w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />

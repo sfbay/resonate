@@ -22,6 +22,14 @@ import {
   PLATFORM_LABELS,
 } from '@/lib/transactions/pricing';
 import { ORDER_STATUS_DISPLAY } from '@/lib/transactions/order-state';
+import { MatchExplanationModal } from '@/components/government/MatchExplanationModal';
+import { MixCoveragePanel } from '@/components/government/MixCoveragePanel';
+import { BudgetOptimizerPanel } from '@/components/government/BudgetOptimizerPanel';
+import { CampaignMetricsSummary } from '@/components/government/CampaignMetricsSummary';
+import { OrderTimeline } from '@/components/government/OrderTimeline';
+import { DeliverablesView } from '@/components/government/DeliverablesView';
+import type { MatchDetails } from '@/components/government/MatchExplanationModal';
+import type { MatchPublisherData } from '@/lib/matching/mix-analysis';
 import type { SocialPlatform, DeliverableType, OrderStatus, SFNeighborhood } from '@/types';
 
 const SFNeighborhoodMap = dynamic(
@@ -42,6 +50,10 @@ interface MatchData {
   publisherNeighborhoods?: string[];
   keyStrengths: string[];
   metrics?: { followers: number; engagement: number };
+  matchDetails?: MatchDetails;
+  confidenceLevel?: 'high' | 'medium' | 'low';
+  estimatedCost?: { low: number; high: number; currency: string };
+  estimatedReach?: { impressions: { low: number; high: number }; engagements: { low: number; high: number } };
 }
 
 interface OrderData {
@@ -80,6 +92,16 @@ export default function CampaignDetailPage() {
   const [matches, setMatches] = useState<MatchData[]>([]);
   const [orders, setOrders] = useState<OrderData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [explanationPublisher, setExplanationPublisher] = useState<string | null>(null);
+  const [selectedPublishers, setSelectedPublishers] = useState<Set<string>>(new Set());
+
+  const togglePublisher = useCallback((id: string) => {
+    setSelectedPublishers(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, []);
 
   const fetchData = useCallback(async () => {
     try {
@@ -149,6 +171,26 @@ export default function CampaignDetailPage() {
       ...data,
     }));
   }, [matches]);
+
+  // Transform matches to MixPublisherData for gap analysis
+  const mixMatchData: MatchPublisherData[] = useMemo(() =>
+    matches.map(m => ({
+      publisherId: m.publisher.id,
+      publisherName: m.publisher.name || '',
+      neighborhoods: m.publisherNeighborhoods || m.matchingNeighborhoods || [],
+      languages: m.matchingLanguages || [],
+      ethnicities: m.matchDetails?.cultural?.matchedEthnicities,
+      reach: m.metrics?.followers || 0,
+      score: m.score,
+      estimatedCost: m.estimatedCost,
+    })),
+    [matches]
+  );
+
+  const mixTarget = useMemo(() => ({
+    neighborhoods: campaign?.targetNeighborhoods || [],
+    languages: campaign?.targetLanguages || [],
+  }), [campaign]);
 
   // Compliance data derived from real orders
   const compliance = useMemo(() => {
@@ -290,7 +332,15 @@ export default function CampaignDetailPage() {
         </div>
       </div>
 
-      <main className="max-w-6xl mx-auto px-6 py-6">
+      <main className="max-w-6xl mx-auto px-6 py-6 space-y-6">
+        {/* Campaign Metrics Summary */}
+        <CampaignMetricsSummary
+          matchCount={matches.length}
+          orders={orders}
+          budgetRange={campaign.budgetRange}
+          dates={campaign.dates}
+        />
+
         {/* MATCHES TAB */}
         {activeTab === 'matches' && (
           <div className="space-y-4">
@@ -324,6 +374,26 @@ export default function CampaignDetailPage() {
               </div>
             )}
 
+            {/* Mix Coverage Panel */}
+            {matches.length > 0 && (
+              <MixCoveragePanel
+                selectedPublishers={selectedPublishers}
+                allMatches={mixMatchData}
+                target={mixTarget}
+                onTogglePublisher={togglePublisher}
+              />
+            )}
+
+            {/* Budget Optimizer */}
+            {matches.length > 0 && (
+              <BudgetOptimizerPanel
+                allMatches={mixMatchData}
+                target={mixTarget}
+                budgetRange={campaign.budgetRange ? { min: campaign.budgetRange.min, max: campaign.budgetRange.max } : undefined}
+                onApply={(ids) => setSelectedPublishers(new Set(ids))}
+              />
+            )}
+
             {matches.length === 0 ? (
               <div className="bg-white rounded-xl p-12 text-center border border-gray-100">
                 <p className="text-slate-400 text-lg">No matches found</p>
@@ -337,9 +407,31 @@ export default function CampaignDetailPage() {
                   order={ordersByPublisher.get(match.publisher.id)}
                   campaignId={campaignId}
                   onOrderPlaced={fetchData}
+                  onExplainScore={() => setExplanationPublisher(match.publisher.id)}
                 />
               ))
             )}
+            {/* Match Explanation Modal */}
+            {(() => {
+              const explanationMatch = matches.find(m => m.publisher.id === explanationPublisher);
+              if (!explanationMatch) return null;
+              return (
+                <MatchExplanationModal
+                  isOpen={!!explanationPublisher}
+                  onClose={() => setExplanationPublisher(null)}
+                  publisherName={explanationMatch.publisher.name || ''}
+                  overallScore={explanationMatch.score}
+                  breakdown={explanationMatch.breakdown}
+                  matchDetails={explanationMatch.matchDetails}
+                  matchReasons={explanationMatch.keyStrengths}
+                  confidenceLevel={explanationMatch.confidenceLevel}
+                  estimatedCost={explanationMatch.estimatedCost}
+                  estimatedReach={explanationMatch.estimatedReach}
+                  targetNeighborhoods={campaign.targetNeighborhoods}
+                  targetLanguages={campaign.targetLanguages}
+                />
+              );
+            })()}
           </div>
         )}
 
@@ -370,14 +462,29 @@ export default function CampaignDetailPage() {
                       </span>
                     </div>
                   </div>
-                  {/* Line items summary */}
-                  <div className="mt-3 space-y-1">
-                    {order.lineItems.map(li => (
-                      <div key={li.id} className="flex justify-between text-sm text-slate-500">
-                        <span>{DELIVERABLE_TYPE_LABELS[li.deliverableType as DeliverableType] || li.deliverableType} on {PLATFORM_LABELS[li.platform as SocialPlatform] || li.platform}</span>
-                        <span>{li.quantity} x {formatCents(li.unitPrice)}</span>
+
+                  {/* Timeline + Line items side-by-side */}
+                  <div className="mt-4 grid grid-cols-[160px_1fr] gap-6">
+                    <OrderTimeline currentStatus={order.status} />
+                    <div>
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Line Items</p>
+                      <div className="space-y-1">
+                        {order.lineItems.map(li => (
+                          <div key={li.id} className="flex justify-between text-sm text-slate-500">
+                            <span>{DELIVERABLE_TYPE_LABELS[li.deliverableType as DeliverableType] || li.deliverableType} on {PLATFORM_LABELS[li.platform as SocialPlatform] || li.platform}</span>
+                            <span>{li.quantity} x {formatCents(li.unitPrice)}</span>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+
+                      {/* Deliverables */}
+                      {order.deliverables && order.deliverables.length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-gray-100">
+                          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Deliverables</p>
+                          <DeliverablesView deliverables={order.deliverables} />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))
@@ -458,11 +565,13 @@ function MatchCard({
   order,
   campaignId,
   onOrderPlaced,
+  onExplainScore,
 }: {
   match: MatchData;
   order?: OrderData;
   campaignId: string;
   onOrderPlaced: () => void;
+  onExplainScore: () => void;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showOrderBuilder, setShowOrderBuilder] = useState(false);
@@ -474,14 +583,18 @@ function MatchCard({
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-4">
-          {/* Score Circle */}
-          <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${
-            match.score >= 80 ? 'bg-emerald-50 text-emerald-600' :
-            match.score >= 60 ? 'bg-blue-50 text-blue-600' :
-            'bg-slate-50 text-slate-600'
-          }`}>
+          {/* Score Circle — clickable for explanation */}
+          <button
+            onClick={(e) => { e.stopPropagation(); onExplainScore(); }}
+            title="View score breakdown"
+            className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold cursor-pointer hover:ring-2 hover:ring-teal-300 transition-all ${
+              match.score >= 80 ? 'bg-emerald-50 text-emerald-600' :
+              match.score >= 60 ? 'bg-blue-50 text-blue-600' :
+              'bg-slate-50 text-slate-600'
+            }`}
+          >
             {match.score}
-          </div>
+          </button>
           <div>
             <h3 className="font-semibold text-[var(--color-charcoal)]">{match.publisher.name}</h3>
             <div className="flex gap-2 mt-1">

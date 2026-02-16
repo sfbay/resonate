@@ -238,19 +238,27 @@ function calculateGeographicScore(
   let maxPoints = 0;
 
   // Neighborhood matching (weighted heavily)
-  if (targetGeo.neighborhoods && targetGeo.neighborhoods.length > 0) {
+  // Handles both SF neighborhoods and Chicagoland regions via the same set-intersection logic
+  const targetNeighborhoods = targetGeo.neighborhoods?.length
+    ? targetGeo.neighborhoods
+    : targetGeo.chicagolandRegions ?? [];
+  const profileNeighborhoods = profileGeo.neighborhoods?.length
+    ? profileGeo.neighborhoods
+    : profileGeo.chicagolandRegions ?? [];
+
+  if (targetNeighborhoods.length > 0) {
     maxPoints += 50;
-    const targetSet = new Set(targetGeo.neighborhoods);
-    const profileSet = new Set(profileGeo.neighborhoods);
+    const targetSet = new Set(targetNeighborhoods as string[]);
+    const profileSet = new Set(profileNeighborhoods as string[]);
 
     for (const neighborhood of targetSet) {
       if (profileSet.has(neighborhood)) {
-        result.matchedNeighborhoods.push(neighborhood);
+        result.matchedNeighborhoods.push(neighborhood as SFNeighborhood);
       }
     }
 
     if (result.matchedNeighborhoods.length > 0) {
-      const overlapRatio = result.matchedNeighborhoods.length / targetGeo.neighborhoods.length;
+      const overlapRatio = result.matchedNeighborhoods.length / targetNeighborhoods.length;
       totalPoints += 50 * overlapRatio;
     } else if (profileGeo.citywide) {
       // Citywide publisher gets partial credit

@@ -16,6 +16,12 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import type { SFNeighborhood } from '@/types';
+import { MatchExplanationModal } from '@/components/government/MatchExplanationModal';
+import { MixCoverageSummary } from '@/components/government/MixCoverageSummary';
+import type { MatchDetails } from '@/components/government/MatchExplanationModal';
+import { getPublisherAddValue } from '@/lib/matching/mix-analysis';
+import { optimizePublisherMix } from '@/lib/matching/budget-optimizer';
+import type { MatchPublisherData } from '@/lib/matching/mix-analysis';
 
 const SFNeighborhoodMap = dynamic(
   () => import('@/components/map/SFNeighborhoodMap').then(mod => ({ default: mod.SFNeighborhoodMap })),
@@ -67,6 +73,10 @@ interface MatchedPublisher {
   matchingLanguages: string[];
   keyStrengths: string[];
   metrics: { followers: number; engagement: number };
+  matchDetails?: MatchDetails;
+  confidenceLevel?: 'high' | 'medium' | 'low';
+  estimatedCost?: { low: number; high: number; currency: string };
+  estimatedReach?: { impressions: { low: number; high: number }; engagements: { low: number; high: number } };
 }
 
 // ─────────────────────────────────────────────────
@@ -192,6 +202,7 @@ function GovernmentOnboarding() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedPublishers, setSelectedPublishers] = useState<Set<string>>(new Set());
+  const [explanationPublisher, setExplanationPublisher] = useState<string | null>(null);
 
   // Pre-fill from URL params (e.g., from discover page publisher selection)
   useEffect(() => {
@@ -409,6 +420,9 @@ function GovernmentOnboarding() {
                 campaignId={campaignId}
                 selectedPublishers={selectedPublishers}
                 togglePublisher={togglePublisher}
+                setSelectedPublishers={setSelectedPublishers}
+                explanationPublisher={explanationPublisher}
+                setExplanationPublisher={setExplanationPublisher}
               />
             )}
 
@@ -815,6 +829,9 @@ function StepMatch({
   campaignId,
   selectedPublishers,
   togglePublisher,
+  setSelectedPublishers,
+  explanationPublisher,
+  setExplanationPublisher,
 }: {
   form: CampaignFormData;
   matches: MatchedPublisher[];
@@ -823,7 +840,31 @@ function StepMatch({
   campaignId: string | null;
   selectedPublishers: Set<string>;
   togglePublisher: (id: string) => void;
+  setSelectedPublishers: (s: Set<string>) => void;
+  explanationPublisher: string | null;
+  setExplanationPublisher: (id: string | null) => void;
 }) {
+  const explanationMatch = matches.find(m => m.publisher.id === explanationPublisher);
+
+  // Transform matches for mix analysis
+  const mixMatchData: MatchPublisherData[] = useMemo(() =>
+    matches.map(m => ({
+      publisherId: m.publisher.id,
+      publisherName: m.publisher.name,
+      neighborhoods: m.publisherNeighborhoods || m.matchingNeighborhoods || [],
+      languages: m.matchingLanguages || [],
+      reach: m.metrics?.followers || 0,
+      score: m.score,
+      estimatedCost: m.estimatedCost,
+    })),
+    [matches]
+  );
+
+  const mixTarget = useMemo(() => ({
+    neighborhoods: form.citywide ? [] : form.targetNeighborhoods,
+    languages: form.targetLanguages,
+  }), [form.citywide, form.targetNeighborhoods, form.targetLanguages]);
+
   const formatReach = (n: number) => {
     if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
     if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
@@ -911,11 +952,24 @@ function StepMatch({
             </h3>
             <p className="text-sm text-slate-500">Ranked by audience overlap with your campaign targets</p>
           </div>
-          {selectedPublishers.size > 0 && (
-            <span className="bg-[var(--color-teal)] text-white text-sm font-medium px-4 py-1.5 rounded-full">
-              {selectedPublishers.size} selected
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            {selectedPublishers.size > 0 && (
+              <span className="bg-[var(--color-teal)] text-white text-sm font-medium px-4 py-1.5 rounded-full">
+                {selectedPublishers.size} selected
+              </span>
+            )}
+            <button
+              onClick={() => {
+                const budgetData = BUDGET_RANGES[form.budgetRange];
+                const budget = budgetData ? budgetData.max * 100 : 1000000;
+                const result = optimizePublisherMix(mixMatchData, mixTarget, { budget, prioritize: 'coverage' });
+                setSelectedPublishers(new Set(result.selectedPublishers));
+              }}
+              className="text-xs font-medium text-teal-600 hover:text-teal-800 bg-teal-50 px-3 py-1.5 rounded-full border border-teal-200 hover:border-teal-300 transition-colors"
+            >
+              Suggest Mix
+            </button>
+          </div>
         </div>
       )}
 
@@ -940,9 +994,21 @@ function StepMatch({
         </div>
       )}
 
+      {/* Mix Coverage Summary */}
+      {!isLoading && matches.length > 0 && (
+        <MixCoverageSummary
+          selectedPublishers={selectedPublishers}
+          allMatches={mixMatchData}
+          target={mixTarget}
+        />
+      )}
+
       {/* Match cards */}
       {!isLoading && matches.map(match => {
         const isSelected = selectedPublishers.has(match.publisher.id);
+        const addValue = !isSelected && selectedPublishers.size > 0
+          ? getPublisherAddValue(match.publisher.id, selectedPublishers, mixMatchData, mixTarget)
+          : null;
         return (
           <div
             key={match.publisher.id}
@@ -956,14 +1022,18 @@ function StepMatch({
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-start gap-3">
-                  {/* Score badge */}
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold font-[family-name:var(--font-fraunces)] flex-shrink-0 ${
-                    match.score >= 80 ? 'bg-emerald-50 text-emerald-600' :
-                    match.score >= 60 ? 'bg-teal-50 text-teal-600' :
-                    'bg-slate-50 text-slate-500'
-                  }`}>
+                  {/* Score badge — clickable for explanation */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setExplanationPublisher(match.publisher.id); }}
+                    title="View score breakdown"
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold font-[family-name:var(--font-fraunces)] flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-teal-300 transition-all ${
+                      match.score >= 80 ? 'bg-emerald-50 text-emerald-600' :
+                      match.score >= 60 ? 'bg-teal-50 text-teal-600' :
+                      'bg-slate-50 text-slate-500'
+                    }`}
+                  >
                     {match.score}
-                  </div>
+                  </button>
                   <div>
                     <h4 className="font-semibold text-[var(--color-charcoal)] text-lg leading-tight">
                       {match.publisher.name}
@@ -996,6 +1066,17 @@ function StepMatch({
                   )}
                 </button>
               </div>
+
+              {/* "+What this adds" chip */}
+              {addValue && addValue.gapsFilled.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {addValue.gapsFilled.map((g, i) => (
+                    <span key={i} className="text-[10px] bg-teal-50 text-teal-700 px-2 py-0.5 rounded font-medium">
+                      {g}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               {/* Tags row */}
               <div className="flex flex-wrap gap-1.5 mb-4">
@@ -1072,6 +1153,24 @@ function StepMatch({
           </div>
         );
       })}
+
+      {/* Match Explanation Modal */}
+      {explanationMatch && (
+        <MatchExplanationModal
+          isOpen={!!explanationPublisher}
+          onClose={() => setExplanationPublisher(null)}
+          publisherName={explanationMatch.publisher.name}
+          overallScore={explanationMatch.score}
+          breakdown={explanationMatch.breakdown}
+          matchDetails={explanationMatch.matchDetails}
+          matchReasons={explanationMatch.keyStrengths}
+          confidenceLevel={explanationMatch.confidenceLevel}
+          estimatedCost={explanationMatch.estimatedCost}
+          estimatedReach={explanationMatch.estimatedReach}
+          targetNeighborhoods={form.citywide ? [] : form.targetNeighborhoods}
+          targetLanguages={form.targetLanguages}
+        />
+      )}
 
       {/* Next steps CTA */}
       {!isLoading && matches.length > 0 && (

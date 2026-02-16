@@ -244,6 +244,11 @@ export async function GET(
           publisherNeighborhoods: profile?.neighborhoods || [],
           keyStrengths: m.matchReasons,
           metrics: metrics || { followers: 0, engagement: 0 },
+          // Full match details for explanation modal
+          matchDetails: m.matchDetails,
+          confidenceLevel: m.confidenceLevel,
+          estimatedCost: m.estimatedCost,
+          estimatedReach: m.estimatedReach,
         };
       }),
       totalMatches: matches.length,

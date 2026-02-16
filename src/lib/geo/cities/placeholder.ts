@@ -1,49 +1,11 @@
 /**
  * Placeholder City Configurations
  *
- * Chicago and NYC configurations for "Coming Soon" pages.
- * These cities will be expanded with full data when launched.
+ * NYC configuration for "Coming Soon" page.
+ * Chicago has been promoted to an active city (see chicago.ts).
  */
 
 import type { ComingSoonCityConfig } from '../types';
-
-// =============================================================================
-// CHICAGO
-// =============================================================================
-
-export const CHICAGO_CONFIG: ComingSoonCityConfig = {
-  slug: 'chicago',
-  name: 'Chicago',
-  fullName: 'City of Chicago',
-  state: 'IL',
-  stateFullName: 'Illinois',
-
-  // Geographic data (approximate bounds)
-  bounds: {
-    sw: { lat: 41.6445, lng: -87.9401 },
-    ne: { lat: 42.0230, lng: -87.5241 },
-  },
-  center: { lat: 41.8781, lng: -87.6298 },
-  zoom: 11,
-  timezone: 'America/Chicago',
-
-  // Status
-  status: 'coming_soon',
-  launchEstimate: 'Q3 2025',
-
-  // Branding
-  tagline: 'Empowering Chicago\'s diverse community voices',
-  heroImage: '/images/cities/chicago-hero.jpg',
-
-  // Features - all disabled until launch
-  features: {
-    publisherDashboard: false,
-    governmentDiscovery: false,
-    advertise: false,
-    campaigns: false,
-    reporting: false,
-  },
-};
 
 // =============================================================================
 // NEW YORK CITY

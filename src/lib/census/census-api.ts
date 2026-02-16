@@ -193,6 +193,10 @@ export interface CensusApiConfig {
   apiKey?: string;
   year?: number;
   dataset?: 'acs5' | 'acs1';
+  /** State FIPS code (default: '06' for California) */
+  stateFips?: string;
+  /** County FIPS code (default: '075' for San Francisco) */
+  countyFips?: string;
 }
 
 /**
@@ -211,19 +215,23 @@ export interface TractData {
 }
 
 /**
- * Fetch ACS data for all census tracts in San Francisco
+ * Fetch ACS data for all census tracts in a county.
+ * Defaults to San Francisco (state 06, county 075).
+ * For Chicagoland Phase 1: use { stateFips: '17', countyFips: '031' } for Cook County.
  */
 export async function fetchSFTractData(
   config: CensusApiConfig = {}
 ): Promise<TractData[]> {
   const { year = 2023, dataset = 'acs5' } = config;
+  const stateFips = config.stateFips ?? SF_STATE_FIPS;
+  const countyFips = config.countyFips ?? SF_COUNTY_FIPS;
   const apiKey = getApiKey(config);
 
   // Build variable list
   const variables = Object.values(ACS_VARIABLES).join(',');
 
   // Build API URL
-  let url = `${CENSUS_API_BASE}/${year}/acs/${dataset}?get=NAME,${variables}&for=tract:*&in=state:${SF_STATE_FIPS}&in=county:${SF_COUNTY_FIPS}`;
+  let url = `${CENSUS_API_BASE}/${year}/acs/${dataset}?get=NAME,${variables}&for=tract:*&in=state:${stateFips}&in=county:${countyFips}`;
 
   if (apiKey) {
     url += `&key=${apiKey}`;

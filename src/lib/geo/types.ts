@@ -83,6 +83,11 @@ export interface ActiveCityConfig extends CityConfig {
   neighborhoodCount: number;
   districtCount?: number;
 
+  // Region terminology (city-specific)
+  regionLabel?: string;              // e.g., "Community Area" for Chicago, "Neighborhood" for SF
+  metroScope?: boolean;              // true if city represents a metro region (e.g., Chicagoland)
+  counties?: string[];               // County list for metro-scope cities
+
   // Data availability
   hasCensusData: boolean;
   hasGeoJSON: boolean;

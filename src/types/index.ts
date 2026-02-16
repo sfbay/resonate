@@ -134,6 +134,9 @@ export interface GeographicProfile {
   censusTract?: string[];                // For precise demographic data alignment
   supervisorialDistricts?: SFDistrict[]; // SF's 11 supervisorial districts
 
+  // Chicagoland regions (community areas for city, suburb names for suburban)
+  chicagolandRegions?: string[];
+
   // Coverage strength per area (optional, for weighted matching)
   coverageByArea?: {
     area: string;                        // Neighborhood or zip
@@ -576,6 +579,7 @@ export interface TargetAudience {
   geographic?: {
     citywide?: boolean;
     neighborhoods?: SFNeighborhood[];
+    chicagolandRegions?: string[];
     zipCodes?: string[];
     supervisorialDistricts?: SFDistrict[];
   };
@@ -971,3 +975,18 @@ export interface EnhancedMatchResult extends MatchResult {
   dataQuality: 'verified' | 'partial' | 'self_reported';
   verifiedPlatforms: Platform[];
 }
+
+// =============================================================================
+// CHICAGOLAND REGION TYPES (re-exported from chicagoland.ts)
+// =============================================================================
+
+export type {
+  ChicagoCommunityArea,
+  ChicagoWard,
+  ChicagolandCounty,
+  ChicagolandSuburb,
+  ChicagolandRegion,
+  ChicagoSide,
+} from './chicagoland';
+
+export { CHICAGOLAND_COUNTY_FIPS, IL_STATE_FIPS } from './chicagoland';
