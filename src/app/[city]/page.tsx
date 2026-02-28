@@ -8,27 +8,13 @@
  * Each panel uses bold color blocks, SFMapTexture, and diagonal clip-paths.
  */
 
-import { useState, useEffect, useRef, useSyncExternalStore } from 'react';
+import { useState, useEffect, useRef, useMemo, useSyncExternalStore } from 'react';
 import { useCity } from '@/lib/geo/city-context';
+import { getCityLandingData, type CityLandingData } from '@/lib/geo/city-landing-data';
 import Link from 'next/link';
 import Image from 'next/image';
 import { SFMapTexture } from '@/components/SFMapTexture';
 import { ResonanceBeacon } from '@/components/ResonanceBeacon';
-
-// Publisher logos for social proof marquee
-const PUBLISHER_LOGOS = [
-  { src: '/images/publishers/el-tecolote.png', name: 'El Tecolote' },
-  { src: '/images/publishers/mission-local.png', name: 'Mission Local' },
-  { src: '/images/publishers/bay-view.png', name: 'The Bay View' },
-  { src: '/images/publishers/wind-newspaper.png', name: 'The Wind' },
-  { src: '/images/publishers/48-hills.png', name: '48 Hills' },
-  { src: '/images/publishers/sf-public-press.png', name: 'SF Public Press' },
-  { src: '/images/publishers/nichi-bei.png', name: 'Nichi Bei' },
-  { src: '/images/publishers/richmond-review.png', name: 'Richmond Review' },
-  { src: '/images/publishers/sunset-beacon.png', name: 'Sunset Beacon' },
-  { src: '/images/publishers/j-weekly.png', name: 'J. Weekly' },
-  { src: '/images/publishers/ingleside-light.png', name: 'Ingleside Light' },
-];
 
 // Animated counter hook
 function useCountUp(end: number, duration: number = 1800, start: boolean = true) {
@@ -67,6 +53,8 @@ function useInView(threshold = 0.3) {
 export default function CityPage() {
   const { city, isComingSoon, getPath } = useCity();
   const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
+  const landingData = useMemo(() => getCityLandingData(city.slug), [city.slug]);
+  const hasSFMapTexture = city.slug === 'sf';
 
   if (isComingSoon) {
     return <ComingSoonPage />;
@@ -118,7 +106,7 @@ export default function CityPage() {
           HERO: Brighter, shallower — teal-to-charcoal gradient
           ============================================================ */}
       <header className="relative min-h-[60vh] flex flex-col justify-end bg-gradient-to-b from-[var(--color-teal)] via-[#0a4a52] to-[var(--color-charcoal)] overflow-hidden">
-        <SFMapTexture variant="teal" />
+        {hasSFMapTexture && <SFMapTexture variant="teal" />}
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-charcoal)]/80 via-transparent to-transparent z-[1]" />
 
         <ResonanceBeacon color="coral" size="lg" intensity="subtle" className="top-[10%] left-[8%] z-[2]" />
@@ -199,9 +187,13 @@ export default function CityPage() {
         >
           <div className="overflow-hidden py-3.5">
             <div className="flex animate-marquee gap-12 items-center">
-              {[...PUBLISHER_LOGOS, ...PUBLISHER_LOGOS].map((pub, i) => (
-                <div key={`${pub.name}-${i}`} className="flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity grayscale hover:grayscale-0">
-                  <Image src={pub.src} alt={pub.name} width={100} height={36} className="h-6 w-auto object-contain invert" />
+              {[...landingData.publishers, ...landingData.publishers].map((pub, i) => (
+                <div key={`${pub.name}-${i}`} className="flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity">
+                  {pub.src ? (
+                    <Image src={pub.src} alt={pub.name} width={100} height={36} className="h-6 w-auto object-contain invert grayscale hover:grayscale-0" />
+                  ) : (
+                    <span className="text-white/80 text-sm font-semibold tracking-wide whitespace-nowrap">{pub.name}</span>
+                  )}
                 </div>
               ))}
             </div>
@@ -213,24 +205,24 @@ export default function CityPage() {
           PUBLISHER PORTAL TEASER — Coral diagonal, left-anchored
           Echoes: publisher/page.tsx hero (coral clip-path left)
           ============================================================ */}
-      <CoralPublisherPanel getPath={getPath} />
+      <CoralPublisherPanel getPath={getPath} data={landingData} hasSFMapTexture={hasSFMapTexture} />
 
       {/* ============================================================
           GOVERNMENT PORTAL TEASER — Teal diagonal, right-anchored
           Echoes: government/page.tsx hero (teal clip-path right)
           ============================================================ */}
-      <TealGovernmentPanel getPath={getPath} />
+      <TealGovernmentPanel getPath={getPath} data={landingData} hasSFMapTexture={hasSFMapTexture} />
 
       {/* ============================================================
           ADVERTISE PORTAL TEASER — Marigold diagonal, left-anchored
           Echoes: advertise/page.tsx hero (marigold clip-path right)
           ============================================================ */}
-      <MarigoldAdvertisePanel getPath={getPath} />
+      <MarigoldAdvertisePanel getPath={getPath} data={landingData} hasSFMapTexture={hasSFMapTexture} />
 
       {/* ============================================================
           CLOSING: Mission statement (dark bookend)
           ============================================================ */}
-      <ClosingSection />
+      <ClosingSection data={landingData} cityName={city.name} />
     </div>
   );
 }
@@ -240,7 +232,7 @@ export default function CityPage() {
 // PUBLISHER TEASER — Coral block on left, cream on right
 // =============================================================================
 
-function CoralPublisherPanel({ getPath }: { getPath: (p: string) => string }) {
+function CoralPublisherPanel({ getPath, data, hasSFMapTexture }: { getPath: (p: string) => string; data: CityLandingData; hasSFMapTexture: boolean }) {
   const { ref, inView } = useInView(0.15);
 
   return (
@@ -254,7 +246,7 @@ function CoralPublisherPanel({ getPath }: { getPath: (p: string) => string }) {
         className="absolute inset-0 z-[1]"
         style={{ clipPath: 'polygon(0 0, 60% 0, 48% 100%, 0 100%)' }}
       >
-        <SFMapTexture variant="coral" />
+        {hasSFMapTexture && <SFMapTexture variant="coral" />}
       </div>
 
       {/* Ambient beacon */}
@@ -287,9 +279,9 @@ function CoralPublisherPanel({ getPath }: { getPath: (p: string) => string }) {
             </p>
 
             <div className="flex gap-8 mb-8">
-              <StatCounter value={13} label="Publishers" color="white" inView={inView} delay={0} />
-              <StatCounter value={19} label="Languages" color="var(--color-marigold)" inView={inView} delay={150} />
-              <StatCounter value={45} label="Neighborhoods" color="white" inView={inView} delay={300} />
+              <StatCounter value={data.publisherStats.publisherCount} label="Publishers" color="white" inView={inView} delay={0} />
+              <StatCounter value={data.publisherStats.languageCount} label="Languages" color="var(--color-marigold)" inView={inView} delay={150} />
+              <StatCounter value={data.publisherStats.neighborhoodCount} label="Neighborhoods" color="white" inView={inView} delay={300} />
             </div>
 
             <Link
@@ -354,7 +346,7 @@ function CoralPublisherPanel({ getPath }: { getPath: (p: string) => string }) {
 // GOVERNMENT TEASER — Teal block on right, cream on left
 // =============================================================================
 
-function TealGovernmentPanel({ getPath }: { getPath: (p: string) => string }) {
+function TealGovernmentPanel({ getPath, data, hasSFMapTexture }: { getPath: (p: string) => string; data: CityLandingData; hasSFMapTexture: boolean }) {
   const { ref, inView } = useInView(0.15);
 
   return (
@@ -368,7 +360,7 @@ function TealGovernmentPanel({ getPath }: { getPath: (p: string) => string }) {
         className="absolute inset-0 z-[1]"
         style={{ clipPath: 'polygon(40% 0, 100% 0, 100% 100%, 52% 100%)' }}
       >
-        <SFMapTexture variant="teal" />
+        {hasSFMapTexture && <SFMapTexture variant="teal" />}
       </div>
 
       {/* Ambient beacon */}
@@ -387,11 +379,7 @@ function TealGovernmentPanel({ getPath }: { getPath: (p: string) => string }) {
                   Publisher Discovery
                 </div>
                 <div className="space-y-3">
-                  {[
-                    { name: 'El Tecolote', reach: '12K', lang: 'Spanish', match: 94 },
-                    { name: 'Mission Local', reach: '18K', lang: 'English', match: 87 },
-                    { name: 'The Bay View', reach: '9K', lang: 'English', match: 82 },
-                  ].map((pub) => (
+                  {data.previewPublishers.map((pub) => (
                     <div key={pub.name} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
                       <div>
                         <div className="text-sm font-semibold text-[var(--color-charcoal)]">{pub.name}</div>
@@ -438,9 +426,9 @@ function TealGovernmentPanel({ getPath }: { getPath: (p: string) => string }) {
             </p>
 
             <div className="flex gap-8 mb-8 lg:justify-end">
-              <StatCounter value={11} label="Districts" color="white" inView={inView} delay={0} />
-              <StatCounter value={41} label="Profiles" color="var(--color-marigold)" inView={inView} delay={150} />
-              <StatCounter value={5} label="Overlays" color="white" inView={inView} delay={300} />
+              <StatCounter value={data.governmentStats.districtCount} label="Districts" color="white" inView={inView} delay={0} />
+              <StatCounter value={data.governmentStats.profileCount} label="Profiles" color="var(--color-marigold)" inView={inView} delay={150} />
+              <StatCounter value={data.governmentStats.overlayCount} label="Overlays" color="white" inView={inView} delay={300} />
             </div>
 
             <div className="lg:text-right">
@@ -466,7 +454,7 @@ function TealGovernmentPanel({ getPath }: { getPath: (p: string) => string }) {
 // ADVERTISE TEASER — Marigold block on left, navy on right
 // =============================================================================
 
-function MarigoldAdvertisePanel({ getPath }: { getPath: (p: string) => string }) {
+function MarigoldAdvertisePanel({ getPath, data, hasSFMapTexture }: { getPath: (p: string) => string; data: CityLandingData; hasSFMapTexture: boolean }) {
   const { ref, inView } = useInView(0.15);
 
   return (
@@ -483,7 +471,7 @@ function MarigoldAdvertisePanel({ getPath }: { getPath: (p: string) => string })
         className="absolute inset-0 z-[1]"
         style={{ clipPath: 'polygon(0 0, 58% 0, 46% 100%, 0 100%)' }}
       >
-        <SFMapTexture variant="marigold" />
+        {hasSFMapTexture && <SFMapTexture variant="marigold" />}
       </div>
 
       {/* Ambient beacons */}
@@ -573,8 +561,8 @@ function MarigoldAdvertisePanel({ getPath }: { getPath: (p: string) => string })
                   </svg>
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-[var(--color-charcoal)]">El Tecolote</div>
-                  <div className="text-xs text-[var(--color-slate)]">Your ad supports bilingual journalism</div>
+                  <div className="text-sm font-semibold text-[var(--color-charcoal)]">{data.featuredPublisher.name}</div>
+                  <div className="text-xs text-[var(--color-slate)]">{data.featuredPublisher.tagline}</div>
                 </div>
               </div>
             </div>
@@ -618,7 +606,7 @@ function StatCounter({ value, label, color, inView, delay, prefix, suffix }: {
 // CLOSING SECTION — Dark bookend
 // =============================================================================
 
-function ClosingSection() {
+function ClosingSection({ data, cityName }: { data: CityLandingData; cityName: string }) {
   const { ref, inView } = useInView(0.2);
 
   return (
@@ -640,8 +628,8 @@ function ClosingSection() {
           }}
         >
           In a city of{' '}
-          <span className="font-bold" style={{ color: 'var(--color-coral)' }}>41 neighborhoods</span>,{' '}
-          <span className="font-bold" style={{ color: 'var(--color-marigold)' }}>19 languages</span>,{' '}
+          <span className="font-bold" style={{ color: 'var(--color-coral)' }}>{data.closing.neighborhoodCount} {data.closing.neighborhoodLabel}</span>,{' '}
+          <span className="font-bold" style={{ color: 'var(--color-marigold)' }}>{data.closing.languageCount} languages</span>,{' '}
           and millions of stories — make your message{' '}
           <span
             className="relative inline-block font-bold italic"
@@ -698,7 +686,7 @@ function ClosingSection() {
             <path d="M13 5a8 8 0 010 16" stroke="var(--color-teal-light)" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.4" />
             <path d="M13 2a11 11 0 010 22" stroke="var(--color-marigold)" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.3" />
           </svg>
-          <span>Resonate &middot; San Francisco</span>
+          <span>Resonate &middot; {cityName}</span>
         </div>
       </div>
     </section>
