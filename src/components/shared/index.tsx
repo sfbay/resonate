@@ -70,11 +70,11 @@ export function Nav({ variant = 'default' }: NavProps) {
                   <Link href={`${prefix}/publisher/dashboard`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
                     Dashboard
                   </Link>
-                  <Link href={`${prefix}/publisher/ad-builder`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
-                    Ad Builder
+                  <Link href={`${prefix}/publisher/dashboard/orders`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+                    Orders
                   </Link>
-                  <Link href={`${prefix}/publisher/schedule`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
-                    Schedule
+                  <Link href={`${prefix}/publisher/dashboard/rate-card`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+                    Rate Card
                   </Link>
                 </>
               )}
