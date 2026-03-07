@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Nav, Footer } from "@/components/shared";
 import { PublisherDiscoveryMap } from "@/components/government/PublisherDiscoveryMap";
+import { useCityOptional } from "@/lib/geo/city-context";
 import type { Publisher } from "@/types";
 
 // Extended publisher type with logo
@@ -406,27 +408,61 @@ const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
 
 export default function DiscoverPublishersPage() {
   const router = useRouter();
+  const cityCtx = useCityOptional();
+  const [cart, setCart] = useState<Set<string>>(new Set());
 
   const handlePublisherSelect = (pub: Publisher) => {
-    const params = new URLSearchParams();
-    const neighborhoods = pub.audienceProfile?.geographic?.neighborhoods || [];
-    if (neighborhoods.length > 0) {
-      params.set('neighborhoods', neighborhoods.join(','));
-    }
-    const languages = pub.audienceProfile?.demographic?.languages || [];
-    if (languages.length > 0) {
-      params.set('languages', languages.join(','));
-    }
-    router.push(`/government/onboarding?${params.toString()}`);
+    setCart(prev => {
+      const next = new Set(prev);
+      if (next.has(pub.id)) next.delete(pub.id); else next.add(pub.id);
+      return next;
+    });
   };
 
   const handleStartCampaign = () => {
-    router.push('/government/onboarding');
+    const params = new URLSearchParams();
+    if (cart.size > 0) {
+      params.set('publishers', Array.from(cart).join(','));
+    }
+    const prefix = cityCtx ? `/${cityCtx.slug}` : '';
+    router.push(`${prefix}/government/onboarding${params.size ? `?${params}` : ''}`);
   };
 
   return (
     <div className="min-h-screen bg-[var(--color-cream)]">
       <Nav variant="government" />
+
+      {cart.size > 0 && (
+        <div className="fixed top-20 left-0 right-0 z-40 px-6 animate-fade-in-up">
+          <div className="max-w-7xl mx-auto">
+            <div className="bg-[var(--color-teal)] text-white rounded-full px-6 py-3 flex items-center justify-between shadow-lg">
+              <div className="flex items-center gap-3">
+                <span className="bg-white/20 rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
+                  {cart.size}
+                </span>
+                <span className="font-medium">
+                  {cart.size === 1 ? '1 publisher' : `${cart.size} publishers`} selected
+                </span>
+                <button
+                  onClick={() => setCart(new Set())}
+                  className="text-white/70 hover:text-white text-sm underline underline-offset-2 ml-2"
+                >
+                  Clear
+                </button>
+              </div>
+              <button
+                onClick={handleStartCampaign}
+                className="bg-white text-[var(--color-teal)] font-semibold px-5 py-2 rounded-full text-sm hover:bg-[var(--color-cream)] transition-colors flex items-center gap-2"
+              >
+                Build Campaign
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <section className="pt-32 pb-12 px-6">
@@ -438,7 +474,7 @@ export default function DiscoverPublishersPage() {
             Discover Publishers by Geography
           </h1>
           <p className="text-xl text-[var(--color-slate)] max-w-2xl">
-            Explore our network of community publishers across San Francisco. Click a publisher to start a campaign targeting their audience, or browse neighborhoods to view demographic insights.
+            Explore our network of community publishers across San Francisco. Select publishers to add them to your campaign, then click Build Campaign to get started.
           </p>
         </div>
       </section>
@@ -449,6 +485,7 @@ export default function DiscoverPublishersPage() {
           <PublisherDiscoveryMap
             publishers={SAMPLE_PUBLISHERS}
             onPublisherSelect={handlePublisherSelect}
+            selectedIds={cart}
           />
         </div>
       </section>
@@ -462,14 +499,16 @@ export default function DiscoverPublishersPage() {
                 Ready to start a campaign?
               </h2>
               <p className="text-teal-100 mt-1 max-w-lg">
-                Select a publisher above to pre-fill your audience targets, or start from scratch with our guided campaign builder.
+                {cart.size > 0
+                  ? `You have ${cart.size} publisher${cart.size > 1 ? 's' : ''} selected. Click Build Campaign to continue.`
+                  : 'Select publishers above to add them to your campaign, or start from scratch with our guided campaign builder.'}
               </p>
             </div>
             <button
               onClick={handleStartCampaign}
               className="flex-shrink-0 bg-white text-[var(--color-teal)] px-6 py-3 rounded-full text-sm font-semibold hover:bg-white/90 transition-colors flex items-center gap-2"
             >
-              Start Campaign
+              {cart.size > 0 ? 'Build Campaign' : 'Start Campaign'}
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>

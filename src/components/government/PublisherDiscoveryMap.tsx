@@ -35,6 +35,7 @@ import {
 interface PublisherDiscoveryMapProps {
   publishers: Publisher[];
   onPublisherSelect?: (publisher: Publisher) => void;
+  selectedIds?: Set<string>;
 }
 
 interface FilterState {
@@ -205,6 +206,7 @@ const SAFETY_PERCENTILE_OPTIONS: { value: SafetyPercentile; label: string; range
 export function PublisherDiscoveryMap({
   publishers,
   onPublisherSelect,
+  selectedIds,
 }: PublisherDiscoveryMapProps) {
   const [filters, setFilters] = useState<FilterState>({
     languages: [],
@@ -1290,6 +1292,7 @@ export function PublisherDiscoveryMap({
                   color={publisherColors[pub.id]}
                   isHovered={hoveredPublisher === pub.id}
                   isSelected={selectedPublisher === pub.id}
+                  isInCart={selectedIds?.has(pub.id) ?? false}
                   onHover={(h) => setHoveredPublisher(h ? pub.id : null)}
                   onClick={() => handlePublisherClick(pub)}
                   isCitywide={activePublisherTab === 'citywide'}
@@ -1358,6 +1361,7 @@ function PublisherCard({
   color,
   isHovered,
   isSelected,
+  isInCart,
   onHover,
   onClick,
   isCitywide,
@@ -1366,6 +1370,7 @@ function PublisherCard({
   color: string;
   isHovered: boolean;
   isSelected: boolean;
+  isInCart: boolean;
   onHover: (hovered: boolean) => void;
   onClick: () => void;
   isCitywide: boolean;
@@ -1383,20 +1388,29 @@ function PublisherCard({
       onClick={onClick}
       onMouseEnter={() => onHover(true)}
       onMouseLeave={() => onHover(false)}
-      className={`rounded-xl border transition-all duration-150 overflow-hidden cursor-pointer ${
-        isSelected
+      className={`rounded-xl border transition-all duration-150 overflow-hidden cursor-pointer relative ${
+        isInCart
+          ? 'border-2 border-[var(--color-teal)] bg-teal-50/30 shadow-md'
+          : isSelected
           ? 'ring-2 ring-offset-1 shadow-lg'
           : isHovered
           ? 'shadow-lg border-slate-300'
           : 'border-slate-200 bg-white hover:border-slate-300'
       }`}
       style={{
-        borderColor: isSelected ? color : undefined,
-        // Ring color set via Tailwind class
-        backgroundColor: isHovered ? `${color}06` : 'white',
-        ...(isSelected ? { '--tw-ring-color': color } as React.CSSProperties : {}),
+        borderColor: isInCart ? undefined : isSelected ? color : undefined,
+        backgroundColor: isInCart ? undefined : isHovered ? `${color}06` : undefined,
+        ...(isSelected && !isInCart ? { '--tw-ring-color': color } as React.CSSProperties : {}),
       }}
     >
+      {/* Cart selection checkmark */}
+      {isInCart && (
+        <div className="absolute top-2 right-2 z-10 w-6 h-6 rounded-full bg-[var(--color-teal)] flex items-center justify-center shadow-sm">
+          <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+      )}
       {/* Color bar */}
       <div className="h-1.5" style={{ backgroundColor: color }} />
 
@@ -1511,11 +1525,14 @@ function PublisherCard({
               ))}
             </div>
             <button
-              className="w-full text-sm font-semibold py-2 rounded-lg text-white transition-colors hover:opacity-90"
-              style={{ backgroundColor: color }}
+              className={`w-full text-sm font-semibold py-2 rounded-lg transition-colors ${
+                isInCart
+                  ? 'bg-[var(--color-teal)] text-white hover:opacity-90'
+                  : 'border-2 border-slate-300 text-[var(--color-charcoal)] hover:border-[var(--color-teal)] hover:text-[var(--color-teal)]'
+              }`}
               onClick={(e) => e.stopPropagation()}
             >
-              Add to Campaign
+              {isInCart ? 'Selected \u2713' : 'Add to Campaign'}
             </button>
           </div>
         )}
