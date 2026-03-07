@@ -288,7 +288,7 @@ function CoralPublisherPanel({ getPath, data, hasSFMapTexture }: { getPath: (p: 
               href={getPath('/publisher')}
               className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full bg-white text-[var(--color-coral)] font-semibold transition-all duration-300 hover:bg-[var(--color-cream)] hover:scale-[1.02] shadow-lg"
             >
-              Open Dashboard
+              Publisher Portal
               <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
@@ -436,7 +436,7 @@ function TealGovernmentPanel({ getPath, data, hasSFMapTexture }: { getPath: (p: 
                 href={getPath('/government')}
                 className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full bg-white text-[var(--color-teal)] font-semibold transition-all duration-300 hover:bg-[var(--color-cream)] hover:scale-[1.02] shadow-lg"
               >
-                Discover Publishers
+                Government Portal
                 <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
@@ -513,7 +513,7 @@ function MarigoldAdvertisePanel({ getPath, data, hasSFMapTexture }: { getPath: (
               href={getPath('/advertise')}
               className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full bg-[var(--color-charcoal)] text-white font-semibold transition-all duration-300 hover:bg-[var(--color-navy)] hover:scale-[1.02] shadow-lg"
             >
-              Start a Campaign
+              Advertise Portal
               <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
