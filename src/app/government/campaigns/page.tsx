@@ -13,6 +13,7 @@ import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { formatCents } from '@/lib/transactions/pricing';
 import { MANDATES, type MandateType } from '@/lib/transactions/procurement';
+import { useCityOptional } from '@/lib/geo/city-context';
 import type { CampaignStatus } from '@/types';
 
 type FilterTab = 'all' | 'draft' | 'active' | 'completed';
@@ -54,6 +55,8 @@ const STATUS_DISPLAY: Record<CampaignStatus, { label: string; color: string; bg:
 };
 
 export default function CampaignManagementPage() {
+  const cityCtx = useCityOptional();
+  const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   const [campaigns, setCampaigns] = useState<CampaignRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
@@ -186,7 +189,7 @@ export default function CampaignManagementPage() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-1">
-                <Link href="/government" className="text-sm text-teal-200 hover:text-white">Government</Link>
+                <Link href={`${prefix}/government`} className="text-sm text-teal-200 hover:text-white">← Government Portal</Link>
                 <span className="text-teal-300">/</span>
                 <span className="text-sm font-medium text-white">Campaigns</span>
               </div>
@@ -194,7 +197,7 @@ export default function CampaignManagementPage() {
                 Campaign Management
               </h1>
             </div>
-            <Link href="/government/onboarding" className="btn bg-white text-[var(--color-teal)] text-sm px-5 py-2.5 hover:bg-teal-50">
+            <Link href={`${prefix}/government/onboarding`} className="btn bg-white text-[var(--color-teal)] text-sm px-5 py-2.5 hover:bg-teal-50">
               + New Campaign
             </Link>
           </div>

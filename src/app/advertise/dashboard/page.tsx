@@ -10,6 +10,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { getGoalPreset } from '@/lib/campaigns/goal-presets';
+import { useCityOptional } from '@/lib/geo/city-context';
 
 type FilterTab = 'all' | 'active' | 'completed';
 
@@ -46,6 +47,8 @@ function formatDollars(cents: number): string {
 }
 
 export default function AdvertiseDashboardPage() {
+  const cityCtx = useCityOptional();
+  const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   const [campaigns, setCampaigns] = useState<CampaignRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
@@ -150,7 +153,7 @@ export default function AdvertiseDashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-1">
-                <Link href="/advertise" className="text-sm text-white/70 hover:text-white">Advertise</Link>
+                <Link href={`${prefix}/advertise`} className="text-sm text-white/70 hover:text-white">← Advertise Portal</Link>
                 <span className="text-white/30">/</span>
                 <span className="text-sm font-medium text-white">My Campaigns</span>
               </div>
@@ -158,7 +161,7 @@ export default function AdvertiseDashboardPage() {
                 My Campaigns
               </h1>
             </div>
-            <Link href="/advertise/onboarding" className="btn bg-white text-[var(--color-marigold-dark)] text-sm px-5 py-2.5 hover:bg-amber-50">
+            <Link href={`${prefix}/advertise/onboarding`} className="btn bg-white text-[var(--color-marigold-dark)] text-sm px-5 py-2.5 hover:bg-amber-50">
               + New Campaign
             </Link>
           </div>

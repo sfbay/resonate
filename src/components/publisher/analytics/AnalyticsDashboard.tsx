@@ -8,6 +8,7 @@
  */
 
 import { useMemo, useState, useCallback } from 'react';
+import Link from 'next/link';
 import { MetricsOverview } from './MetricsOverview';
 import { PlatformConnectionCard } from './PlatformConnectionCard';
 import { BadgeCollection, RisingStarBadge } from './GrowthBadge';
@@ -17,6 +18,7 @@ import { RecommendationsPanel, type ExtendedRecommendation } from './Recommendat
 import { GrowthOpportunitiesSection } from './GrowthOpportunitiesSection';
 import { WizardOverlay } from './wizard';
 import { generateRecommendations } from '@/lib/recommendations/template-engine';
+import { useCityOptional } from '@/lib/geo/city-context';
 import type { GrowthMetrics, PlatformConnection, MetricsSnapshot, Badge, Platform } from '@/types';
 import type { PostPerformance } from './PostPerformanceTable';
 import type { GrowthDataPoint } from './GrowthChart';
@@ -59,6 +61,8 @@ export function AnalyticsDashboard({
   posts = [],
   growthHistory = [],
 }: AnalyticsDashboardProps) {
+  const cityCtx = useCityOptional();
+  const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   const hasRisingStar = badges.some((b) => b.type === 'rising_star');
   const risingStarBadge = badges.find((b) => b.type === 'rising_star');
 
@@ -157,6 +161,13 @@ export function AnalyticsDashboard({
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-coral-500 via-coral-400 to-marigold-400" />
 
         <div className="max-w-7xl mx-auto px-6 pt-7 pb-5">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-3 mb-3">
+            <Link href={`${prefix}/publisher`} className="text-sm text-[var(--color-coral)] hover:text-[var(--color-charcoal)] transition-colors">
+              ← Publisher Portal
+            </Link>
+          </div>
+
           {/* Top row: name + badges */}
           <div className="flex items-start justify-between gap-4 mb-1">
             <div className="min-w-0">

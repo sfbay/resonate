@@ -13,6 +13,7 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { getDemoRateCard } from '@/lib/demo/publisher-data';
+import { useCityOptional } from '@/lib/geo/city-context';
 import {
   DELIVERABLE_TYPE_LABELS,
   PLATFORM_LABELS,
@@ -24,6 +25,8 @@ import {
 import type { RateCard, Rate, DeliverableType, SocialPlatform } from '@/types';
 
 export default function RateCardPage() {
+  const cityCtx = useCityOptional();
+  const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   const [rateCard, setRateCard] = useState<RateCard>(getDemoRateCard());
   const [isAdding, setIsAdding] = useState(false);
   const [newRate, setNewRate] = useState<Partial<Rate>>({
@@ -84,7 +87,11 @@ export default function RateCardPage() {
         <div className="max-w-4xl mx-auto px-6 py-5 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <Link href="/publisher/dashboard" className="text-sm text-slate-400 hover:text-coral-500">
+              <Link href={`${prefix}/publisher`} className="text-sm text-slate-400 hover:text-coral-500">
+                Publisher Portal
+              </Link>
+              <span className="text-slate-300">/</span>
+              <Link href={`${prefix}/publisher/dashboard`} className="text-sm text-slate-400 hover:text-coral-500">
                 Dashboard
               </Link>
               <span className="text-slate-300">/</span>

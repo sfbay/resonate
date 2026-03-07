@@ -13,6 +13,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { ORDER_STATUS_DISPLAY } from '@/lib/transactions/order-state';
 import { formatCents, DELIVERABLE_TYPE_LABELS, PLATFORM_LABELS } from '@/lib/transactions/pricing';
+import { useCityOptional } from '@/lib/geo/city-context';
 import type { OrderStatus, SocialPlatform, DeliverableType } from '@/types';
 
 type FilterTab = 'all' | 'pending' | 'active' | 'completed';
@@ -56,6 +57,8 @@ interface OrderRow {
 }
 
 export default function OrderInboxPage() {
+  const cityCtx = useCityOptional();
+  const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
@@ -135,7 +138,9 @@ export default function OrderInboxPage() {
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-6 py-5">
           <div className="flex items-center gap-3 mb-1">
-            <Link href="/publisher/dashboard" className="text-sm text-slate-400 hover:text-coral-500">Dashboard</Link>
+            <Link href={`${prefix}/publisher`} className="text-sm text-slate-400 hover:text-coral-500">Publisher Portal</Link>
+            <span className="text-slate-300">/</span>
+            <Link href={`${prefix}/publisher/dashboard`} className="text-sm text-slate-400 hover:text-coral-500">Dashboard</Link>
             <span className="text-slate-300">/</span>
             <span className="text-sm font-medium text-slate-700">Orders</span>
           </div>
