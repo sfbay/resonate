@@ -9,12 +9,15 @@ Resonate's third portal: a community media advertising marketplace for businesse
 - **Government** (teal) — City departments with procurement-specific workflows
 - **Advertise** (marigold) — Businesses, nonprofits, foundations, and other advertisers
 
-## Status: Phase 1 Complete
+## Status: Phase 1 Complete + Navigation Polish
 
 - [x] Three-portal architecture (routes, nav, footer, city landing)
 - [x] Advertise landing page (`/advertise`)
 - [x] Government portal renamed from `/advertiser` to `/government`
 - [x] Marigold theme integration (btn-marigold, accent-advertise, Testimonial variant)
+- [x] Advertise dashboard with campaign list (`/advertise/dashboard`)
+- [x] City-scoped routing for all advertise pages
+- [x] Portal-specific nav links (Dashboard + Get Started)
 - [ ] Type system expansion (advertiser source discriminator)
 - [ ] Database schema (advertisers table with source enum)
 - [ ] Goal-based matching presets

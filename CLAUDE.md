@@ -346,8 +346,8 @@ if (isAIEnabled()) {
 - [x] Single-select demographic filters (languages, ethnicities, ages, income brackets)
 - [x] Per-category calibrated color scales for meaningful differentiation
 - [x] Geographic selector entry page with Mapbox US map
-- [x] Publisher analytics dashboard
-- [x] Production deployment on Render
+- [x] Publisher analytics dashboard (growth charts, platform details, engagement metrics)
+- [x] Production deployment on Render (auto-deploy on push to main)
 - [x] OAuth providers for Instagram, TikTok, Mailchimp
 - [x] Platform sync service with background job support
 - [x] Content performance tracking with engagement scoring
@@ -355,19 +355,33 @@ if (isAIEnabled()) {
 - [x] GA4 OAuth integration with property/metrics fetching
 - [x] Multi-provider AI recommendations (Claude, Gemini, OpenAI)
 - [x] AI recommendation service with template fallback
+- [x] Three-portal architecture: Publisher (coral), Government (teal), Advertise (marigold)
+- [x] City-scoped routing with `[city]` dynamic segments and middleware
+- [x] Publisher shopping cart on discover page (multi-select → Build Campaign flow)
+- [x] Cart→wizard bridge: pre-selects publishers in Step 3 matches via URL params
+- [x] Publisher Rate Card Builder (per-platform pricing)
+- [x] Publisher Order Inbox (order management with status tracking)
+- [x] Government Campaign Management dashboard (search, filter, budget tracking)
+- [x] Government campaign creation wizard (3-step: Brief → Audience → Publishers)
+- [x] Advertise portal dashboard (campaign list with empty state)
+- [x] Portal-specific nav links for all three portals
+- [x] City-aware navigation across all portal pages (useCityOptional pattern)
+- [x] Publisher discovery page with Supabase UUID-aligned publisher IDs
 
 ### In Progress
 - [ ] Post performance visualization UI
-- [ ] Growth chart components (Recharts)
 - [ ] Template recommendation engine UI
+- [ ] Advertise portal onboarding flow (business/nonprofit/foundation registration)
 
 ### Pending
-- [ ] Publisher onboarding flow completion
-- [ ] Department campaign creation wizard
+- [ ] Publisher Ad Builder page (social ad creation tool)
+- [ ] Publisher Schedule page (content calendar)
 - [ ] WhatsApp/Substack OAuth providers
 - [ ] Media kit public page + PDF export
-- [ ] Order/procurement workflow
 - [ ] City vendor system API integration
+- [ ] Government-facing Creative Studio (AI ad builder for compliant display ads)
+- [ ] Goal-based matching presets for advertise portal
+- [ ] Community Impact dashboard for advertise portal
 
 ## Deployment
 
