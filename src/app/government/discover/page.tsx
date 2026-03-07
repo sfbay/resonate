@@ -14,7 +14,7 @@ type PublisherWithLogo = Publisher & { logo?: string };
 // Add logo paths to /public/images/publishers/ and reference them here
 const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
   {
-    id: "pub-1",
+    id: "11111111-1111-1111-1111-111111111102",
     userId: "user-1",
     name: "Mission Local",
     logo: "/images/publishers/mission-local.png", // Add logo to public/images/publishers/
@@ -43,7 +43,7 @@ const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
     updatedAt: new Date(),
   },
   {
-    id: "pub-2",
+    id: "11111111-1111-1111-1111-111111111101",
     userId: "user-2",
     name: "El Tecolote",
     logo: "/images/publishers/el-tecolote.png",
@@ -71,7 +71,7 @@ const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
     updatedAt: new Date(),
   },
   {
-    id: "pub-3",
+    id: "11111111-1111-1111-1111-111111111110",
     userId: "user-3",
     name: "The Wind Newspaper",
     logo: "/images/publishers/wind-newspaper.png",
@@ -99,7 +99,7 @@ const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
     updatedAt: new Date(),
   },
   {
-    id: "pub-4",
+    id: "11111111-1111-1111-1111-111111111114",
     userId: "user-4",
     name: "Bayview Hunters Point Community",
     logo: "/images/publishers/bayview-hp.png",
@@ -125,7 +125,7 @@ const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
     updatedAt: new Date(),
   },
   {
-    id: "pub-5",
+    id: "11111111-1111-1111-1111-111111111108",
     userId: "user-5",
     name: "Richmond Review",
     logo: "/images/publishers/richmond-review.png",
@@ -152,7 +152,7 @@ const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
     updatedAt: new Date(),
   },
   {
-    id: "pub-6",
+    id: "11111111-1111-1111-1111-111111111109",
     userId: "user-6",
     name: "Sunset Beacon",
     logo: "/images/publishers/sunset-beacon.png",
@@ -178,7 +178,7 @@ const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
     updatedAt: new Date(),
   },
   {
-    id: "pub-9",
+    id: "11111111-1111-1111-1111-111111111103",
     userId: "user-9",
     name: "SF Bay View",
     logo: "/images/publishers/sf-bay-view.png",
@@ -206,7 +206,7 @@ const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
     updatedAt: new Date(),
   },
   {
-    id: "pub-10",
+    id: "11111111-1111-1111-1111-111111111115",
     userId: "user-10",
     name: "Hoodline",
     logo: "/images/publishers/hoodline.png",
@@ -234,7 +234,7 @@ const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
     updatedAt: new Date(),
   },
   {
-    id: "pub-11",
+    id: "11111111-1111-1111-1111-111111111105",
     userId: "user-11",
     name: "Bay Area Reporter",
     logo: "/images/publishers/bayarea-reporter.png",
@@ -262,7 +262,7 @@ const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
     updatedAt: new Date(),
   },
   {
-    id: "pub-12",
+    id: "11111111-1111-1111-1111-111111111104",
     userId: "user-12",
     name: "SF Public Press",
     logo: "/images/publishers/sf-public-press.png",
@@ -290,7 +290,7 @@ const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
     updatedAt: new Date(),
   },
   {
-    id: "pub-14",
+    id: "11111111-1111-1111-1111-111111111111",
     userId: "user-14",
     name: "48 Hills",
     logo: "/images/publishers/48-hills.png",
@@ -319,7 +319,7 @@ const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
     updatedAt: new Date(),
   },
   {
-    id: "pub-15",
+    id: "11111111-1111-1111-1111-111111111106",
     userId: "user-15",
     name: "Nichi Bei News",
     logo: "/images/publishers/nichi-bei.png",
@@ -348,7 +348,7 @@ const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
     updatedAt: new Date(),
   },
   {
-    id: "pub-16",
+    id: "11111111-1111-1111-1111-111111111113",
     userId: "user-16",
     name: "Ingleside Light",
     logo: "/images/publishers/ingleside-light.png",
@@ -377,7 +377,7 @@ const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
     updatedAt: new Date(),
   },
   {
-    id: "pub-13",
+    id: "11111111-1111-1111-1111-111111111107",
     userId: "user-13",
     name: "J. The Jewish News of Northern California",
     logo: "/images/publishers/jnews.png",
