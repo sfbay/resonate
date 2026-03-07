@@ -66,7 +66,30 @@ export function Nav({ variant = 'default' }: NavProps) {
           ) : (
             <>
               {variant === 'publisher' && (
-                <Link href={`${prefix}/publisher/dashboard`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+                <>
+                  <Link href={`${prefix}/publisher/dashboard`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+                    Dashboard
+                  </Link>
+                  <Link href={`${prefix}/publisher/ad-builder`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+                    Ad Builder
+                  </Link>
+                  <Link href={`${prefix}/publisher/schedule`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+                    Schedule
+                  </Link>
+                </>
+              )}
+              {variant === 'government' && (
+                <>
+                  <Link href={`${prefix}/government/discover`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+                    Discover
+                  </Link>
+                  <Link href={`${prefix}/government/campaigns`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+                    Campaigns
+                  </Link>
+                </>
+              )}
+              {variant === 'advertise' && (
+                <Link href={`${prefix}/advertise/dashboard`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
                   Dashboard
                 </Link>
               )}

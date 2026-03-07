@@ -225,6 +225,12 @@ function GovernmentOnboarding() {
       // Auto-advance to audience step so user sees pre-filled selections
       setStep('audience');
     }
+
+    // Pre-select publishers from discover page cart
+    const publishersParam = searchParams.get('publishers');
+    if (publishersParam) {
+      setSelectedPublishers(new Set(publishersParam.split(',').filter(Boolean)));
+    }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const stepIndex = STEPS.findIndex(s => s.id === step);
@@ -909,6 +915,15 @@ function StepMatch({
     languages: form.targetLanguages,
   }), [form.citywide, form.targetNeighborhoods, form.targetLanguages]);
 
+  // Sort matches so pre-selected publishers (from cart) appear first
+  const sortedMatches = useMemo(() => {
+    return [...matches].sort((a, b) => {
+      const aSelected = selectedPublishers.has(a.publisher.id) ? 1 : 0;
+      const bSelected = selectedPublishers.has(b.publisher.id) ? 1 : 0;
+      return bSelected - aSelected;
+    });
+  }, [matches, selectedPublishers]);
+
   const formatReach = (n: number) => {
     if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
     if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
@@ -1048,7 +1063,7 @@ function StepMatch({
       )}
 
       {/* Match cards */}
-      {!isLoading && matches.map(match => {
+      {!isLoading && sortedMatches.map(match => {
         const isSelected = selectedPublishers.has(match.publisher.id);
         const addValue = !isSelected && selectedPublishers.size > 0
           ? getPublisherAddValue(match.publisher.id, selectedPublishers, mixMatchData, mixTarget)
