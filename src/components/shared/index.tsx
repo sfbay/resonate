@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import React from 'react';
+import { useCityOptional } from '@/lib/geo/city-context';
 
 // =============================================================================
 // NAVIGATION
@@ -10,6 +13,9 @@ interface NavProps {
 }
 
 export function Nav({ variant = 'default' }: NavProps) {
+  const cityCtx = useCityOptional();
+  const prefix = cityCtx ? `/${cityCtx.slug}` : '';
+
   const accentClass =
     variant === 'publisher' ? 'text-[#c45a3b]' :
     variant === 'government' ? 'text-[var(--color-teal)]' :
@@ -31,7 +37,7 @@ export function Nav({ variant = 'default' }: NavProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
       <nav className="max-w-7xl mx-auto flex items-center justify-between bg-white/80 backdrop-blur-md rounded-full px-6 py-3 shadow-sm border border-[var(--color-mist)]">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href={prefix || '/'} className="flex items-center gap-3">
           <span className="text-2xl font-bold font-[family-name:var(--font-fraunces)] text-[var(--color-charcoal)]">
             Resonate
           </span>
@@ -47,25 +53,25 @@ export function Nav({ variant = 'default' }: NavProps) {
         <div className="flex items-center gap-4">
           {variant === 'default' ? (
             <>
-              <Link href="/publisher" className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+              <Link href={`${prefix}/publisher`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
                 For Publishers
               </Link>
-              <Link href="/government" className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+              <Link href={`${prefix}/government`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
                 For Government
               </Link>
-              <Link href="/advertise" className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+              <Link href={`${prefix}/advertise`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
                 Advertise
               </Link>
             </>
           ) : (
             <>
               {variant === 'publisher' && (
-                <Link href="/publisher/dashboard" className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+                <Link href={`${prefix}/publisher/dashboard`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
                   Dashboard
                 </Link>
               )}
               <Link
-                href={`/${variant}/onboarding`}
+                href={`${prefix}/${variant}/onboarding`}
                 className={`btn ${btnClass} text-sm py-2 px-4`}
               >
                 Get Started
@@ -451,6 +457,9 @@ interface FooterProps {
 }
 
 export function Footer({ variant = 'default' }: FooterProps) {
+  const footerCityCtx = useCityOptional();
+  const footerPrefix = footerCityCtx ? `/${footerCityCtx.slug}` : '';
+
   if (variant === 'minimal') {
     return (
       <footer className="bg-[var(--color-charcoal)] text-white py-8 px-6">
@@ -481,21 +490,21 @@ export function Footer({ variant = 'default' }: FooterProps) {
           <div>
             <div className="font-semibold mb-4">Publishers</div>
             <ul className="space-y-2 text-white/70">
-              <li><Link href="/publisher" className="hover:text-white transition-colors">Why Resonate</Link></li>
-              <li><Link href="/publisher/onboarding" className="hover:text-white transition-colors">Get Started</Link></li>
+              <li><Link href={`${footerPrefix}/publisher`} className="hover:text-white transition-colors">Why Resonate</Link></li>
+              <li><Link href={`${footerPrefix}/publisher/onboarding`} className="hover:text-white transition-colors">Get Started</Link></li>
             </ul>
           </div>
           <div>
             <div className="font-semibold mb-4">Government</div>
             <ul className="space-y-2 text-white/70">
-              <li><Link href="/government" className="hover:text-white transition-colors">Why Resonate</Link></li>
-              <li><Link href="/government/onboarding" className="hover:text-white transition-colors">Create Campaign</Link></li>
+              <li><Link href={`${footerPrefix}/government`} className="hover:text-white transition-colors">Why Resonate</Link></li>
+              <li><Link href={`${footerPrefix}/government/onboarding`} className="hover:text-white transition-colors">Create Campaign</Link></li>
             </ul>
           </div>
           <div>
             <div className="font-semibold mb-4">Advertise</div>
             <ul className="space-y-2 text-white/70">
-              <li><Link href="/advertise" className="hover:text-white transition-colors">Why Resonate</Link></li>
+              <li><Link href={`${footerPrefix}/advertise`} className="hover:text-white transition-colors">Why Resonate</Link></li>
             </ul>
           </div>
         </div>

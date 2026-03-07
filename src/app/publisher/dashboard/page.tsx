@@ -12,6 +12,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { AnalyticsDashboard } from '@/components/publisher/analytics';
 import { usePublisherData } from '@/lib/db/use-publisher-data';
+import { useCityOptional } from '@/lib/geo/city-context';
 
 /**
  * Loading fallback for the dashboard while search params are resolved
@@ -33,6 +34,8 @@ function DashboardLoading() {
  */
 function DashboardContent() {
   const searchParams = useSearchParams();
+  const cityCtx = useCityOptional();
+  const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   // Fetch real publisher data from Supabase
@@ -99,7 +102,7 @@ function DashboardContent() {
             You don&apos;t have a publisher profile yet. Create one to start tracking your analytics.
           </p>
           <Link
-            href="/publisher/onboarding"
+            href={`${prefix}/publisher/onboarding`}
             className="inline-block px-4 py-2 bg-coral-500 text-white rounded-lg hover:bg-coral-600 transition-colors"
           >
             Create Profile

@@ -222,7 +222,7 @@ export default function CityPage() {
       {/* ============================================================
           CLOSING: Mission statement (dark bookend)
           ============================================================ */}
-      <ClosingSection data={landingData} cityName={city.name} />
+      <ClosingSection data={landingData} cityName={city.name} getPath={getPath} />
     </div>
   );
 }
@@ -606,7 +606,7 @@ function StatCounter({ value, label, color, inView, delay, prefix, suffix }: {
 // CLOSING SECTION — Dark bookend
 // =============================================================================
 
-function ClosingSection({ data, cityName }: { data: CityLandingData; cityName: string }) {
+function ClosingSection({ data, cityName, getPath }: { data: CityLandingData; cityName: string; getPath: (p: string) => string }) {
   const { ref, inView } = useInView(0.2);
 
   return (
@@ -657,19 +657,19 @@ function ClosingSection({ data, cityName }: { data: CityLandingData; cityName: s
           style={{ opacity: inView ? 1 : 0, transform: inView ? 'translateY(0)' : 'translateY(12px)' }}
         >
           <Link
-            href="/publisher"
+            href={getPath('/publisher')}
             className="px-6 py-2.5 rounded-full bg-[var(--color-coral)] text-white font-semibold text-sm transition-all hover:bg-[var(--color-coral-dark)] hover:scale-105"
           >
             I&apos;m a Publisher
           </Link>
           <Link
-            href="/government/onboarding"
+            href={getPath('/government/onboarding')}
             className="px-6 py-2.5 rounded-full bg-[var(--color-teal)] text-white font-semibold text-sm transition-all hover:bg-[var(--color-teal-dark)] hover:scale-105"
           >
             Start a Campaign
           </Link>
           <Link
-            href="/advertise"
+            href={getPath('/advertise')}
             className="px-6 py-2.5 rounded-full bg-[var(--color-marigold)] text-[var(--color-charcoal)] font-semibold text-sm transition-all hover:bg-[var(--color-marigold-dark)] hover:scale-105"
           >
             Advertise

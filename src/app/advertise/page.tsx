@@ -12,8 +12,11 @@ import Link from "next/link";
 import { Nav, Testimonial, Footer } from "@/components/shared";
 import { SFMapTexture } from "@/components/SFMapTexture";
 import { ResonanceBeacon } from "@/components/ResonanceBeacon";
+import { useCityOptional } from "@/lib/geo/city-context";
 
 export default function AdvertisePage() {
+  const cityCtx = useCityOptional();
+  const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   return (
     <div className="min-h-screen bg-[var(--color-cream)]">
       <Nav variant="advertise" />
@@ -53,7 +56,7 @@ export default function AdvertisePage() {
                 neighborhoods informed and connected.
               </p>
               <div className="flex flex-wrap gap-4 animate-fade-in-up stagger-3">
-                <Link href="/advertise/onboarding" className="btn btn-marigold">
+                <Link href={`${prefix}/advertise/onboarding`} className="btn btn-marigold">
                   Start Advertising
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -351,13 +354,13 @@ export default function AdvertisePage() {
             in the community journalism that keeps neighborhoods strong.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Link href="/advertise/onboarding" className="btn btn-marigold text-lg">
+            <Link href={`${prefix}/advertise/onboarding`} className="btn btn-marigold text-lg">
               Start a Campaign
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
             </Link>
-            <Link href="/sf/government" className="btn btn-outline text-white border-white/30 hover:bg-white hover:text-[var(--color-navy)]">
+            <Link href={`${prefix}/government`} className="btn btn-outline text-white border-white/30 hover:bg-white hover:text-[var(--color-navy)]">
               Government Campaigns
             </Link>
           </div>

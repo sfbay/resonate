@@ -4,8 +4,11 @@ import Link from "next/link";
 import { Nav, Testimonial, FloatingMockup, Footer } from "@/components/shared";
 import { SFMapTexture } from "@/components/SFMapTexture";
 import { ResonanceBeacon } from "@/components/ResonanceBeacon";
+import { useCityOptional } from "@/lib/geo/city-context";
 
 export default function PublisherPortal() {
+  const cityCtx = useCityOptional();
+  const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   return (
     <div className="min-h-screen bg-[var(--color-cream)]">
       <Nav variant="publisher" />
@@ -36,7 +39,7 @@ export default function PublisherPortal() {
                 You&apos;ve built trust within your community. City departments need to reach them. Resonate connects you with paid campaign opportunities that serve your audience.
               </p>
               <div className="flex flex-wrap gap-4 animate-fade-in-up stagger-3">
-                <Link href="/publisher/onboarding" className="btn bg-white text-[var(--color-coral)] hover:bg-[var(--color-cream)]">
+                <Link href={`${prefix}/publisher/onboarding`} className="btn bg-white text-[var(--color-coral)] hover:bg-[var(--color-cream)]">
                   Register Your Publication
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -246,7 +249,7 @@ export default function PublisherPortal() {
           <p className="body-lg text-white/70 mb-10">
             Registration takes about 10 minutes. You&apos;ll need access to your social media accounts and basic information about your publication.
           </p>
-          <Link href="/publisher/onboarding" className="btn btn-coral text-lg">
+          <Link href={`${prefix}/publisher/onboarding`} className="btn btn-coral text-lg">
             Start Registration
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />

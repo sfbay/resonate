@@ -4,8 +4,11 @@ import Link from "next/link";
 import { Nav, Testimonial, FloatingMockup, PublisherCard, Footer } from "@/components/shared";
 import { SFMapTexture } from "@/components/SFMapTexture";
 import { ResonanceBeacon } from "@/components/ResonanceBeacon";
+import { useCityOptional } from "@/lib/geo/city-context";
 
 export default function GovernmentPortal() {
+  const cityCtx = useCityOptional();
+  const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   return (
     <div className="min-h-screen bg-[var(--color-cream)]">
       <Nav variant="government" />
@@ -52,13 +55,13 @@ export default function GovernmentPortal() {
                 Stop shouting into the void. Connect with local publishers whose audiences match exactly who you need to reach—from Chinatown elders to Mission District families.
               </p>
               <div className="flex flex-wrap gap-4 animate-fade-in-up stagger-3">
-                <Link href="/government/onboarding" className="btn bg-white text-[var(--color-teal)] hover:bg-[var(--color-cream)]">
+                <Link href={`${prefix}/government/onboarding`} className="btn bg-white text-[var(--color-teal)] hover:bg-[var(--color-cream)]">
                   Create Your First Campaign
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </Link>
-                <Link href="/government/discover" className="btn btn-outline text-white border-white/50 hover:bg-white hover:text-[var(--color-teal)]">
+                <Link href={`${prefix}/government/discover`} className="btn btn-outline text-white border-white/50 hover:bg-white hover:text-[var(--color-teal)]">
                   Browse Publishers
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
@@ -356,7 +359,7 @@ export default function GovernmentPortal() {
           <p className="body-lg text-white/70 mb-10">
             Set up your department account and create your first campaign. We&apos;ll walk you through defining your audience and finding the right publishers.
           </p>
-          <Link href="/government/onboarding" className="btn btn-teal text-lg">
+          <Link href={`${prefix}/government/onboarding`} className="btn btn-teal text-lg">
             Get Started
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
