@@ -216,7 +216,7 @@ export default function AdvertiseDashboardPage() {
         ) : filtered.length === 0 ? (
           <div className="bg-white rounded-xl p-12 text-center border border-gray-100">
             <p className="text-slate-400 text-lg">No campaigns found</p>
-            <Link href="/advertise/onboarding" className="text-[var(--color-marigold-dark)] text-sm mt-2 inline-block hover:underline">
+            <Link href={`${prefix}/advertise/onboarding`} className="text-[var(--color-marigold-dark)] text-sm mt-2 inline-block hover:underline">
               Create your first campaign
             </Link>
           </div>
@@ -230,7 +230,7 @@ export default function AdvertiseDashboardPage() {
             return (
               <Link
                 key={campaign.id}
-                href={`/advertise/campaigns/${campaign.id}`}
+                href={`${prefix}/advertise/campaigns/${campaign.id}`}
                 className="block bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-6"
               >
                 <div className="flex items-start justify-between">

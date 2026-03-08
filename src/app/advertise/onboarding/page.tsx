@@ -21,6 +21,7 @@ import {
   type CampaignSource,
   type CampaignGoalPreset,
 } from '@/lib/campaigns/goal-presets';
+import { useCityOptional } from '@/lib/geo/city-context';
 
 // ─────────────────────────────────────────────────
 // TYPES
@@ -196,6 +197,8 @@ const ORG_TYPES: { id: OrgType; label: string; icon: string; desc: string }[] = 
 // ─────────────────────────────────────────────────
 
 export default function AdvertiseOnboarding() {
+  const cityCtx = useCityOptional();
+  const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   const [step, setStep] = useState<WizardStep>('about');
   const [form, setForm] = useState<FormData>(INITIAL_FORM);
   const [campaignId, setCampaignId] = useState<string | null>(null);
@@ -325,14 +328,14 @@ export default function AdvertiseOnboarding() {
         <div className="relative z-10 max-w-6xl mx-auto px-6 py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Link href="/advertise" className="text-white/70 hover:text-white text-sm transition-colors">
+              <Link href={`${prefix}/advertise`} className="text-white/70 hover:text-white text-sm transition-colors">
                 Advertise
               </Link>
               <span className="text-white/30">/</span>
               <span className="text-white text-sm font-medium">New Campaign</span>
             </div>
             <Link
-              href="/advertise"
+              href={`${prefix}/advertise`}
               className="text-sm text-white/60 hover:text-white transition-colors"
             >
               Save & Exit
@@ -427,7 +430,7 @@ export default function AdvertiseOnboarding() {
                 <div className="flex items-center gap-3">
                   {campaignId && (
                     <Link
-                      href={`/advertise/campaigns/${campaignId}`}
+                      href={`${prefix}/advertise/campaigns/${campaignId}`}
                       className="btn bg-[var(--color-marigold)] text-white text-sm px-6 py-2.5 hover:bg-[var(--color-marigold-dark)]"
                     >
                       View Campaign Detail
@@ -437,7 +440,7 @@ export default function AdvertiseOnboarding() {
                     </Link>
                   )}
                   <Link
-                    href="/advertise/dashboard"
+                    href={`${prefix}/advertise/dashboard`}
                     className="btn bg-white text-[var(--color-marigold-dark)] border border-[var(--color-marigold)]/20 text-sm px-6 py-2.5 hover:bg-[var(--color-cream)]"
                   >
                     Dashboard
@@ -521,13 +524,13 @@ export default function AdvertiseOnboarding() {
                 <div className="px-5 py-3 bg-slate-50 border-t border-gray-100">
                   <p className="text-xs font-semibold tracking-wider uppercase text-slate-400 mb-2">Quick Links</p>
                   <div className="space-y-1.5">
-                    <Link href="/advertise/dashboard" className="flex items-center gap-2 text-sm text-[var(--color-marigold-dark)] hover:underline">
+                    <Link href={`${prefix}/advertise/dashboard`} className="flex items-center gap-2 text-sm text-[var(--color-marigold-dark)] hover:underline">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                       </svg>
                       Campaign Dashboard
                     </Link>
-                    <Link href="/advertise" className="flex items-center gap-2 text-sm text-[var(--color-marigold-dark)] hover:underline">
+                    <Link href={`${prefix}/advertise`} className="flex items-center gap-2 text-sm text-[var(--color-marigold-dark)] hover:underline">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1" />
                       </svg>
@@ -1177,7 +1180,7 @@ function StepMatches({
           <div className="flex flex-wrap gap-3 mt-5">
             {campaignId && (
               <Link
-                href={`/advertise/campaigns/${campaignId}`}
+                href={`${prefix}/advertise/campaigns/${campaignId}`}
                 className="inline-flex items-center gap-2 bg-white text-[var(--color-marigold-dark)] px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-white/90 transition-colors"
               >
                 View Campaign Detail
@@ -1187,7 +1190,7 @@ function StepMatches({
               </Link>
             )}
             <Link
-              href="/advertise/dashboard"
+              href={`${prefix}/advertise/dashboard`}
               className="inline-flex items-center gap-2 bg-white/15 text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-white/25 transition-colors"
             >
               Campaign Dashboard

@@ -14,6 +14,7 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useCityOptional } from '@/lib/geo/city-context';
 import { getDemoCreative, getDemoLanguageVariants, getDemoCreativeSet } from '@/lib/demo/creative-data';
 import { FORMAT_LABELS, FORMAT_CONSTRAINTS, type CreativeFormat, type CreativeTone, type CreativeOutput, type LanguageVariant } from '@/lib/ai/creative/types';
 import type { Language } from '@/types';
@@ -44,6 +45,8 @@ const LANGUAGE_OPTIONS: { value: Language; label: string }[] = [
 const FORMAT_OPTIONS: CreativeFormat[] = ['social_post', 'display_ad', 'newsletter_copy', 'text_ad', 'story_script', 'reel_script'];
 
 export default function AdBuilderPage() {
+  const cityCtx = useCityOptional();
+  const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   // Brief form state
   const [campaignName, setCampaignName] = useState('Flu Shot Awareness 2026');
   const [description, setDescription] = useState('Promote free flu vaccination clinics across SF neighborhoods');
@@ -128,7 +131,7 @@ export default function AdBuilderPage() {
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-5">
           <div className="flex items-center gap-3 mb-1">
-            <Link href="/publisher/dashboard" className="text-sm text-slate-400 hover:text-coral-500">Dashboard</Link>
+            <Link href={`${prefix}/publisher/dashboard`} className="text-sm text-slate-400 hover:text-coral-500">Dashboard</Link>
             <span className="text-slate-300">/</span>
             <span className="text-sm font-medium text-slate-700">Ad Builder</span>
           </div>

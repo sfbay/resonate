@@ -199,6 +199,7 @@ function GovernmentOnboarding() {
   const searchParams = useSearchParams();
   const cityCtx = useCityOptional();
   const citySlug = cityCtx?.slug ?? 'sf';
+  const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   const onboardingData = useMemo(() => getCityOnboardingData(citySlug), [citySlug]);
   const [step, setStep] = useState<WizardStep>('brief');
   const [form, setForm] = useState<CampaignFormData>(INITIAL_FORM);
@@ -340,7 +341,7 @@ function GovernmentOnboarding() {
         <div className="relative z-10 max-w-6xl mx-auto px-6 py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Link href="/government" className="text-white/70 hover:text-white text-sm transition-colors">
+              <Link href={`${prefix}/government`} className="text-white/70 hover:text-white text-sm transition-colors">
                 Government
               </Link>
               <span className="text-white/30">/</span>
@@ -348,13 +349,13 @@ function GovernmentOnboarding() {
             </div>
             <div className="flex items-center gap-4">
               <Link
-                href="/government/campaigns"
+                href={`${prefix}/government/campaigns`}
                 className="text-sm text-white/60 hover:text-white transition-colors"
               >
                 View All Campaigns
               </Link>
               <Link
-                href="/government"
+                href={`${prefix}/government`}
                 className="text-sm text-white/60 hover:text-white transition-colors"
               >
                 Save & Exit
@@ -489,7 +490,7 @@ function GovernmentOnboarding() {
                 <div className="flex items-center gap-3">
                   {campaignId && (
                     <Link
-                      href={`/government/campaigns/${campaignId}`}
+                      href={`${prefix}/government/campaigns/${campaignId}`}
                       className="btn bg-[var(--color-teal)] text-white text-sm px-6 py-2.5 hover:bg-[var(--color-teal-dark)]"
                     >
                       View Campaign Detail
@@ -499,7 +500,7 @@ function GovernmentOnboarding() {
                     </Link>
                   )}
                   <Link
-                    href="/government/campaigns"
+                    href={`${prefix}/government/campaigns`}
                     className="btn bg-white text-[var(--color-teal)] border border-[var(--color-teal)]/20 text-sm px-6 py-2.5 hover:bg-[var(--color-cream)]"
                   >
                     All Campaigns
@@ -585,13 +586,13 @@ function GovernmentOnboarding() {
                 <div className="px-5 py-3 bg-slate-50 border-t border-gray-100">
                   <p className="text-xs font-semibold tracking-wider uppercase text-slate-400 mb-2">Quick Links</p>
                   <div className="space-y-1.5">
-                    <Link href="/government/discover" className="flex items-center gap-2 text-sm text-[var(--color-teal)] hover:underline">
+                    <Link href={`${prefix}/government/discover`} className="flex items-center gap-2 text-sm text-[var(--color-teal)] hover:underline">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                       </svg>
                       Browse Publisher Map
                     </Link>
-                    <Link href="/government/campaigns" className="flex items-center gap-2 text-sm text-[var(--color-teal)] hover:underline">
+                    <Link href={`${prefix}/government/campaigns`} className="flex items-center gap-2 text-sm text-[var(--color-teal)] hover:underline">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                       </svg>
@@ -1286,7 +1287,7 @@ function StepMatch({
           <div className="flex flex-wrap gap-3 mt-5">
             {campaignId && (
               <Link
-                href={`/government/campaigns/${campaignId}`}
+                href={`${prefix}/government/campaigns/${campaignId}`}
                 className="inline-flex items-center gap-2 bg-white text-[var(--color-teal)] px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-white/90 transition-colors"
               >
                 View Campaign Detail
@@ -1296,13 +1297,13 @@ function StepMatch({
               </Link>
             )}
             <Link
-              href="/government/campaigns"
+              href={`${prefix}/government/campaigns`}
               className="inline-flex items-center gap-2 bg-white/15 text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-white/25 transition-colors"
             >
               Campaign Dashboard
             </Link>
             <Link
-              href="/government/discover"
+              href={`${prefix}/government/discover`}
               className="inline-flex items-center gap-2 bg-white/15 text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-white/25 transition-colors"
             >
               Browse Publisher Map

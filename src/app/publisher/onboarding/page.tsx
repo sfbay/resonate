@@ -2,10 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useCityOptional } from '@/lib/geo/city-context';
 
 type OnboardingStep = 'basics' | 'platforms' | 'audience' | 'rates' | 'vendor' | 'review';
 
 export default function PublisherOnboarding() {
+  const cityCtx = useCityOptional();
+  const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('basics');
 
   const steps: { id: OnboardingStep; label: string }[] = [
@@ -36,10 +39,10 @@ export default function PublisherOnboarding() {
       {/* Header */}
       <header className="bg-white border-b border-slate-200 px-6 py-4">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <Link href="/publisher" className="text-xl font-bold text-slate-900">
+          <Link href={`${prefix}/publisher`} className="text-xl font-bold text-slate-900">
             Resonate <span className="text-emerald-600 font-normal text-sm ml-2">Publisher</span>
           </Link>
-          <Link href="/publisher" className="text-sm text-slate-500 hover:text-slate-700">
+          <Link href={`${prefix}/publisher`} className="text-sm text-slate-500 hover:text-slate-700">
             Save & Exit
           </Link>
         </div>

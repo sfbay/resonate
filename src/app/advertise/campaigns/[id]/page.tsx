@@ -12,6 +12,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { getGoalPreset } from '@/lib/campaigns/goal-presets';
+import { useCityOptional } from '@/lib/geo/city-context';
 import {
   formatCents,
   PLATFORM_FEE_RATE,
@@ -67,6 +68,8 @@ interface LineItemDraft {
 }
 
 export default function AdvertiseCampaignDetailPage() {
+  const cityCtx = useCityOptional();
+  const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   const params = useParams();
   const campaignId = params.id as string;
   const [activeTab, setActiveTab] = useState<DetailTab>('matches');
@@ -131,7 +134,7 @@ export default function AdvertiseCampaignDetailPage() {
       <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center">
         <div className="text-center">
           <p className="text-slate-400 text-lg">Campaign not found</p>
-          <Link href="/advertise/dashboard" className="text-[var(--color-marigold-dark)] text-sm mt-2 inline-block hover:underline">
+          <Link href={`${prefix}/advertise/dashboard`} className="text-[var(--color-marigold-dark)] text-sm mt-2 inline-block hover:underline">
             Back to campaigns
           </Link>
         </div>
@@ -153,7 +156,7 @@ export default function AdvertiseCampaignDetailPage() {
       <header className="bg-[var(--color-marigold)] text-white">
         <div className="max-w-6xl mx-auto px-6 py-6">
           <div className="flex items-center gap-3 mb-2">
-            <Link href="/advertise/dashboard" className="text-sm text-white/70 hover:text-white">Campaigns</Link>
+            <Link href={`${prefix}/advertise/dashboard`} className="text-sm text-white/70 hover:text-white">Campaigns</Link>
             <span className="text-white/30">/</span>
             <span className="text-sm text-white">{campaign.name}</span>
           </div>

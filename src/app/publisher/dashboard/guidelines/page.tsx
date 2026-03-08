@@ -12,8 +12,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { getDemoContentGuidelines, type ContentGuidelines } from '@/lib/demo/publisher-data';
+import { useCityOptional } from '@/lib/geo/city-context';
 
 export default function GuidelinesPage() {
+  const cityCtx = useCityOptional();
+  const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   const [guidelines, setGuidelines] = useState<ContentGuidelines>(getDemoContentGuidelines());
   const [savedMessage, setSavedMessage] = useState('');
 
@@ -29,7 +32,7 @@ export default function GuidelinesPage() {
         <div className="max-w-4xl mx-auto px-6 py-5 flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <Link href="/publisher/dashboard" className="text-sm text-slate-400 hover:text-coral-500">Dashboard</Link>
+              <Link href={`${prefix}/publisher/dashboard`} className="text-sm text-slate-400 hover:text-coral-500">Dashboard</Link>
               <span className="text-slate-300">/</span>
               <span className="text-sm font-medium text-slate-700">Guidelines</span>
             </div>

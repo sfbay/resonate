@@ -279,7 +279,7 @@ export default function CampaignManagementPage() {
         ) : filtered.length === 0 ? (
           <div className="bg-white rounded-xl p-12 text-center border border-gray-100">
             <p className="text-slate-400 text-lg">No campaigns found</p>
-            <Link href="/government/onboarding" className="text-teal-600 text-sm mt-2 inline-block hover:underline">
+            <Link href={`${prefix}/government/onboarding`} className="text-teal-600 text-sm mt-2 inline-block hover:underline">
               Create your first campaign
             </Link>
           </div>
@@ -293,7 +293,7 @@ export default function CampaignManagementPage() {
             return (
               <Link
                 key={campaign.id}
-                href={`/government/campaigns/${campaign.id}`}
+                href={`${prefix}/government/campaigns/${campaign.id}`}
                 className="block bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-6"
               >
                 <div className="flex items-start justify-between">
