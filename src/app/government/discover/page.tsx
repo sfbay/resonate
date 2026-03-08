@@ -411,7 +411,7 @@ export default function DiscoverPublishersPage() {
   const cityCtx = useCityOptional();
   const [cart, setCart] = useState<Set<string>>(new Set());
 
-  const handlePublisherSelect = (pub: Publisher) => {
+  const handleToggleCart = (pub: Publisher) => {
     setCart(prev => {
       const next = new Set(prev);
       if (next.has(pub.id)) next.delete(pub.id); else next.add(pub.id);
@@ -432,16 +432,32 @@ export default function DiscoverPublishersPage() {
     <div className="min-h-screen bg-[var(--color-cream)]">
       <Nav variant="government" />
 
+      {/* Header */}
+      <section className="pt-32 pb-12 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-sm font-semibold tracking-widest uppercase text-[var(--color-teal)] mb-4">
+            Publisher Network
+          </div>
+          <h1 className="font-[family-name:var(--font-fraunces)] text-[var(--color-charcoal)] mb-4" style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 700, lineHeight: 1.1 }}>
+            Discover Publishers by Geography
+          </h1>
+          <p className="text-xl text-[var(--color-slate)] max-w-2xl">
+            Explore our network of community publishers across San Francisco. Select publishers to add them to your campaign, then click Build Campaign to get started.
+          </p>
+        </div>
+      </section>
+
+      {/* Campaign Cart Bar */}
       {cart.size > 0 && (
-        <div className="fixed top-20 left-0 right-0 z-40 px-6 animate-fade-in-up">
+        <section className="px-6 pb-4">
           <div className="max-w-7xl mx-auto">
-            <div className="bg-[var(--color-teal)] text-white rounded-full px-6 py-3 flex items-center justify-between shadow-lg">
+            <div className="bg-[var(--color-teal)] text-white rounded-xl px-6 py-3 flex items-center justify-between shadow-lg">
               <div className="flex items-center gap-3">
                 <span className="bg-white/20 rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
                   {cart.size}
                 </span>
                 <span className="font-medium">
-                  {cart.size === 1 ? '1 publisher' : `${cart.size} publishers`} selected
+                  {cart.size === 1 ? '1 publisher' : `${cart.size} publishers`} in campaign
                 </span>
                 <button
                   onClick={() => setCart(new Set())}
@@ -461,30 +477,15 @@ export default function DiscoverPublishersPage() {
               </button>
             </div>
           </div>
-        </div>
+        </section>
       )}
-
-      {/* Header */}
-      <section className="pt-32 pb-12 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-sm font-semibold tracking-widest uppercase text-[var(--color-teal)] mb-4">
-            Publisher Network
-          </div>
-          <h1 className="font-[family-name:var(--font-fraunces)] text-[var(--color-charcoal)] mb-4" style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 700, lineHeight: 1.1 }}>
-            Discover Publishers by Geography
-          </h1>
-          <p className="text-xl text-[var(--color-slate)] max-w-2xl">
-            Explore our network of community publishers across San Francisco. Select publishers to add them to your campaign, then click Build Campaign to get started.
-          </p>
-        </div>
-      </section>
 
       {/* Map */}
       <section className="pb-12 px-6">
         <div className="max-w-7xl mx-auto">
           <PublisherDiscoveryMap
             publishers={SAMPLE_PUBLISHERS}
-            onPublisherSelect={handlePublisherSelect}
+            onAddToCart={handleToggleCart}
             selectedIds={cart}
           />
         </div>
