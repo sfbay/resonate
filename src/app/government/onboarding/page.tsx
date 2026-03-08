@@ -207,6 +207,7 @@ function GovernmentOnboarding() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedPublishers, setSelectedPublishers] = useState<Set<string>>(new Set());
+  const [preSelectedCount, setPreSelectedCount] = useState(0);
   const [explanationPublisher, setExplanationPublisher] = useState<string | null>(null);
 
   // Pre-fill from URL params (e.g., from discover page publisher selection)
@@ -229,7 +230,9 @@ function GovernmentOnboarding() {
     // Pre-select publishers from discover page cart
     const publishersParam = searchParams.get('publishers');
     if (publishersParam) {
-      setSelectedPublishers(new Set(publishersParam.split(',').filter(Boolean)));
+      const ids = publishersParam.split(',').filter(Boolean);
+      setSelectedPublishers(new Set(ids));
+      setPreSelectedCount(ids.length);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -410,6 +413,33 @@ function GovernmentOnboarding() {
           </div>
         </div>
       </header>
+
+      {/* ── Pre-selected publishers banner ────── */}
+      {preSelectedCount > 0 && step !== 'match' && (
+        <div className="max-w-6xl mx-auto px-6 pt-4">
+          <div className="bg-teal-50 border border-teal-200 rounded-lg px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[var(--color-teal)] flex items-center justify-center text-white font-bold text-sm">
+                {selectedPublishers.size}
+              </div>
+              <div>
+                <p className="text-sm font-medium text-[var(--color-charcoal)]">
+                  {selectedPublishers.size} publisher{selectedPublishers.size !== 1 ? 's' : ''} pre-selected from Discover
+                </p>
+                <p className="text-xs text-[var(--color-slate)]">
+                  Fill in campaign details, then review your selections in Step 3
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setStep('match')}
+              className="text-sm text-[var(--color-teal)] font-medium hover:underline whitespace-nowrap"
+            >
+              Jump to Publishers →
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Main Content ───────────────────────── */}
       <main className="max-w-6xl mx-auto px-6 py-8">

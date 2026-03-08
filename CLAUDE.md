@@ -374,6 +374,8 @@ if (isAIEnabled()) {
 - [ ] Advertise portal onboarding flow (business/nonprofit/foundation registration)
 
 ### Pending
+- [ ] **Authentication & user system** — Required before launch. User accounts, login, role-based access, session management. All three portals need user awareness for personalized dashboards, saved campaigns, and access control.
+- [ ] **Discover/wizard flow refactor** — Merge publisher discovery map into the campaign wizard as an integrated step instead of two separate entry points. Currently the discover page and wizard Step 3 are parallel paths to the same outcome.
 - [ ] Publisher Ad Builder page (social ad creation tool)
 - [ ] Publisher Schedule page (content calendar)
 - [ ] WhatsApp/Substack OAuth providers
