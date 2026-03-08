@@ -491,33 +491,6 @@ export default function DiscoverPublishersPage() {
         </div>
       </section>
 
-      {/* Start Campaign CTA */}
-      <section className="pb-24 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-[var(--color-teal)] rounded-2xl p-8 flex items-center justify-between">
-            <div>
-              <h2 className="font-[family-name:var(--font-fraunces)] text-white text-xl font-semibold">
-                Ready to start a campaign?
-              </h2>
-              <p className="text-teal-100 mt-1 max-w-lg">
-                {cart.size > 0
-                  ? `You have ${cart.size} publisher${cart.size > 1 ? 's' : ''} selected. Click Build Campaign to continue.`
-                  : 'Select publishers above to add them to your campaign, or start from scratch with our guided campaign builder.'}
-              </p>
-            </div>
-            <button
-              onClick={handleStartCampaign}
-              className="flex-shrink-0 bg-white text-[var(--color-teal)] px-6 py-3 rounded-full text-sm font-semibold hover:bg-white/90 transition-colors flex items-center gap-2"
-            >
-              {cart.size > 0 ? 'Build Campaign' : 'Start Campaign'}
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </section>
-
       <Footer />
     </div>
   );
