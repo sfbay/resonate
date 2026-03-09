@@ -11,14 +11,14 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useCity } from '@/lib/geo/city-context';
 import { useSupabaseClient } from '@/lib/db/supabase';
-import { useCurrentUser } from '@/lib/auth';
+import { useCurrentUserOptional } from '@/lib/auth';
 import { ScheduleCalendar } from '@/components/publisher/schedule/ScheduleCalendar';
 import { PostForm } from '@/components/publisher/schedule/PostForm';
 import type { ScheduledPost } from '@/components/publisher/schedule/ScheduledPostCard';
 
 export default function SchedulePage() {
   const { city, getPath } = useCity();
-  const user = useCurrentUser();
+  const user = useCurrentUserOptional();
   const supabase = useSupabaseClient();
   const [posts, setPosts] = useState<ScheduledPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -28,6 +28,7 @@ export default function SchedulePage() {
   const [publisherId, setPublisherId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
+    if (!user) return;
     setIsLoading(true);
     setError(null);
 
@@ -65,7 +66,7 @@ export default function SchedulePage() {
     } finally {
       setIsLoading(false);
     }
-  }, [supabase, user.userId]);
+  }, [supabase, user]);
 
   useEffect(() => {
     fetchData();

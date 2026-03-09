@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useCurrentUser } from '@/lib/auth';
+import { useCurrentUserOptional } from '@/lib/auth';
 
 interface Application {
   id: string;
@@ -14,7 +14,7 @@ interface Application {
 }
 
 export default function ApprovalsPage() {
-  const user = useCurrentUser();
+  const user = useCurrentUserOptional();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -43,7 +43,7 @@ export default function ApprovalsPage() {
     }
   };
 
-  if (user.orgType !== 'admin') {
+  if (!user || user.orgType !== 'admin') {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-slate-600">Access denied.</p>
