@@ -3,6 +3,11 @@
 import { useState, useCallback } from 'react';
 import type { ChannelFormat, CreativeAssets } from '@/lib/channels/types';
 import { COMPLIANCE_DEFAULTS } from '@/lib/channels';
+import { TemplatePicker } from './TemplatePicker';
+import type { Template } from './TemplatePicker';
+import { AssistMode } from './AssistMode';
+
+type CreationMode = 'upload' | 'templates' | 'assist';
 
 interface CreativeEditorProps {
   format: ChannelFormat;
@@ -12,7 +17,16 @@ interface CreativeEditorProps {
   onPlatformChange: (platform: string) => void;
   selectedPlacement: string;
   onPlacementChange: (placement: string) => void;
+  campaignId?: string;
+  onTemplateSelect?: (templateId: string) => void;
+  selectedTemplateId?: string | null;
 }
+
+const MODE_LABELS: Record<CreationMode, { label: string; icon: string }> = {
+  upload: { label: 'Upload', icon: '📤' },
+  templates: { label: 'Templates', icon: '🎨' },
+  assist: { label: 'Assist', icon: '✨' },
+};
 
 export function CreativeEditor({
   format,
@@ -22,7 +36,11 @@ export function CreativeEditor({
   onPlatformChange,
   selectedPlacement,
   onPlacementChange,
+  campaignId,
+  onTemplateSelect,
+  selectedTemplateId,
 }: CreativeEditorProps) {
+  const [creationMode, setCreationMode] = useState<CreationMode>('upload');
   const [dragOver, setDragOver] = useState(false);
 
   const complianceNote = COMPLIANCE_DEFAULTS[selectedPlatform] || '';
@@ -41,7 +59,6 @@ export function CreativeEditor({
       const droppedFiles = Array.from(e.dataTransfer.files);
       if (droppedFiles.length === 0) return;
 
-      // Create preview URLs for display (real upload would go to storage)
       const newFiles = droppedFiles.map(file => ({
         url: URL.createObjectURL(file),
         filename: file.name,
@@ -75,9 +92,27 @@ export function CreativeEditor({
     [assets.files, updateField]
   );
 
-  // Determine which fields to show based on format
+  const handleTemplateSelected = useCallback(
+    (template: Template) => {
+      // Load template base image as a creative file
+      const templateFile = {
+        url: template.templateData.baseImageUrl,
+        filename: `template-${template.name.toLowerCase().replace(/\s+/g, '-')}.png`,
+        mimeType: 'image/png',
+      };
+      onAssetsChange({
+        ...assets,
+        files: [templateFile],
+        headline: assets.headline || '',
+        bodyText: assets.bodyText || '',
+      });
+      onTemplateSelect?.(template.id);
+    },
+    [assets, onAssetsChange, onTemplateSelect]
+  );
+
   const showImageUpload = !format.spec.scriptRequired;
-  const showTextFields = true; // All formats need some text
+  const showTextFields = true;
   const showHashtags = format.channelGroup === 'social';
   const showClickThrough = format.channelGroup === 'display' || format.spec.briefRequired;
 
@@ -120,8 +155,25 @@ export function CreativeEditor({
         </div>
       </div>
 
-      {/* File Upload */}
-      {showImageUpload && (
+      {/* Creation Mode Tabs */}
+      <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+        {(Object.keys(MODE_LABELS) as CreationMode[]).map(mode => (
+          <button
+            key={mode}
+            onClick={() => setCreationMode(mode)}
+            className={`flex-1 text-sm font-medium py-2 px-3 rounded-md transition-colors ${
+              creationMode === mode
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {MODE_LABELS[mode].icon} {MODE_LABELS[mode].label}
+          </button>
+        ))}
+      </div>
+
+      {/* Upload Mode */}
+      {creationMode === 'upload' && showImageUpload && (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Upload Creative {format.spec.fileTypes && `(${format.spec.fileTypes.join(', ')})`}
@@ -155,7 +207,6 @@ export function CreativeEditor({
             )}
           </div>
 
-          {/* Uploaded files preview */}
           {assets.files && assets.files.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-3">
               {assets.files.map((file, i) => (
@@ -182,8 +233,44 @@ export function CreativeEditor({
         </div>
       )}
 
-      {/* Text Fields */}
-      {showTextFields && (
+      {/* Templates Mode */}
+      {creationMode === 'templates' && (
+        <TemplatePicker
+          formatKey={format.formatKey}
+          channelGroup={format.channelGroup}
+          selectedTemplateId={selectedTemplateId || null}
+          onTemplateSelect={handleTemplateSelected}
+        />
+      )}
+
+      {/* Assist Mode */}
+      {creationMode === 'assist' && (
+        <AssistMode
+          campaignId={campaignId || ''}
+          formatKey={format.formatKey}
+          platform={selectedPlatform}
+          placement={selectedPlacement}
+          onResult={(result) => {
+            // Apply generated copy to assets
+            onAssetsChange({
+              ...assets,
+              headline: result.headline || assets.headline,
+              bodyText: result.bodyText || assets.bodyText,
+              ctaText: result.ctaText || assets.ctaText,
+              hashtags: result.hashtags?.length ? result.hashtags : assets.hashtags,
+            });
+            // Select recommended template
+            if (result.recommendedTemplateId) {
+              onTemplateSelect?.(result.recommendedTemplateId);
+            }
+            // Switch to templates mode to show the result
+            setCreationMode('templates');
+          }}
+        />
+      )}
+
+      {/* Text Fields (show for all modes when content exists or mode is upload/templates) */}
+      {showTextFields && creationMode !== 'assist' && (
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Headline</label>
@@ -239,7 +326,7 @@ export function CreativeEditor({
       )}
 
       {/* Hashtags */}
-      {showHashtags && (
+      {showHashtags && creationMode !== 'assist' && (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Hashtags</label>
           <input
@@ -252,8 +339,8 @@ export function CreativeEditor({
         </div>
       )}
 
-      {/* Click-through URL for display ads */}
-      {showClickThrough && (
+      {/* Click-through URL */}
+      {showClickThrough && creationMode !== 'assist' && (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Click-Through URL</label>
           <input

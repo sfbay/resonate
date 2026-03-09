@@ -20,7 +20,7 @@ interface UnitCardProps {
   onAccept: (unitId: string) => Promise<void>;
   onRequestRevision: (unitId: string, feedback: string) => Promise<void>;
   onReject: (unitId: string, reason: string) => Promise<void>;
-  onMarkDelivered: (unitId: string, proof: { postUrl?: string; screenshotUrl?: string }) => Promise<void>;
+  onMarkDelivered: (unitId: string, proof: { postUrl?: string; screenshotUrl?: string; metrics?: { impressions?: number; reach?: number; engagement?: number; clicks?: number } }) => Promise<void>;
 }
 
 const GROUP_COLORS: Record<ChannelGroup, string> = {
@@ -61,6 +61,10 @@ export function UnitCard({
   const [revisionText, setRevisionText] = useState('');
   const [rejectReason, setRejectReason] = useState('');
   const [deliverUrl, setDeliverUrl] = useState('');
+  const [deliverImpressions, setDeliverImpressions] = useState('');
+  const [deliverReach, setDeliverReach] = useState('');
+  const [deliverEngagement, setDeliverEngagement] = useState('');
+  const [deliverClicks, setDeliverClicks] = useState('');
   const [loading, setLoading] = useState(false);
   const [showKit, setShowKit] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -368,8 +372,8 @@ export function UnitCard({
 
       {/* Deliver form */}
       {showDeliverForm && (
-        <div className="mt-4 bg-emerald-50 rounded-lg p-3 border border-emerald-200">
-          <p className="text-sm font-medium text-emerald-700 mb-2">Delivery Proof (optional)</p>
+        <div className="mt-4 bg-emerald-50 rounded-lg p-3 border border-emerald-200 space-y-3">
+          <p className="text-sm font-medium text-emerald-700">Delivery Proof</p>
           <input
             type="url"
             value={deliverUrl}
@@ -377,15 +381,88 @@ export function UnitCard({
             placeholder="https://instagram.com/p/... (post URL)"
             className="w-full text-sm border border-emerald-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-300 focus:border-emerald-300"
           />
-          <div className="flex gap-2 mt-2">
+
+          <div>
+            <p className="text-xs font-medium text-emerald-600 mb-2">Performance Metrics (optional)</p>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-xs text-gray-500">Impressions</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={deliverImpressions}
+                  onChange={e => setDeliverImpressions(e.target.value)}
+                  placeholder="0"
+                  className="w-full text-sm border border-emerald-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-emerald-300 focus:border-emerald-300"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500">Reach</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={deliverReach}
+                  onChange={e => setDeliverReach(e.target.value)}
+                  placeholder="0"
+                  className="w-full text-sm border border-emerald-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-emerald-300 focus:border-emerald-300"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500">Engagement</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={deliverEngagement}
+                  onChange={e => setDeliverEngagement(e.target.value)}
+                  placeholder="0"
+                  className="w-full text-sm border border-emerald-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-emerald-300 focus:border-emerald-300"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500">Clicks</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={deliverClicks}
+                  onChange={e => setDeliverClicks(e.target.value)}
+                  placeholder="0"
+                  className="w-full text-sm border border-emerald-200 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-emerald-300 focus:border-emerald-300"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-2">
             <button
-              onClick={() => handleAction(() => onMarkDelivered(unitId, { postUrl: deliverUrl || undefined }))}
+              onClick={() => {
+                const metrics = {
+                  impressions: deliverImpressions ? parseInt(deliverImpressions) : undefined,
+                  reach: deliverReach ? parseInt(deliverReach) : undefined,
+                  engagement: deliverEngagement ? parseInt(deliverEngagement) : undefined,
+                  clicks: deliverClicks ? parseInt(deliverClicks) : undefined,
+                };
+                const hasMetrics = Object.values(metrics).some(v => v !== undefined);
+                handleAction(() => onMarkDelivered(unitId, {
+                  postUrl: deliverUrl || undefined,
+                  metrics: hasMetrics ? metrics : undefined,
+                }));
+              }}
               disabled={loading}
               className="text-sm px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 disabled:opacity-50 transition-colors"
             >
               {loading ? 'Submitting...' : 'Confirm Delivery'}
             </button>
-            <button onClick={() => { setShowDeliverForm(false); setDeliverUrl(''); }} className="text-sm text-gray-500 px-3">
+            <button
+              onClick={() => {
+                setShowDeliverForm(false);
+                setDeliverUrl('');
+                setDeliverImpressions('');
+                setDeliverReach('');
+                setDeliverEngagement('');
+                setDeliverClicks('');
+              }}
+              className="text-sm text-gray-500 px-3"
+            >
               Cancel
             </button>
           </div>
