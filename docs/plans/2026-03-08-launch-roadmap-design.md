@@ -246,17 +246,17 @@ Build `useCurrentUser()` hook returning `{ userId, orgId, orgType, role }`. Init
 - [x] Post-login redirect routing
 - Plan: `docs/plans/2026-03-09-phase4-auth-overlay.md`
 
-### Phase 5: Premium Templates, AI Assist & Performance Tracking — IN PROGRESS
-- [ ] Seed unit templates library (social, display, newsletter)
-- [ ] Templates API endpoint
-- [ ] TemplatePicker component with category filter + tier badges
-- [ ] Creation mode tabs (Upload/Templates/Assist) in CreativeEditor
-- [ ] AI-assisted generation endpoint (copy + template recommendation)
-- [ ] AssistMode component wired into CreativeEditor
-- [ ] UTM tracked link generator
-- [ ] Auto-generate tracked URLs on unit creation
-- [ ] Metrics fields in publisher delivery form
-- [ ] Campaign performance dashboard
+### Phase 5: Premium Templates, AI Assist & Performance Tracking — COMPLETE (2026-03-09)
+- [x] Seed unit templates library (social, display, newsletter)
+- [x] Templates API endpoint
+- [x] TemplatePicker component with category filter + tier badges
+- [x] Creation mode tabs (Upload/Templates/Assist) in CreativeEditor
+- [x] AI-assisted generation endpoint (copy + template recommendation)
+- [x] AssistMode component wired into CreativeEditor
+- [x] UTM tracked link generator
+- [x] Auto-generate tracked URLs on unit creation
+- [x] Metrics fields in publisher delivery form
+- [x] Campaign performance dashboard
 - [ ] Publisher social scheduling (deferred to post-auth testing)
 - Plan: `docs/plans/2026-03-09-phase5-premium-assist.md`
 
