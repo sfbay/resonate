@@ -5,6 +5,7 @@ import type { ChannelFormat, CreativeAssets } from '@/lib/channels/types';
 import { COMPLIANCE_DEFAULTS } from '@/lib/channels';
 import { TemplatePicker } from './TemplatePicker';
 import type { Template } from './TemplatePicker';
+import { AssistMode } from './AssistMode';
 
 type CreationMode = 'upload' | 'templates' | 'assist';
 
@@ -241,16 +242,30 @@ export function CreativeEditor({
         />
       )}
 
-      {/* Assist Mode — placeholder for Layer 2 */}
+      {/* Assist Mode */}
       {creationMode === 'assist' && (
-        <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-          <div className="text-3xl mb-2">✨</div>
-          <p className="text-sm font-medium text-gray-700">AI-Assisted Creative</p>
-          <p className="text-xs text-gray-500 mt-1">
-            Generate headlines, copy, and template recommendations from your campaign brief.
-          </p>
-          <p className="text-xs text-gray-400 mt-3 italic">Coming soon</p>
-        </div>
+        <AssistMode
+          campaignId={campaignId || ''}
+          formatKey={format.formatKey}
+          platform={selectedPlatform}
+          placement={selectedPlacement}
+          onResult={(result) => {
+            // Apply generated copy to assets
+            onAssetsChange({
+              ...assets,
+              headline: result.headline || assets.headline,
+              bodyText: result.bodyText || assets.bodyText,
+              ctaText: result.ctaText || assets.ctaText,
+              hashtags: result.hashtags?.length ? result.hashtags : assets.hashtags,
+            });
+            // Select recommended template
+            if (result.recommendedTemplateId) {
+              onTemplateSelect?.(result.recommendedTemplateId);
+            }
+            // Switch to templates mode to show the result
+            setCreationMode('templates');
+          }}
+        />
       )}
 
       {/* Text Fields (show for all modes when content exists or mode is upload/templates) */}
