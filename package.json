@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@clerk/nextjs": "^7.0.1",
     "@heroicons/react": "^2.2.0",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.89.0",
@@ -27,6 +28,7 @@
     "react-map-gl": "^8.1.0",
     "recharts": "^3.6.0",
     "sharp": "^0.34.5",
+    "svix": "^1.86.0",
     "tailwindcss": "^4",
     "tslib": "^2.8.1",
     "typescript": "^5"
