@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import Link from 'next/link';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -52,7 +53,7 @@ export default async function DemoPublisherPage({
     <div className="min-h-screen bg-gray-50">
       {/* Demo banner */}
       <div className="bg-teal-600 text-white text-center py-2 text-sm font-medium">
-        Sample Publisher Profile &mdash; <a href="/sign-up" className="underline">Join Resonate</a> to access the full platform
+        Sample Publisher Profile &mdash; <Link href="/sign-up" className="underline">Join Resonate</Link> to access the full platform
       </div>
 
       <div className="max-w-3xl mx-auto p-8">

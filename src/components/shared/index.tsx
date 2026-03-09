@@ -491,9 +491,9 @@ export function Footer({ variant = 'default' }: FooterProps) {
             Resonate - A project of the San Francisco Independent Media Coalition
           </div>
           <div className="flex gap-6 text-sm text-white/60">
-            <span className="cursor-default">Privacy</span>
-            <span className="cursor-default">Terms</span>
-            <span className="cursor-default">Contact</span>
+            <span className="hover:text-white/80 transition-colors cursor-pointer" title="Coming soon">Privacy</span>
+            <span className="hover:text-white/80 transition-colors cursor-pointer" title="Coming soon">Terms</span>
+            <a href="mailto:hello@resonatelocal.org" className="hover:text-white/80 transition-colors">Contact</a>
           </div>
         </div>
       </footer>
@@ -536,9 +536,9 @@ export function Footer({ variant = 'default' }: FooterProps) {
             A project of the San Francisco Independent Media Coalition
           </div>
           <div className="flex gap-6 text-sm text-white/50">
-            <span className="cursor-default">Privacy</span>
-            <span className="cursor-default">Terms</span>
-            <span className="cursor-default">Accessibility</span>
+            <span className="hover:text-white/70 transition-colors cursor-pointer" title="Coming soon">Privacy</span>
+            <span className="hover:text-white/70 transition-colors cursor-pointer" title="Coming soon">Terms</span>
+            <span className="hover:text-white/70 transition-colors cursor-pointer" title="Coming soon">Accessibility</span>
           </div>
         </div>
       </div>

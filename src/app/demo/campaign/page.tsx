@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function DemoCampaignPage() {
   const steps = [
     {
@@ -31,7 +33,7 @@ export default function DemoCampaignPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Demo banner */}
       <div className="bg-teal-600 text-white text-center py-2 text-sm font-medium">
-        Campaign Walkthrough &mdash; <a href="/sign-up" className="underline">Join Resonate</a> to create real campaigns
+        Campaign Walkthrough &mdash; <Link href="/sign-up" className="underline">Join Resonate</Link> to create real campaigns
       </div>
 
       <div className="max-w-2xl mx-auto p-8">
