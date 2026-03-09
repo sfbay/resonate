@@ -8,7 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/db/supabase-server';
+import { authenticateRequest } from '@/lib/auth/api-auth';
 import {
   generateAIRecommendations,
   generateHybridRecommendations,
@@ -41,7 +41,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify publisher exists and fetch their data
-    const supabase = await createServerClient();
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) return authResult;
+    const { supabase } = authResult;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: publisher, error: publisherError } = await (supabase as any)
@@ -259,6 +261,9 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) return authResult;
+
     const { searchParams } = new URL(request.url);
     const publisherId = searchParams.get('publisherId');
 

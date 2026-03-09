@@ -8,7 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/db/supabase-server';
+import { authenticateRequest } from '@/lib/auth/api-auth';
 import { findMatchingPublishers } from '@/lib/matching';
 import type {
   TargetAudience,
@@ -26,7 +26,9 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '10');
 
-    const supabase = await createServerClient();
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) return authResult;
+    const { supabase } = authResult;
 
     // Fetch campaign
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

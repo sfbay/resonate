@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/db/supabase-server';
+import { authenticateRequest } from '@/lib/auth/api-auth';
 
 interface SubmitDeliverableBody {
   orderLineItemId: string;
@@ -29,7 +29,9 @@ export async function POST(
       );
     }
 
-    const supabase = await createServerClient();
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) return authResult;
+    const { supabase } = authResult;
 
     // Find the pending deliverable for this line item
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

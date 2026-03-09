@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/db/supabase-server';
+import { authenticateRequest } from '@/lib/auth/api-auth';
 
 interface UpdateCampaignBody {
   name?: string;
@@ -30,7 +30,9 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const supabase = await createServerClient();
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) return authResult;
+    const { supabase } = authResult;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: campaign, error } = await (supabase as any)
@@ -100,7 +102,9 @@ export async function PUT(
     const { id } = await params;
     const body = (await request.json()) as UpdateCampaignBody;
 
-    const supabase = await createServerClient();
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) return authResult;
+    const { supabase } = authResult;
 
     // Build update object
     const updates: Record<string, unknown> = {};

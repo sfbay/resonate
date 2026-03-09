@@ -10,13 +10,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useCity } from '@/lib/geo/city-context';
-import { getSupabaseClient } from '@/lib/db/supabase';
+import { useSupabaseClient } from '@/lib/db/supabase';
+import { useCurrentUser } from '@/lib/auth';
 import { ScheduleCalendar } from '@/components/publisher/schedule/ScheduleCalendar';
 import { PostForm } from '@/components/publisher/schedule/PostForm';
 import type { ScheduledPost } from '@/components/publisher/schedule/ScheduledPostCard';
 
 export default function SchedulePage() {
   const { city, getPath } = useCity();
+  const user = useCurrentUser();
+  const supabase = useSupabaseClient();
   const [posts, setPosts] = useState<ScheduledPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,22 +32,21 @@ export default function SchedulePage() {
     setError(null);
 
     try {
-      const supabase = getSupabaseClient();
+      // Look up publisher from user_org_mapping
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: mapping } = await (supabase as any)
+        .from('user_org_mapping')
+        .select('publisher_id')
+        .eq('clerk_user_id', user.userId)
+        .eq('org_type', 'publisher')
+        .single();
 
-      // Get first active publisher (same pattern as usePublisherData — oldest first for demo consistency)
-      const { data: publishers } = await supabase
-        .from('publishers')
-        .select('id')
-        .eq('status', 'active')
-        .order('created_at', { ascending: true })
-        .limit(1);
-
-      if (!publishers || publishers.length === 0) {
-        setError('No publisher found');
+      if (!mapping?.publisher_id) {
+        setError('No publisher found for your account');
         return;
       }
 
-      const pubId = (publishers[0] as { id: string }).id;
+      const pubId = mapping.publisher_id;
       setPublisherId(pubId);
 
       // Fetch scheduled posts
@@ -63,7 +65,7 @@ export default function SchedulePage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [supabase, user.userId]);
 
   useEffect(() => {
     fetchData();
@@ -78,7 +80,6 @@ export default function SchedulePage() {
     if (!publisherId) return;
 
     try {
-      const supabase = getSupabaseClient();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { error: insertError } = await (supabase as any)
         .from('scheduled_posts')

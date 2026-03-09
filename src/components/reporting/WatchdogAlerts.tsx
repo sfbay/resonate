@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { getSupabaseClient } from '@/lib/db/supabase';
+import { useSupabaseClient } from '@/lib/db/supabase';
 
 interface Alert {
   id: string;
@@ -33,11 +33,11 @@ export function WatchdogAlerts() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [quality, setQuality] = useState<DataQuality | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const supabase = useSupabaseClient();
 
   useEffect(() => {
     async function fetchAlerts() {
       try {
-        const supabase = getSupabaseClient();
         const newAlerts: Alert[] = [];
 
         // Fetch data quality metrics

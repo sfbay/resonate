@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/db/supabase-server';
+import { authenticateRequest } from '@/lib/auth/api-auth';
 import { canTransitionOrder } from '@/lib/transactions/order-state';
 import type { OrderStatus } from '@/types';
 
@@ -16,7 +16,9 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const supabase = await createServerClient();
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) return authResult;
+    const { supabase } = authResult;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: order, error } = await (supabase as any)
@@ -104,7 +106,9 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = (await request.json()) as UpdateOrderBody;
-    const supabase = await createServerClient();
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) return authResult;
+    const { supabase } = authResult;
 
     // Fetch current order
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

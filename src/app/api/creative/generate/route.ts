@@ -8,6 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateRequest } from '@/lib/auth/api-auth';
 import { isAIEnabled } from '@/lib/ai';
 import { generateCreativeSet } from '@/lib/ai/creative/service';
 import type { CreativeBrief, CreativeTone, CreativeFormat } from '@/lib/ai/creative/types';
@@ -29,6 +30,9 @@ interface GenerateRequest {
 
 export async function POST(request: NextRequest) {
   try {
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) return authResult;
+
     const body = (await request.json()) as GenerateRequest;
 
     if (!body.campaignName || !body.description || !body.format) {

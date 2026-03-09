@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { getSupabaseClient } from '@/lib/db/supabase';
+import { useSupabaseClient } from '@/lib/db/supabase';
 
 interface SummaryData {
   totalPublishers: number;
@@ -21,12 +21,12 @@ interface SummaryData {
 export function SummaryCards() {
   const [data, setData] = useState<SummaryData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = useSupabaseClient() as any;
 
   useEffect(() => {
     async function fetchSummary() {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const supabase = getSupabaseClient() as any;
 
         // Fetch publishers count
         const { count: publisherCount } = await supabase
