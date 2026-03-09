@@ -14,6 +14,8 @@ import Link from 'next/link';
 import { ORDER_STATUS_DISPLAY } from '@/lib/transactions/order-state';
 import { formatCents, DELIVERABLE_TYPE_LABELS, PLATFORM_LABELS } from '@/lib/transactions/pricing';
 import { useCityOptional } from '@/lib/geo/city-context';
+import { UnitCard } from '@/components/publisher/orders/UnitCard';
+import { getFormatLabel } from '@/lib/channels/format-labels';
 import type { OrderStatus, SocialPlatform, DeliverableType } from '@/types';
 
 type FilterTab = 'all' | 'pending' | 'active' | 'completed';
@@ -52,6 +54,27 @@ interface OrderRow {
     url: string | null;
     status: string;
     submittedAt: string | null;
+  }[];
+  units: {
+    id: string;
+    campaignId: string;
+    publisherId: string;
+    channelGroup: string;
+    formatKey: string;
+    platform: string;
+    placement: string;
+    status: string;
+    tier: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    creativeAssets: Record<string, any>;
+    complianceNotes: string | null;
+    revisionFeedback: string | null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    proof: Record<string, any> | null;
+    deadline: string | null;
+    deliveredAt: string | null;
+    payoutCents: number;
+    createdAt: string;
   }[];
   createdAt: string;
 }
@@ -130,6 +153,74 @@ export default function OrderInboxPage() {
     el.textContent = message;
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 3000);
+  }
+
+  async function handleUnitAccept(unitId: string) {
+    const unit = orders.flatMap(o => o.units || []).find(u => u.id === unitId);
+    if (!unit) return;
+    const res = await fetch(`/api/campaigns/${unit.campaignId}/units/${unitId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'accepted' }),
+    });
+    if (res.ok) {
+      showToast('Unit accepted');
+      fetchOrders();
+    } else {
+      const data = await res.json();
+      showToast(data.error || 'Failed to accept unit', true);
+    }
+  }
+
+  async function handleUnitRevision(unitId: string, feedback: string) {
+    const unit = orders.flatMap(o => o.units || []).find(u => u.id === unitId);
+    if (!unit) return;
+    const res = await fetch(`/api/campaigns/${unit.campaignId}/units/${unitId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'revision_requested', revisionFeedback: feedback }),
+    });
+    if (res.ok) {
+      showToast('Revision requested');
+      fetchOrders();
+    } else {
+      const data = await res.json();
+      showToast(data.error || 'Failed to request revision', true);
+    }
+  }
+
+  async function handleUnitReject(unitId: string, reason: string) {
+    const unit = orders.flatMap(o => o.units || []).find(u => u.id === unitId);
+    if (!unit) return;
+    const res = await fetch(`/api/campaigns/${unit.campaignId}/units/${unitId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'rejected', revisionFeedback: reason }),
+    });
+    if (res.ok) {
+      showToast('Unit rejected');
+      fetchOrders();
+    } else {
+      const data = await res.json();
+      showToast(data.error || 'Failed to reject unit', true);
+    }
+  }
+
+  async function handleUnitDelivered(unitId: string, proof: { postUrl?: string; screenshotUrl?: string }) {
+    const unit = orders.flatMap(o => o.units || []).find(u => u.id === unitId);
+    if (!unit) return;
+    const res = await fetch(`/api/campaigns/${unit.campaignId}/units/${unitId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'delivered', proof }),
+    });
+    if (res.ok) {
+      showToast('Marked as delivered');
+      fetchOrders();
+    } else {
+      const data = await res.json();
+      showToast(data.error || 'Failed to mark delivered', true);
+    }
   }
 
   return (
@@ -240,29 +331,56 @@ export default function OrderInboxPage() {
                 {/* Expanded Detail */}
                 {isExpanded && (
                   <div className="px-6 pb-5 border-t border-gray-50">
-                    {/* Line Items */}
-                    <div className="mt-4 space-y-2">
-                      <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Line Items</p>
-                      {order.lineItems.map(item => (
-                        <div key={item.id} className="flex items-center justify-between py-2 px-3 bg-slate-50 rounded-lg">
-                          <div>
-                            <span className="text-sm font-medium text-[var(--color-charcoal)]">
-                              {DELIVERABLE_TYPE_LABELS[item.deliverableType as DeliverableType] || item.deliverableType}
-                            </span>
-                            <span className="text-sm text-slate-400 ml-2">
-                              on {PLATFORM_LABELS[item.platform as SocialPlatform] || item.platform}
-                            </span>
-                            {item.description && (
-                              <p className="text-xs text-slate-400 mt-0.5">{item.description}</p>
-                            )}
+                    {/* Units (new) — or fall back to line items for legacy orders */}
+                    {order.units && order.units.length > 0 ? (
+                      <div className="mt-4 space-y-3">
+                        <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Creative Units</p>
+                        {order.units.map(unit => (
+                          <UnitCard
+                            key={unit.id}
+                            unitId={unit.id}
+                            campaignId={unit.campaignId}
+                            formatKey={unit.formatKey}
+                            formatLabel={getFormatLabel(unit.formatKey)}
+                            channelGroup={unit.channelGroup as any}
+                            platform={unit.platform}
+                            placement={unit.placement}
+                            status={unit.status as any}
+                            creativeAssets={unit.creativeAssets as any}
+                            complianceNotes={unit.complianceNotes}
+                            revisionFeedback={unit.revisionFeedback}
+                            payoutCents={unit.payoutCents}
+                            onAccept={handleUnitAccept}
+                            onRequestRevision={handleUnitRevision}
+                            onReject={handleUnitReject}
+                            onMarkDelivered={handleUnitDelivered}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="mt-4 space-y-2">
+                        <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Line Items</p>
+                        {order.lineItems.map(item => (
+                          <div key={item.id} className="flex items-center justify-between py-2 px-3 bg-slate-50 rounded-lg">
+                            <div>
+                              <span className="text-sm font-medium text-[var(--color-charcoal)]">
+                                {DELIVERABLE_TYPE_LABELS[item.deliverableType as DeliverableType] || item.deliverableType}
+                              </span>
+                              <span className="text-sm text-slate-400 ml-2">
+                                on {PLATFORM_LABELS[item.platform as SocialPlatform] || item.platform}
+                              </span>
+                              {item.description && (
+                                <p className="text-xs text-slate-400 mt-0.5">{item.description}</p>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm font-medium text-[var(--color-charcoal)]">{formatCents(item.totalPrice)}</p>
+                              <p className="text-xs text-slate-400">{item.quantity} x {formatCents(item.unitPrice)}</p>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-sm font-medium text-[var(--color-charcoal)]">{formatCents(item.totalPrice)}</p>
-                            <p className="text-xs text-slate-400">{item.quantity} x {formatCents(item.unitPrice)}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
 
                     {/* Progress & Deadline */}
                     <div className="mt-4 flex items-center gap-6 text-sm">
@@ -286,46 +404,48 @@ export default function OrderInboxPage() {
                       )}
                     </div>
 
-                    {/* Actions */}
-                    <div className="mt-4 flex gap-3">
-                      {isPending && (
-                        <>
+                    {/* Order-level actions — only show for orders without units */}
+                    {(!order.units || order.units.length === 0) && (
+                      <div className="mt-4 flex gap-3">
+                        {isPending && (
+                          <>
+                            <button
+                              className="btn btn-coral text-sm px-5 py-2"
+                              onClick={() => updateOrderStatus(order.id, 'accepted')}
+                            >
+                              Accept Order
+                            </button>
+                            <button
+                              className="btn btn-outline text-sm px-5 py-2 text-slate-500 border-slate-200"
+                              onClick={() => updateOrderStatus(order.id, 'rejected')}
+                            >
+                              Decline
+                            </button>
+                          </>
+                        )}
+                        {order.status === 'accepted' && (
                           <button
                             className="btn btn-coral text-sm px-5 py-2"
-                            onClick={() => updateOrderStatus(order.id, 'accepted')}
+                            onClick={() => updateOrderStatus(order.id, 'in_progress')}
                           >
-                            Accept Order
+                            Start Work
                           </button>
-                          <button
-                            className="btn btn-outline text-sm px-5 py-2 text-slate-500 border-slate-200"
-                            onClick={() => updateOrderStatus(order.id, 'rejected')}
-                          >
-                            Decline
-                          </button>
-                        </>
-                      )}
-                      {order.status === 'accepted' && (
-                        <button
-                          className="btn btn-coral text-sm px-5 py-2"
-                          onClick={() => updateOrderStatus(order.id, 'in_progress')}
-                        >
-                          Start Work
-                        </button>
-                      )}
-                      {order.status === 'in_progress' && (
-                        <DeliverableSubmitter
-                          orderId={order.id}
-                          lineItems={order.lineItems}
-                          deliverables={order.deliverables}
-                          onSubmitted={fetchOrders}
-                        />
-                      )}
-                      {order.status === 'completed' && (
-                        <span className="text-sm text-emerald-600 font-medium py-2">
-                          Order completed{order.procurementStatus === 'paid' ? ' — payment processed' : ''}
-                        </span>
-                      )}
-                    </div>
+                        )}
+                        {order.status === 'in_progress' && (
+                          <DeliverableSubmitter
+                            orderId={order.id}
+                            lineItems={order.lineItems}
+                            deliverables={order.deliverables}
+                            onSubmitted={fetchOrders}
+                          />
+                        )}
+                        {order.status === 'completed' && (
+                          <span className="text-sm text-emerald-600 font-medium py-2">
+                            Order completed{order.procurementStatus === 'paid' ? ' — payment processed' : ''}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
