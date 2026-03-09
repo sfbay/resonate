@@ -223,21 +223,28 @@ Build `useCurrentUser()` hook returning `{ userId, orgId, orgType, role }`. Init
 - [x] Units saved to database on campaign submit
 - Plan: `docs/plans/2026-03-08-phase2-unit-builder.md`
 
-### Phase 3: Publisher Order Flow — IN PROGRESS
-- [ ] Units included in order API response
-- [ ] Unit status transition validation (accept/revision/reject)
-- [ ] Publisher UnitCard with creative preview + per-unit actions
-- [ ] Production kit API endpoint + inline panel
-- [ ] Delivery confirmation with proof upload per unit
-- [ ] Format label lookup utility
+### Phase 3: Publisher Order Flow — COMPLETE (2026-03-09)
+- [x] Units included in order API response
+- [x] Unit status transition validation (accept/revision/reject)
+- [x] Publisher UnitCard with creative preview + per-unit actions
+- [x] Production kit API endpoint + inline panel
+- [x] Delivery confirmation with proof upload per unit
+- [x] Format label lookup utility
 - Plan: `docs/plans/2026-03-09-phase3-publisher-order-flow.md`
 
-### Phase 4: Auth Overlay — PLANNED
-- Clerk integration (sign-up, login, org creation)
-- `useCurrentUser()` wired to Clerk
-- Supabase RLS policies scoped to real users
-- Route guards on all portal pages
-- Onboarding flows create Clerk orgs + Supabase records
+### Phase 4: Auth Overlay — IN PROGRESS
+- [ ] Clerk SDK setup + ClerkProvider
+- [ ] Sign-in/sign-up pages
+- [ ] Middleware route protection + portal access control
+- [ ] `useCurrentUser()` wired to Clerk
+- [ ] user_org_mapping table (Clerk↔Supabase identity bridge)
+- [ ] Supabase JWT bridge (server + browser clients)
+- [ ] RLS policies scoped to real users
+- [ ] Clerk webhook handler for org membership events
+- [ ] Gated sign-up application form + approval dashboard
+- [ ] Demo/sample profile pathway
+- [ ] Post-login redirect routing
+- Plan: `docs/plans/2026-03-09-phase4-auth-overlay.md`
 
 ### Phase 5: Premium & Social Assist — PLANNED
 - Premium template tier + upsell UX
