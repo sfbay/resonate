@@ -20,6 +20,10 @@ const nextConfig = {
       },
     ],
   },
+  // Ensure Clerk keys are available in Edge Runtime (middleware)
+  env: {
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+  },
   webpack: (config) => {
     // Ensure @/ alias resolves correctly on all build environments
     config.resolve.alias['@'] = resolve(__dirname, 'src');
