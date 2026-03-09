@@ -34,7 +34,7 @@ const SFNeighborhoodMap = dynamic(
 // TYPES
 // ─────────────────────────────────────────────────
 
-type WizardStep = 'brief' | 'audience' | 'match';
+type WizardStep = 'brief' | 'audience' | 'match' | 'units';
 
 interface CampaignFormData {
   department: string;
@@ -177,6 +177,7 @@ const STEPS: { id: WizardStep; num: number; label: string; subtitle: string }[] 
   { id: 'brief', num: 1, label: 'Campaign Brief', subtitle: 'Department & goals' },
   { id: 'audience', num: 2, label: 'Audience', subtitle: 'Who to reach' },
   { id: 'match', num: 3, label: 'Publishers', subtitle: 'Find matches' },
+  { id: 'units', num: 4, label: 'Creative Units', subtitle: 'Build your ads' },
 ];
 
 // ─────────────────────────────────────────────────
@@ -469,6 +470,12 @@ function GovernmentOnboarding() {
                 prefix={prefix}
               />
             )}
+            {step === 'units' && (
+              <div className="text-center py-16 text-gray-400">
+                <p className="text-lg font-medium">Unit Builder</p>
+                <p className="text-sm mt-1">Coming next — build your creative units here</p>
+              </div>
+            )}
 
             {/* ── Navigation ─────────────────── */}
             <div className="mt-8 flex items-center justify-between">
@@ -487,7 +494,7 @@ function GovernmentOnboarding() {
                 Back
               </button>
 
-              {step === 'match' ? (
+              {step === 'units' ? (
                 <div className="flex items-center gap-3">
                   {campaignId && (
                     <Link
@@ -512,7 +519,7 @@ function GovernmentOnboarding() {
                   onClick={goNext}
                   className="btn bg-[var(--color-teal)] text-white text-sm px-6 py-2.5 hover:bg-[var(--color-teal-dark)]"
                 >
-                  Continue
+                  {step === 'match' ? 'Continue to Creative Units' : 'Continue'}
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
