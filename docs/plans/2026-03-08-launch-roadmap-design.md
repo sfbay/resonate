@@ -232,25 +232,33 @@ Build `useCurrentUser()` hook returning `{ userId, orgId, orgType, role }`. Init
 - [x] Format label lookup utility
 - Plan: `docs/plans/2026-03-09-phase3-publisher-order-flow.md`
 
-### Phase 4: Auth Overlay — IN PROGRESS
-- [ ] Clerk SDK setup + ClerkProvider
-- [ ] Sign-in/sign-up pages
-- [ ] Middleware route protection + portal access control
-- [ ] `useCurrentUser()` wired to Clerk
-- [ ] user_org_mapping table (Clerk↔Supabase identity bridge)
-- [ ] Supabase JWT bridge (server + browser clients)
-- [ ] RLS policies scoped to real users
-- [ ] Clerk webhook handler for org membership events
-- [ ] Gated sign-up application form + approval dashboard
-- [ ] Demo/sample profile pathway
-- [ ] Post-login redirect routing
+### Phase 4: Auth Overlay — COMPLETE (2026-03-09)
+- [x] Clerk SDK setup + ClerkProvider
+- [x] Sign-in/sign-up pages
+- [x] Middleware route protection + portal access control
+- [x] `useCurrentUser()` wired to Clerk
+- [x] user_org_mapping table (Clerk↔Supabase identity bridge)
+- [x] Supabase JWT bridge (server + browser clients)
+- [x] RLS policies scoped to real users
+- [x] Clerk webhook handler for org membership events
+- [x] Gated sign-up application form + approval dashboard
+- [x] Demo/sample profile pathway
+- [x] Post-login redirect routing
 - Plan: `docs/plans/2026-03-09-phase4-auth-overlay.md`
 
-### Phase 5: Premium & Social Assist — PLANNED
-- Premium template tier + upsell UX
-- AI-assisted unit generation
-- Publisher social scheduling (draft → calendar → post)
-- Performance tracking per unit
+### Phase 5: Premium Templates, AI Assist & Performance Tracking — IN PROGRESS
+- [ ] Seed unit templates library (social, display, newsletter)
+- [ ] Templates API endpoint
+- [ ] TemplatePicker component with category filter + tier badges
+- [ ] Creation mode tabs (Upload/Templates/Assist) in CreativeEditor
+- [ ] AI-assisted generation endpoint (copy + template recommendation)
+- [ ] AssistMode component wired into CreativeEditor
+- [ ] UTM tracked link generator
+- [ ] Auto-generate tracked URLs on unit creation
+- [ ] Metrics fields in publisher delivery form
+- [ ] Campaign performance dashboard
+- [ ] Publisher social scheduling (deferred to post-auth testing)
+- Plan: `docs/plans/2026-03-09-phase5-premium-assist.md`
 
 ---
 
