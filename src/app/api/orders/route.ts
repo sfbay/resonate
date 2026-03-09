@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/db/supabase-server';
+import { authenticateRequest } from '@/lib/auth/api-auth';
 import { PLATFORM_FEE_RATE } from '@/lib/transactions/pricing';
 
 interface LineItemInput {
@@ -37,7 +37,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createServerClient();
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) return authResult;
+    const { supabase } = authResult;
 
     // Calculate pricing
     const lineItemsWithTotals = body.lineItems.map(li => ({
@@ -174,7 +176,9 @@ export async function GET(request: NextRequest) {
     const publisherId = searchParams.get('publisherId');
     const status = searchParams.get('status');
 
-    const supabase = await createServerClient();
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) return authResult;
+    const { userId, orgType, supabase } = authResult;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let query = (supabase as any)
@@ -191,6 +195,35 @@ export async function GET(request: NextRequest) {
     if (campaignId) query = query.eq('campaign_id', campaignId);
     if (publisherId) query = query.eq('publisher_id', publisherId);
     if (status) query = query.eq('status', status);
+
+    // Scope based on org type
+    if (orgType === 'publisher') {
+      // Publishers see orders assigned to them
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: mapping } = await (supabase as any)
+        .from('user_org_mapping')
+        .select('publisher_id')
+        .eq('clerk_user_id', userId)
+        .eq('org_type', 'publisher')
+        .single();
+      if (mapping?.publisher_id) {
+        query = query.eq('publisher_id', mapping.publisher_id);
+      }
+    } else if (orgType === 'government' || orgType === 'advertiser') {
+      // Government/advertiser see orders for campaigns matching their source type
+      const sourceType = orgType === 'government' ? 'government' : 'advertise';
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: userCampaigns } = await (supabase as any)
+        .from('campaigns')
+        .select('id')
+        .eq('source', sourceType);
+      const campaignIds = (userCampaigns || []).map((c: { id: string }) => c.id);
+      if (campaignIds.length > 0) {
+        query = query.in('campaign_id', campaignIds);
+      } else {
+        return NextResponse.json({ success: true, orders: [], count: 0 });
+      }
+    }
 
     const { data: orders, error } = await query;
 

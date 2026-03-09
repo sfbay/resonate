@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { getSupabaseClient } from '@/lib/db/supabase';
+import { useSupabaseClient } from '@/lib/db/supabase';
 
 interface ActivityItem {
   id: string;
@@ -22,11 +22,11 @@ interface ActivityItem {
 export function ActivityFeed() {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const supabase = useSupabaseClient();
 
   useEffect(() => {
     async function fetchActivity() {
       try {
-        const supabase = getSupabaseClient();
         const items: ActivityItem[] = [];
 
         // Fetch recent connections

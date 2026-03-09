@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { getSupabaseClient } from '@/lib/db/supabase';
+import { useSupabaseClient } from '@/lib/db/supabase';
 
 interface PublisherRow {
   id: string;
@@ -25,12 +25,12 @@ export function PublisherMetricsTable() {
   const [publishers, setPublishers] = useState<PublisherRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [sortBy, setSortBy] = useState<'followers' | 'engagement' | 'growth'>('followers');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = useSupabaseClient() as any;
 
   useEffect(() => {
     async function fetchPublishers() {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const supabase = getSupabaseClient() as any;
 
         // Fetch all active publishers
         const { data: pubData } = await supabase

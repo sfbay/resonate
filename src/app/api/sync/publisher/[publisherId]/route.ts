@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { syncPublisher } from '@/lib/sync/platform-sync-service';
-import { createServerClient } from '@/lib/db/supabase-server';
+import { authenticateRequest } from '@/lib/auth/api-auth';
 
 export async function POST(
   request: NextRequest,
@@ -26,7 +26,9 @@ export async function POST(
 
   try {
     // Verify the publisher exists and user has access
-    const supabase = await createServerClient();
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) return authResult;
+    const { supabase } = authResult;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: publisher, error: publisherError } = await (supabase as any)
       .from('publishers')
