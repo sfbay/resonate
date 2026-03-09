@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseClient } from '@/lib/db/supabase';
+import { generateTrackedUrl } from '@/lib/tracking/utm';
 
 // GET /api/campaigns/[id]/units — list units for a campaign
 export async function GET(
@@ -53,6 +54,17 @@ export async function POST(
     );
   }
 
+  // Auto-generate tracked CTA URL
+  const assets = { ...creativeAssets };
+  if (assets.ctaUrl) {
+    const trackingId = `unit-${Date.now()}`;
+    assets.trackedCtaUrl = generateTrackedUrl(assets.ctaUrl, {
+      campaignId,
+      unitId: trackingId,
+      format: formatKey,
+    });
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase as any)
     .from('campaign_units')
@@ -64,7 +76,7 @@ export async function POST(
       platform,
       placement,
       tier,
-      creative_assets: creativeAssets,
+      creative_assets: assets,
       compliance_notes: complianceNotes,
       deadline,
       payout_cents: payoutCents,
@@ -76,6 +88,20 @@ export async function POST(
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Update tracked URL with real unit ID
+  if (data.creative_assets?.ctaUrl && data.id) {
+    const trackedUrl = generateTrackedUrl(data.creative_assets.ctaUrl, {
+      campaignId,
+      unitId: data.id,
+      format: formatKey,
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any)
+      .from('campaign_units')
+      .update({ creative_assets: { ...data.creative_assets, trackedCtaUrl: trackedUrl } })
+      .eq('id', data.id);
   }
 
   return NextResponse.json(data, { status: 201 });
