@@ -214,6 +214,8 @@ function GovernmentOnboarding() {
   const [preSelectedCount, setPreSelectedCount] = useState(0);
   const [explanationPublisher, setExplanationPublisher] = useState<string | null>(null);
   const [draftUnits, setDraftUnits] = useState<DraftUnit[]>([]);
+  const [unitsSaved, setUnitsSaved] = useState(false);
+  const [savingUnits, setSavingUnits] = useState(false);
 
   // Pre-fill from URL params (e.g., from discover page publisher selection)
   useEffect(() => {
@@ -335,6 +337,36 @@ function GovernmentOnboarding() {
       return next;
     });
   };
+
+  const saveUnits = useCallback(async () => {
+    if (!campaignId || draftUnits.length === 0) return;
+    setSavingUnits(true);
+    try {
+      for (const unit of draftUnits) {
+        for (const publisherId of unit.assignedPublisherIds) {
+          await fetch(`/api/campaigns/${campaignId}/units`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              publisherId,
+              channelGroup: unit.channelGroup,
+              formatKey: unit.formatKey,
+              platform: unit.platform,
+              placement: unit.placement,
+              tier: 'upload',
+              creativeAssets: unit.assets,
+            }),
+          });
+        }
+      }
+      setUnitsSaved(true);
+    } catch (err) {
+      console.error('Failed to save units:', err);
+      setError(err instanceof Error ? err.message : 'Failed to save units');
+    } finally {
+      setSavingUnits(false);
+    }
+  }, [campaignId, draftUnits]);
 
   const deptName = DEPARTMENTS.find(d => d.code === form.department)?.name;
 
@@ -509,7 +541,16 @@ function GovernmentOnboarding() {
 
               {step === 'units' ? (
                 <div className="flex items-center gap-3">
-                  {campaignId && (
+                  {!unitsSaved && draftUnits.length > 0 && (
+                    <button
+                      onClick={saveUnits}
+                      disabled={savingUnits}
+                      className="btn bg-[var(--color-teal)] text-white text-sm px-6 py-2.5 hover:bg-[var(--color-teal-dark)] disabled:opacity-50"
+                    >
+                      {savingUnits ? 'Saving...' : `Save ${draftUnits.length} Unit${draftUnits.length !== 1 ? 's' : ''}`}
+                    </button>
+                  )}
+                  {unitsSaved && campaignId && (
                     <Link
                       href={`${prefix}/government/campaigns/${campaignId}`}
                       className="btn bg-[var(--color-teal)] text-white text-sm px-6 py-2.5 hover:bg-[var(--color-teal-dark)]"
