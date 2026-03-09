@@ -202,6 +202,21 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Fetch associated campaign units for each order's campaign+publisher pair
+    const campaignIds = [...new Set((orders || []).map((o: any) => o.campaign_id))];
+    const publisherIds = [...new Set((orders || []).map((o: any) => o.publisher_id))];
+
+    let unitsData: any[] = [];
+    if (campaignIds.length > 0) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: units } = await (supabase as any)
+        .from('campaign_units')
+        .select('*')
+        .in('campaign_id', campaignIds)
+        .in('publisher_id', publisherIds);
+      unitsData = units || [];
+    }
+
     return NextResponse.json({
       success: true,
       orders: (orders || []).map((o: Record<string, unknown>) => ({
@@ -248,6 +263,27 @@ export async function GET(request: NextRequest) {
               approvedAt: d.approved_at,
             }))
           : [],
+        units: unitsData
+          .filter((u: any) => u.campaign_id === o.campaign_id && u.publisher_id === o.publisher_id)
+          .map((u: any) => ({
+            id: u.id,
+            campaignId: u.campaign_id,
+            publisherId: u.publisher_id,
+            channelGroup: u.channel_group,
+            formatKey: u.format_key,
+            platform: u.platform,
+            placement: u.placement,
+            status: u.status,
+            tier: u.tier,
+            creativeAssets: u.creative_assets,
+            complianceNotes: u.compliance_notes,
+            revisionFeedback: u.revision_feedback,
+            proof: u.proof,
+            deadline: u.deadline,
+            deliveredAt: u.delivered_at,
+            payoutCents: u.payout_cents,
+            createdAt: u.created_at,
+          })),
         createdAt: o.created_at,
         updatedAt: o.updated_at,
       })),
