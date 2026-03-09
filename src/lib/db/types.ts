@@ -731,3 +731,81 @@ export interface GrowthSummary {
   }>;
   badges: DbGrowthBadge[];
 }
+
+// Channel taxonomy types (tables: channel_formats, market_channels, campaign_units, unit_templates)
+
+export type DbChannelGroup = 'social' | 'display' | 'audio_video';
+
+export type DbUnitStatus =
+  | 'draft'
+  | 'ready'
+  | 'sent'
+  | 'pending_publisher'
+  | 'accepted'
+  | 'revision_requested'
+  | 'rejected'
+  | 'in_production'
+  | 'delivered';
+
+export type DbCreativeTier = 'upload' | 'free_template' | 'premium_template' | 'assisted';
+
+export type DbTemplateTier = 'free' | 'premium';
+
+export interface DbChannelFormat {
+  id: string;
+  channel_group: DbChannelGroup;
+  format_key: string;
+  label: string;
+  description: string | null;
+  platforms: string[];
+  placements: string[];
+  spec: Record<string, any>;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface DbMarketChannel {
+  id: string;
+  city_slug: string;
+  channel_group: DbChannelGroup;
+  enabled: boolean;
+  disabled_formats: string[];
+  created_at: string;
+}
+
+export interface DbCampaignUnit {
+  id: string;
+  campaign_id: string;
+  publisher_id: string;
+  channel_group: DbChannelGroup;
+  format_key: string;
+  platform: string;
+  placement: string;
+  status: DbUnitStatus;
+  tier: DbCreativeTier;
+  creative_assets: Record<string, any>;
+  compliance_notes: string | null;
+  revision_feedback: string | null;
+  proof: Record<string, any> | null;
+  deadline: string | null;
+  delivered_at: string | null;
+  payout_cents: number;
+  template_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbUnitTemplate {
+  id: string;
+  name: string;
+  channel_group: DbChannelGroup;
+  format_key: string;
+  tier: DbTemplateTier;
+  category: string;
+  template_data: Record<string, any>;
+  thumbnail_url: string | null;
+  preview_url: string | null;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+}
