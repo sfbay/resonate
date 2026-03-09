@@ -24,6 +24,8 @@ import { optimizePublisherMix } from '@/lib/matching/budget-optimizer';
 import type { MatchPublisherData } from '@/lib/matching/mix-analysis';
 import { useCityOptional } from '@/lib/geo/city-context';
 import { getCityOnboardingData, type CityOnboardingData } from '@/lib/geo/city-onboarding-data';
+import { UnitBuilder } from '@/components/government/unit-builder';
+import type { DraftUnit } from '@/components/government/unit-builder/UnitBuilder';
 
 const SFNeighborhoodMap = dynamic(
   () => import('@/components/map/SFNeighborhoodMap').then(mod => ({ default: mod.SFNeighborhoodMap })),
@@ -211,6 +213,7 @@ function GovernmentOnboarding() {
   const [selectedPublishers, setSelectedPublishers] = useState<Set<string>>(new Set());
   const [preSelectedCount, setPreSelectedCount] = useState(0);
   const [explanationPublisher, setExplanationPublisher] = useState<string | null>(null);
+  const [draftUnits, setDraftUnits] = useState<DraftUnit[]>([]);
 
   // Pre-fill from URL params (e.g., from discover page publisher selection)
   useEffect(() => {
@@ -471,10 +474,20 @@ function GovernmentOnboarding() {
               />
             )}
             {step === 'units' && (
-              <div className="text-center py-16 text-gray-400">
-                <p className="text-lg font-medium">Unit Builder</p>
-                <p className="text-sm mt-1">Coming next — build your creative units here</p>
-              </div>
+              <UnitBuilder
+                campaignId={campaignId || ''}
+                citySlug={cityCtx?.slug || 'sf'}
+                selectedPublishers={
+                  matches
+                    .filter(m => selectedPublishers.has(m.publisher.id))
+                    .map(m => ({
+                      id: m.publisher.id,
+                      name: m.publisher.name,
+                      logoUrl: m.publisher.logoUrl,
+                    }))
+                }
+                onUnitsReady={setDraftUnits}
+              />
             )}
 
             {/* ── Navigation ─────────────────── */}
