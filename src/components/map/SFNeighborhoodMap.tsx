@@ -30,7 +30,7 @@ type MapLayerMouseEvent = MapMouseEvent & { features?: MapboxGeoJSONFeature[] };
 // CONSTANTS
 // =============================================================================
 
-const MAPBOX_TOKEN = 'pk.eyJ1Ijoiamdhcm5pZXIiLCJhIjoiY21qem1kbnJuMDE0cjNlcHZ6em1tZGNneCJ9.rkWafIhT1k4RHXVRJWoEBw';
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
 
 const SF_CENTER = {
   longitude: -122.4194,
@@ -151,8 +151,8 @@ export interface SFNeighborhoodMapProps {
   selectedEthnicity?: EthnicityKey | null;
   selectedAge?: AgeKey | null;
   selectedIncome?: IncomeKey | null;
-  /** Publisher territory to overlay (shown as dashed outline) */
-  publisherTerritory?: PublisherTerritoryOverlay | null;
+  /** Publisher territory to overlay (shown as dashed outline). Accepts single or multiple overlays. */
+  publisherTerritory?: PublisherTerritoryOverlay | PublisherTerritoryOverlay[] | null;
   height?: string;
   initialViewState?: { longitude: number; latitude: number; zoom: number };
   timeRange?: TimeRange;
@@ -320,17 +320,24 @@ export function SFNeighborhoodMap({
   };
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
-  // Publisher territory GeoJSON (for outline layer)
-  const territoryGeoJSON = useMemo(() => {
-    if (!publisherTerritory || publisherTerritory.neighborhoods.length === 0) return null;
-
-    const baseGeoJSON = getSFNeighborhoodsGeoJSON();
-    const features = baseGeoJSON.features.filter(f =>
-      publisherTerritory.neighborhoods.includes(f.properties.id as SFNeighborhood)
-    );
-
-    return { type: 'FeatureCollection' as const, features } as GeoJSON.FeatureCollection;
+  // Normalize publisherTerritory to array
+  const territoryOverlays = useMemo((): PublisherTerritoryOverlay[] => {
+    if (!publisherTerritory) return [];
+    const arr = Array.isArray(publisherTerritory) ? publisherTerritory : [publisherTerritory];
+    return arr.filter(t => t.neighborhoods.length > 0);
   }, [publisherTerritory]);
+
+  // Publisher territory GeoJSON per overlay (for outline layers)
+  const territoryGeoJSONs = useMemo(() => {
+    if (territoryOverlays.length === 0) return [];
+    const baseGeoJSON = getSFNeighborhoodsGeoJSON();
+    return territoryOverlays.map(overlay => {
+      const features = baseGeoJSON.features.filter(f =>
+        overlay.neighborhoods.includes(f.properties.id as SFNeighborhood)
+      );
+      return { type: 'FeatureCollection' as const, features } as GeoJSON.FeatureCollection;
+    });
+  }, [territoryOverlays]);
 
   // Handle hover - just visual highlight, no popup
   const onMouseEnter = useCallback((e: MapLayerMouseEvent) => {
@@ -474,20 +481,20 @@ export function SFNeighborhoodMap({
           <Layer {...lineLayer} />
         </Source>
 
-        {/* Publisher territory outline layer */}
-        {territoryGeoJSON && publisherTerritory && (
-          <Source id="publisher-territory" type="geojson" data={territoryGeoJSON}>
+        {/* Publisher territory outline layers */}
+        {territoryGeoJSONs.map((geojson, i) => (
+          <Source key={`territory-${i}`} id={`publisher-territory-${i}`} type="geojson" data={geojson}>
             <Layer
-              id="publisher-territory-line"
+              id={`publisher-territory-line-${i}`}
               type="line"
               paint={{
-                'line-color': publisherTerritory.color,
+                'line-color': territoryOverlays[i].color,
                 'line-width': 3,
                 'line-dasharray': [3, 2],
               }}
             />
           </Source>
-        )}
+        ))}
       </Map>
 
       {/* Static color scale legend */}
@@ -501,23 +508,22 @@ export function SFNeighborhoodMap({
       )}
 
       {/* Publisher territory indicator */}
-      {publisherTerritory && publisherTerritory.publisherName && (
-        <div
-          className="absolute top-4 left-4 z-10 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border"
-          style={{ borderColor: publisherTerritory.color }}
-        >
-          <div className="flex items-center gap-2">
-            <div
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: publisherTerritory.color }}
-            />
-            <span className="text-sm font-medium text-slate-700">
-              {publisherTerritory.publisherName}
-            </span>
-            <span className="text-xs text-slate-500">
-              ({publisherTerritory.neighborhoods.length} neighborhoods)
-            </span>
-          </div>
+      {territoryOverlays.length > 0 && territoryOverlays.some(t => t.publisherName) && (
+        <div className="absolute top-4 left-4 z-10 bg-white/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-slate-200 space-y-1">
+          {territoryOverlays.filter(t => t.publisherName).map((t, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <div
+                className="w-3 h-3 rounded-full flex-shrink-0"
+                style={{ backgroundColor: t.color }}
+              />
+              <span className="text-sm font-medium text-slate-700">
+                {t.publisherName}
+              </span>
+              <span className="text-xs text-slate-500">
+                ({t.neighborhoods.length} areas)
+              </span>
+            </div>
+          ))}
         </div>
       )}
 

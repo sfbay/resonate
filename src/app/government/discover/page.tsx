@@ -451,30 +451,51 @@ export default function DiscoverPublishersPage() {
       {cart.size > 0 && (
         <section className="px-6 pb-4">
           <div className="max-w-7xl mx-auto">
-            <div className="bg-[var(--color-teal)] text-white rounded-xl px-6 py-3 flex items-center justify-between shadow-lg">
-              <div className="flex items-center gap-3">
-                <span className="bg-white/20 rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
-                  {cart.size}
-                </span>
-                <span className="font-medium">
-                  {cart.size === 1 ? '1 publisher' : `${cart.size} publishers`} in campaign
-                </span>
+            <div className="bg-[var(--color-teal)] text-white rounded-xl px-5 py-3 shadow-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="bg-white/20 rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm flex-shrink-0">
+                    {cart.size}
+                  </span>
+                  <div className="flex items-center gap-2 overflow-x-auto min-w-0">
+                    {SAMPLE_PUBLISHERS.filter(p => cart.has(p.id)).map(pub => (
+                      <span
+                        key={pub.id}
+                        className="inline-flex items-center gap-1.5 bg-white/15 rounded-full pl-1.5 pr-3 py-1 text-sm whitespace-nowrap flex-shrink-0"
+                      >
+                        {pub.logo ? (
+                          <img
+                            src={pub.logo}
+                            alt=""
+                            className="h-5 w-5 rounded-full object-cover bg-white/30"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        ) : (
+                          <span className="w-5 h-5 rounded-full bg-white/30 flex items-center justify-center text-[10px] font-bold">
+                            {pub.name.charAt(0)}
+                          </span>
+                        )}
+                        {pub.name}
+                      </span>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => setCart(new Set())}
+                    className="text-white/70 hover:text-white text-sm underline underline-offset-2 flex-shrink-0"
+                  >
+                    Clear
+                  </button>
+                </div>
                 <button
-                  onClick={() => setCart(new Set())}
-                  className="text-white/70 hover:text-white text-sm underline underline-offset-2 ml-2"
+                  onClick={handleStartCampaign}
+                  className="bg-white text-[var(--color-teal)] font-semibold px-5 py-2 rounded-full text-sm hover:bg-[var(--color-cream)] transition-colors flex items-center gap-2 flex-shrink-0 ml-3"
                 >
-                  Clear
+                  Build Campaign
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
                 </button>
               </div>
-              <button
-                onClick={handleStartCampaign}
-                className="bg-white text-[var(--color-teal)] font-semibold px-5 py-2 rounded-full text-sm hover:bg-[var(--color-cream)] transition-colors flex items-center gap-2"
-              >
-                Build Campaign
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </button>
             </div>
           </div>
         </section>

@@ -644,65 +644,45 @@ export function PublisherDiscoveryMap({
     });
   };
 
-  // Compute publisher territory overlay based on cart + hovered/selected publisher
-  const publisherTerritoryOverlay = useMemo((): PublisherTerritoryOverlay | null => {
-    const combinedNeighborhoods = new Set<SFNeighborhood>();
-    let overlayColor = 'var(--color-teal)';
-    let overlayName = '';
+  // Helper: get neighborhoods for a publisher
+  const getPublisherNeighborhoods = (pub: Publisher): SFNeighborhood[] => {
+    if (pub.audienceProfile.geographic.citywide || pub.audienceProfile.geographic.neighborhoods.length === 0) {
+      return Object.keys(SF_NEIGHBORHOODS) as SFNeighborhood[];
+    }
+    return pub.audienceProfile.geographic.neighborhoods;
+  };
 
-    // Add all cart publishers' neighborhoods
+  // Compute territory overlays: one per cart publisher + hovered/selected on top
+  const publisherTerritoryOverlay = useMemo((): PublisherTerritoryOverlay[] => {
+    const overlays: PublisherTerritoryOverlay[] = [];
+
+    // Add each cart publisher as its own overlay
     if (selectedIds && selectedIds.size > 0) {
       for (const id of selectedIds) {
         const pub = publishers.find(p => p.id === id);
         if (!pub) continue;
-        if (pub.audienceProfile.geographic.citywide || pub.audienceProfile.geographic.neighborhoods.length === 0) {
-          // Citywide — add all neighborhoods
-          for (const n of Object.keys(SF_NEIGHBORHOODS) as SFNeighborhood[]) {
-            combinedNeighborhoods.add(n);
-          }
-        } else {
-          for (const n of pub.audienceProfile.geographic.neighborhoods) {
-            combinedNeighborhoods.add(n);
-          }
-        }
+        overlays.push({
+          neighborhoods: getPublisherNeighborhoods(pub),
+          color: publisherColors[id] || 'var(--color-teal)',
+          publisherName: pub.name,
+        });
       }
-      overlayName = `${selectedIds.size} publisher${selectedIds.size > 1 ? 's' : ''} — campaign coverage`;
     }
 
-    // If hovering/selected, show that publisher's territory instead (with its color)
+    // Add hovered/selected publisher on top (if not already in cart)
     const activePublisherId = hoveredPublisher || selectedPublisher;
-    if (activePublisherId) {
+    if (activePublisherId && !(selectedIds?.has(activePublisherId))) {
       const pub = filteredPublishers.find(p => p.id === activePublisherId);
       if (pub) {
-        // When hovering, show only that publisher's territory
-        const pubNeighborhoods = new Set<SFNeighborhood>();
-        if (pub.audienceProfile.geographic.citywide || pub.audienceProfile.geographic.neighborhoods.length === 0) {
-          for (const n of Object.keys(SF_NEIGHBORHOODS) as SFNeighborhood[]) {
-            pubNeighborhoods.add(n);
-          }
-        } else {
-          for (const n of pub.audienceProfile.geographic.neighborhoods) {
-            pubNeighborhoods.add(n);
-          }
-        }
-        return {
-          neighborhoods: Array.from(pubNeighborhoods),
+        overlays.push({
+          neighborhoods: getPublisherNeighborhoods(pub),
           color: publisherColors[activePublisherId],
           publisherName: pub.name,
-        };
+        });
       }
     }
 
-    // Show cart coverage when no publisher is hovered/selected
-    if (combinedNeighborhoods.size > 0) {
-      return {
-        neighborhoods: Array.from(combinedNeighborhoods),
-        color: overlayColor,
-        publisherName: overlayName,
-      };
-    }
-
-    return null;
+    return overlays;
   }, [hoveredPublisher, selectedPublisher, filteredPublishers, publisherColors, selectedIds, publishers]);
 
   // Get ranking for clicked neighborhood
