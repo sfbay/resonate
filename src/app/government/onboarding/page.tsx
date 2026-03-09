@@ -24,6 +24,8 @@ import { optimizePublisherMix } from '@/lib/matching/budget-optimizer';
 import type { MatchPublisherData } from '@/lib/matching/mix-analysis';
 import { useCityOptional } from '@/lib/geo/city-context';
 import { getCityOnboardingData, type CityOnboardingData } from '@/lib/geo/city-onboarding-data';
+import { UnitBuilder } from '@/components/government/unit-builder';
+import type { DraftUnit } from '@/components/government/unit-builder/UnitBuilder';
 
 const SFNeighborhoodMap = dynamic(
   () => import('@/components/map/SFNeighborhoodMap').then(mod => ({ default: mod.SFNeighborhoodMap })),
@@ -34,7 +36,7 @@ const SFNeighborhoodMap = dynamic(
 // TYPES
 // ─────────────────────────────────────────────────
 
-type WizardStep = 'brief' | 'audience' | 'match';
+type WizardStep = 'brief' | 'audience' | 'match' | 'units';
 
 interface CampaignFormData {
   department: string;
@@ -177,6 +179,7 @@ const STEPS: { id: WizardStep; num: number; label: string; subtitle: string }[] 
   { id: 'brief', num: 1, label: 'Campaign Brief', subtitle: 'Department & goals' },
   { id: 'audience', num: 2, label: 'Audience', subtitle: 'Who to reach' },
   { id: 'match', num: 3, label: 'Publishers', subtitle: 'Find matches' },
+  { id: 'units', num: 4, label: 'Creative Units', subtitle: 'Build your ads' },
 ];
 
 // ─────────────────────────────────────────────────
@@ -210,6 +213,9 @@ function GovernmentOnboarding() {
   const [selectedPublishers, setSelectedPublishers] = useState<Set<string>>(new Set());
   const [preSelectedCount, setPreSelectedCount] = useState(0);
   const [explanationPublisher, setExplanationPublisher] = useState<string | null>(null);
+  const [draftUnits, setDraftUnits] = useState<DraftUnit[]>([]);
+  const [unitsSaved, setUnitsSaved] = useState(false);
+  const [savingUnits, setSavingUnits] = useState(false);
 
   // Pre-fill from URL params (e.g., from discover page publisher selection)
   useEffect(() => {
@@ -331,6 +337,36 @@ function GovernmentOnboarding() {
       return next;
     });
   };
+
+  const saveUnits = useCallback(async () => {
+    if (!campaignId || draftUnits.length === 0) return;
+    setSavingUnits(true);
+    try {
+      for (const unit of draftUnits) {
+        for (const publisherId of unit.assignedPublisherIds) {
+          await fetch(`/api/campaigns/${campaignId}/units`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              publisherId,
+              channelGroup: unit.channelGroup,
+              formatKey: unit.formatKey,
+              platform: unit.platform,
+              placement: unit.placement,
+              tier: 'upload',
+              creativeAssets: unit.assets,
+            }),
+          });
+        }
+      }
+      setUnitsSaved(true);
+    } catch (err) {
+      console.error('Failed to save units:', err);
+      setError(err instanceof Error ? err.message : 'Failed to save units');
+    } finally {
+      setSavingUnits(false);
+    }
+  }, [campaignId, draftUnits]);
 
   const deptName = DEPARTMENTS.find(d => d.code === form.department)?.name;
 
@@ -466,6 +502,23 @@ function GovernmentOnboarding() {
                 setSelectedPublishers={setSelectedPublishers}
                 explanationPublisher={explanationPublisher}
                 setExplanationPublisher={setExplanationPublisher}
+                prefix={prefix}
+              />
+            )}
+            {step === 'units' && (
+              <UnitBuilder
+                campaignId={campaignId || ''}
+                citySlug={cityCtx?.slug || 'sf'}
+                selectedPublishers={
+                  matches
+                    .filter(m => selectedPublishers.has(m.publisher.id))
+                    .map(m => ({
+                      id: m.publisher.id,
+                      name: m.publisher.name,
+                      logoUrl: m.publisher.logoUrl,
+                    }))
+                }
+                onUnitsReady={setDraftUnits}
               />
             )}
 
@@ -486,9 +539,18 @@ function GovernmentOnboarding() {
                 Back
               </button>
 
-              {step === 'match' ? (
+              {step === 'units' ? (
                 <div className="flex items-center gap-3">
-                  {campaignId && (
+                  {!unitsSaved && draftUnits.length > 0 && (
+                    <button
+                      onClick={saveUnits}
+                      disabled={savingUnits}
+                      className="btn bg-[var(--color-teal)] text-white text-sm px-6 py-2.5 hover:bg-[var(--color-teal-dark)] disabled:opacity-50"
+                    >
+                      {savingUnits ? 'Saving...' : `Save ${draftUnits.length} Unit${draftUnits.length !== 1 ? 's' : ''}`}
+                    </button>
+                  )}
+                  {unitsSaved && campaignId && (
                     <Link
                       href={`${prefix}/government/campaigns/${campaignId}`}
                       className="btn bg-[var(--color-teal)] text-white text-sm px-6 py-2.5 hover:bg-[var(--color-teal-dark)]"
@@ -511,7 +573,7 @@ function GovernmentOnboarding() {
                   onClick={goNext}
                   className="btn bg-[var(--color-teal)] text-white text-sm px-6 py-2.5 hover:bg-[var(--color-teal-dark)]"
                 >
-                  Continue
+                  {step === 'match' ? 'Continue to Creative Units' : 'Continue'}
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
@@ -913,6 +975,7 @@ function StepMatch({
   setSelectedPublishers,
   explanationPublisher,
   setExplanationPublisher,
+  prefix,
 }: {
   form: CampaignFormData;
   matches: MatchedPublisher[];
@@ -924,6 +987,7 @@ function StepMatch({
   setSelectedPublishers: (s: Set<string>) => void;
   explanationPublisher: string | null;
   setExplanationPublisher: (id: string | null) => void;
+  prefix: string;
 }) {
   const explanationMatch = matches.find(m => m.publisher.id === explanationPublisher);
 

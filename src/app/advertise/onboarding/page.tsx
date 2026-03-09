@@ -22,12 +22,14 @@ import {
   type CampaignGoalPreset,
 } from '@/lib/campaigns/goal-presets';
 import { useCityOptional } from '@/lib/geo/city-context';
+import { UnitBuilder } from '@/components/government/unit-builder';
+import type { DraftUnit } from '@/components/government/unit-builder/UnitBuilder';
 
 // ─────────────────────────────────────────────────
 // TYPES
 // ─────────────────────────────────────────────────
 
-type WizardStep = 'about' | 'goal' | 'audience' | 'matches';
+type WizardStep = 'about' | 'goal' | 'audience' | 'matches' | 'units';
 
 type OrgType = 'business' | 'nonprofit' | 'foundation';
 
@@ -184,6 +186,7 @@ const STEPS: { id: WizardStep; num: number; label: string; subtitle: string }[] 
   { id: 'goal', num: 2, label: 'Your Goal', subtitle: 'What to achieve' },
   { id: 'audience', num: 3, label: 'Audience', subtitle: 'Who to reach' },
   { id: 'matches', num: 4, label: 'Matches', subtitle: 'Publisher results' },
+  { id: 'units', num: 5, label: 'Creative Units', subtitle: 'Build your ads' },
 ];
 
 const ORG_TYPES: { id: OrgType; label: string; icon: string; desc: string }[] = [
@@ -205,6 +208,9 @@ export default function AdvertiseOnboarding() {
   const [matches, setMatches] = useState<MatchedPublisher[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [draftUnits, setDraftUnits] = useState<DraftUnit[]>([]);
+  const [unitsSaved, setUnitsSaved] = useState(false);
+  const [savingUnits, setSavingUnits] = useState(false);
 
   const stepIndex = STEPS.findIndex(s => s.id === step);
 
@@ -298,6 +304,36 @@ export default function AdvertiseOnboarding() {
   const goBack = () => {
     if (stepIndex > 0) setStep(STEPS[stepIndex - 1].id);
   };
+
+  const saveUnits = useCallback(async () => {
+    if (!campaignId || draftUnits.length === 0) return;
+    setSavingUnits(true);
+    try {
+      for (const unit of draftUnits) {
+        for (const publisherId of unit.assignedPublisherIds) {
+          await fetch(`/api/campaigns/${campaignId}/units`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              publisherId,
+              channelGroup: unit.channelGroup,
+              formatKey: unit.formatKey,
+              platform: unit.platform,
+              placement: unit.placement,
+              tier: 'upload',
+              creativeAssets: unit.assets,
+            }),
+          });
+        }
+      }
+      setUnitsSaved(true);
+    } catch (err) {
+      console.error('Failed to save units:', err);
+      setError(err instanceof Error ? err.message : 'Failed to save units');
+    } finally {
+      setSavingUnits(false);
+    }
+  }, [campaignId, draftUnits]);
 
   // Audience summary for sidebar
   const audienceSummary = useMemo(() => {
@@ -406,6 +442,21 @@ export default function AdvertiseOnboarding() {
                 isLoading={isLoading}
                 error={error}
                 campaignId={campaignId}
+                prefix={prefix}
+              />
+            )}
+            {step === 'units' && (
+              <UnitBuilder
+                campaignId={campaignId || ''}
+                citySlug={cityCtx?.slug || 'sf'}
+                selectedPublishers={
+                  matches.map(m => ({
+                    id: m.publisher.id,
+                    name: m.publisher.name,
+                    logoUrl: m.publisher.logoUrl,
+                  }))
+                }
+                onUnitsReady={setDraftUnits}
               />
             )}
 
@@ -426,9 +477,18 @@ export default function AdvertiseOnboarding() {
                 Back
               </button>
 
-              {step === 'matches' ? (
+              {step === 'units' ? (
                 <div className="flex items-center gap-3">
-                  {campaignId && (
+                  {!unitsSaved && draftUnits.length > 0 && (
+                    <button
+                      onClick={saveUnits}
+                      disabled={savingUnits}
+                      className="btn bg-[var(--color-marigold)] text-white text-sm px-6 py-2.5 hover:bg-[var(--color-marigold-dark)] disabled:opacity-50"
+                    >
+                      {savingUnits ? 'Saving...' : `Save ${draftUnits.length} Unit${draftUnits.length !== 1 ? 's' : ''}`}
+                    </button>
+                  )}
+                  {unitsSaved && campaignId && (
                     <Link
                       href={`${prefix}/advertise/campaigns/${campaignId}`}
                       className="btn bg-[var(--color-marigold)] text-white text-sm px-6 py-2.5 hover:bg-[var(--color-marigold-dark)]"
@@ -451,7 +511,7 @@ export default function AdvertiseOnboarding() {
                   onClick={goNext}
                   className="btn bg-[var(--color-marigold)] text-white text-sm px-6 py-2.5 hover:bg-[var(--color-marigold-dark)]"
                 >
-                  Continue
+                  {step === 'matches' ? 'Continue to Creative Units' : 'Continue'}
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
@@ -977,12 +1037,14 @@ function StepMatches({
   isLoading,
   error,
   campaignId,
+  prefix,
 }: {
   form: FormData;
   matches: MatchedPublisher[];
   isLoading: boolean;
   error: string | null;
   campaignId: string | null;
+  prefix: string;
 }) {
   const formatReach = (n: number) => {
     if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
