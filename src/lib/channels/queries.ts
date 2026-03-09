@@ -3,6 +3,7 @@ import type { ChannelFormat, ChannelGroup, MarketChannelConfig } from './types';
 
 export async function getChannelFormats(): Promise<ChannelFormat[]> {
   const supabase = getSupabaseClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase as any)
     .from('channel_formats')
     .select('*')
@@ -10,6 +11,7 @@ export async function getChannelFormats(): Promise<ChannelFormat[]> {
 
   if (error) throw new Error(`Failed to fetch channel formats: ${error.message}`);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (data || []).map((row: any) => ({
     formatKey: row.format_key,
     channelGroup: row.channel_group as ChannelGroup,
@@ -24,6 +26,7 @@ export async function getChannelFormats(): Promise<ChannelFormat[]> {
 
 export async function getChannelFormatsByGroup(group: ChannelGroup): Promise<ChannelFormat[]> {
   const supabase = getSupabaseClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase as any)
     .from('channel_formats')
     .select('*')
@@ -32,6 +35,7 @@ export async function getChannelFormatsByGroup(group: ChannelGroup): Promise<Cha
 
   if (error) throw new Error(`Failed to fetch channel formats: ${error.message}`);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (data || []).map((row: any) => ({
     formatKey: row.format_key,
     channelGroup: row.channel_group as ChannelGroup,
@@ -46,6 +50,7 @@ export async function getChannelFormatsByGroup(group: ChannelGroup): Promise<Cha
 
 export async function getMarketChannels(citySlug: string): Promise<MarketChannelConfig[]> {
   const supabase = getSupabaseClient();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase as any)
     .from('market_channels')
     .select('*')
@@ -53,6 +58,7 @@ export async function getMarketChannels(citySlug: string): Promise<MarketChannel
 
   if (error) throw new Error(`Failed to fetch market channels: ${error.message}`);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (data || []).map((row: any) => ({
     citySlug: row.city_slug,
     channelGroup: row.channel_group as ChannelGroup,

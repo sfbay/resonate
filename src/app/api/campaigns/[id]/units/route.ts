@@ -9,6 +9,7 @@ export async function GET(
   const { id: campaignId } = await params;
   const supabase = getSupabaseClient();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase as any)
     .from('campaign_units')
     .select('*')
@@ -52,6 +53,7 @@ export async function POST(
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase as any)
     .from('campaign_units')
     .insert({

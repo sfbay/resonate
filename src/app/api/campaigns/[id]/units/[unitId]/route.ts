@@ -9,6 +9,7 @@ export async function GET(
   const { id: campaignId, unitId } = await params;
   const supabase = getSupabaseClient();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase as any)
     .from('campaign_units')
     .select('*')
@@ -32,6 +33,7 @@ export async function PATCH(
   const body = await request.json();
   const supabase = getSupabaseClient();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const updates: Record<string, any> = {};
   if (body.status !== undefined) updates.status = body.status;
   if (body.tier !== undefined) updates.tier = body.tier;
@@ -50,6 +52,7 @@ export async function PATCH(
     return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase as any)
     .from('campaign_units')
     .update(updates)
@@ -73,6 +76,7 @@ export async function DELETE(
   const { id: campaignId, unitId } = await params;
   const supabase = getSupabaseClient();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase as any)
     .from('campaign_units')
     .delete()

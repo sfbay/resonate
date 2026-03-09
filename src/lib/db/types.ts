@@ -759,7 +759,7 @@ export interface DbChannelFormat {
   description: string | null;
   platforms: string[];
   placements: string[];
-  spec: Record<string, any>;
+  spec: Record<string, unknown>;
   sort_order: number;
   created_at: string;
 }
@@ -783,10 +783,10 @@ export interface DbCampaignUnit {
   placement: string;
   status: DbUnitStatus;
   tier: DbCreativeTier;
-  creative_assets: Record<string, any>;
+  creative_assets: Record<string, unknown>;
   compliance_notes: string | null;
   revision_feedback: string | null;
-  proof: Record<string, any> | null;
+  proof: Record<string, unknown> | null;
   deadline: string | null;
   delivered_at: string | null;
   payout_cents: number;
@@ -802,7 +802,7 @@ export interface DbUnitTemplate {
   format_key: string;
   tier: DbTemplateTier;
   category: string;
-  template_data: Record<string, any>;
+  template_data: Record<string, unknown>;
   thumbnail_url: string | null;
   preview_url: string | null;
   sort_order: number;
