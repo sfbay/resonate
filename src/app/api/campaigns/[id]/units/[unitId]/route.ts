@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseClient } from '@/lib/db/supabase';
 
+const UNIT_TRANSITIONS: Record<string, string[]> = {
+  draft: ['ready'],
+  ready: ['sent'],
+  sent: ['pending_publisher'],
+  pending_publisher: ['accepted', 'revision_requested', 'rejected'],
+  accepted: ['in_production'],
+  revision_requested: ['ready', 'sent', 'pending_publisher'],
+  rejected: [],
+  in_production: ['delivered'],
+  delivered: [],
+};
+
 // GET /api/campaigns/[id]/units/[unitId]
 export async function GET(
   request: NextRequest,
@@ -35,7 +47,34 @@ export async function PATCH(
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const updates: Record<string, any> = {};
-  if (body.status !== undefined) updates.status = body.status;
+  if (body.status !== undefined) {
+    // Validate status transition
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: current } = await (supabase as any)
+      .from('campaign_units')
+      .select('status')
+      .eq('id', unitId)
+      .single();
+
+    if (current) {
+      const allowed = UNIT_TRANSITIONS[current.status] || [];
+      if (!allowed.includes(body.status)) {
+        return NextResponse.json(
+          { error: `Invalid transition from '${current.status}' to '${body.status}'` },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (body.status === 'revision_requested' && !body.revisionFeedback) {
+      return NextResponse.json(
+        { error: 'revisionFeedback is required when requesting a revision' },
+        { status: 400 }
+      );
+    }
+
+    updates.status = body.status;
+  }
   if (body.tier !== undefined) updates.tier = body.tier;
   if (body.creativeAssets !== undefined) updates.creative_assets = body.creativeAssets;
   if (body.complianceNotes !== undefined) updates.compliance_notes = body.complianceNotes;
