@@ -201,35 +201,45 @@ Build `useCurrentUser()` hook returning `{ userId, orgId, orgType, role }`. Init
 
 ## Build Phases
 
-### Phase 1: Data Foundation
-- Channel/format/placement taxonomy (DB tables + market gating config)
-- `campaign_units` table with status lifecycle
-- Extend orders to reference units
-- `useCurrentUser()` stub hook
+### Phase 1: Data Foundation — COMPLETE (2026-03-08)
+- [x] Channel/format/placement taxonomy (DB tables + market gating config)
+- [x] `campaign_units` table with status lifecycle
+- [x] `unit_templates` table for template library
+- [x] TypeScript channel registry with types, constants, compliance defaults
+- [x] Channel query utilities + market channels API
+- [x] Campaign units CRUD API (`/api/campaigns/[id]/units`)
+- [x] `useCurrentUser()` stub hook
+- Plan: `docs/plans/2026-03-08-phase1-data-foundation.md`
 
-### Phase 2: Unit Builder
-- Step 4 in campaign wizard — three-tab group layout
-- Upload flow (drag-and-drop, format validation, preview)
-- Free template library (start with Social formats)
-- Copy/metadata editor with compliance defaults
-- Assign units to publishers
-- Campaign review/submit
+### Phase 2: Unit Builder — COMPLETE (2026-03-09)
+- [x] Step 4 added to both government and advertise campaign wizards
+- [x] `useChannelFormats` hook for city-gated format fetching
+- [x] ChannelGroupTabs (Social / Display & Sponsored / Audio & Video)
+- [x] FormatPicker grid with spec summaries
+- [x] CreativeEditor with drag-and-drop upload, copy fields, compliance
+- [x] PublisherAssignment checkboxes
+- [x] UnitReviewCard for campaign review
+- [x] UnitBuilder orchestrator component
+- [x] Units saved to database on campaign submit
+- Plan: `docs/plans/2026-03-08-phase2-unit-builder.md`
 
-### Phase 3: Publisher Order Flow
-- Order detail view redesign with unit cards + preview
-- Accept / Request Revision / Reject actions
-- Production kit packaging + one-click download
-- Delivery confirmation with proof upload
-- Advertiser notification on status changes
+### Phase 3: Publisher Order Flow — IN PROGRESS
+- [ ] Units included in order API response
+- [ ] Unit status transition validation (accept/revision/reject)
+- [ ] Publisher UnitCard with creative preview + per-unit actions
+- [ ] Production kit API endpoint + inline panel
+- [ ] Delivery confirmation with proof upload per unit
+- [ ] Format label lookup utility
+- Plan: `docs/plans/2026-03-09-phase3-publisher-order-flow.md`
 
-### Phase 4: Auth Overlay
+### Phase 4: Auth Overlay — PLANNED
 - Clerk integration (sign-up, login, org creation)
 - `useCurrentUser()` wired to Clerk
 - Supabase RLS policies scoped to real users
 - Route guards on all portal pages
 - Onboarding flows create Clerk orgs + Supabase records
 
-### Phase 5: Premium & Social Assist
+### Phase 5: Premium & Social Assist — PLANNED
 - Premium template tier + upsell UX
 - AI-assisted unit generation
 - Publisher social scheduling (draft → calendar → post)
