@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseClient } from '@/lib/db/supabase';
+import { authenticateRequest } from '@/lib/auth/api-auth';
 
 const UNIT_TRANSITIONS: Record<string, string[]> = {
   draft: ['ready'],
@@ -19,7 +19,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string; unitId: string }> }
 ) {
   const { id: campaignId, unitId } = await params;
-  const supabase = getSupabaseClient();
+  const authResult = await authenticateRequest();
+  if (authResult instanceof NextResponse) return authResult;
+  const { supabase } = authResult;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase as any)
@@ -43,7 +45,9 @@ export async function PATCH(
 ) {
   const { id: campaignId, unitId } = await params;
   const body = await request.json();
-  const supabase = getSupabaseClient();
+  const authResult = await authenticateRequest();
+  if (authResult instanceof NextResponse) return authResult;
+  const { supabase } = authResult;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const updates: Record<string, any> = {};
@@ -113,7 +117,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; unitId: string }> }
 ) {
   const { id: campaignId, unitId } = await params;
-  const supabase = getSupabaseClient();
+  const authResult = await authenticateRequest();
+  if (authResult instanceof NextResponse) return authResult;
+  const { supabase } = authResult;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase as any)

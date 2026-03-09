@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseClient } from '@/lib/db/supabase';
+import { authenticateRequest } from '@/lib/auth/api-auth';
 import { generateTrackedUrl } from '@/lib/tracking/utm';
 
 // GET /api/campaigns/[id]/units — list units for a campaign
@@ -8,7 +8,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: campaignId } = await params;
-  const supabase = getSupabaseClient();
+  const authResult = await authenticateRequest();
+  if (authResult instanceof NextResponse) return authResult;
+  const { supabase } = authResult;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, error } = await (supabase as any)
@@ -31,7 +33,9 @@ export async function POST(
 ) {
   const { id: campaignId } = await params;
   const body = await request.json();
-  const supabase = getSupabaseClient();
+  const authResult = await authenticateRequest();
+  if (authResult instanceof NextResponse) return authResult;
+  const { supabase } = authResult;
 
   const {
     publisherId,

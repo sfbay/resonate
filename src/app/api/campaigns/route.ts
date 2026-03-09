@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/db/supabase-server';
+import { authenticateRequest } from '@/lib/auth/api-auth';
 
 interface CreateCampaignBody {
   name: string;
@@ -45,7 +45,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createServerClient();
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) return authResult;
+    const { supabase } = authResult;
 
     // Insert campaign
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -111,7 +113,9 @@ export async function GET(request: NextRequest) {
     const citySlug = searchParams.get('city') || 'sf';
     const sources = searchParams.getAll('source');
 
-    const supabase = await createServerClient();
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) return authResult;
+    const { orgType, supabase } = authResult;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let query = (supabase as any)
@@ -124,8 +128,13 @@ export async function GET(request: NextRequest) {
       query = query.eq('status', status);
     }
 
+    // Scope by org type: government sees government campaigns, advertisers see advertise campaigns
     if (sources.length > 0) {
       query = query.in('source', sources);
+    } else if (orgType === 'government') {
+      query = query.eq('source', 'government');
+    } else if (orgType === 'advertiser') {
+      query = query.eq('source', 'advertise');
     }
 
     const { data: campaigns, error } = await query;

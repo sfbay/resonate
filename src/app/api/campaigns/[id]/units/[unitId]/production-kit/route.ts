@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseClient } from '@/lib/db/supabase';
+import { authenticateRequest } from '@/lib/auth/api-auth';
 import { COMPLIANCE_DEFAULTS } from '@/lib/channels';
 
 // GET /api/campaigns/[id]/units/[unitId]/production-kit
@@ -8,7 +8,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string; unitId: string }> }
 ) {
   const { id: campaignId, unitId } = await params;
-  const supabase = getSupabaseClient();
+  const authResult = await authenticateRequest();
+  if (authResult instanceof NextResponse) return authResult;
+  const { supabase } = authResult;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: unit, error } = await (supabase as any)

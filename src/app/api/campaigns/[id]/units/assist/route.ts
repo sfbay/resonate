@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseClient } from '@/lib/db/supabase';
+import { authenticateRequest } from '@/lib/auth/api-auth';
 import { isAIEnabled, generateCompletion } from '@/lib/ai';
 
 interface AssistRequest {
@@ -22,7 +22,9 @@ export async function POST(
     );
   }
 
-  const supabase = getSupabaseClient();
+  const authResult = await authenticateRequest();
+  if (authResult instanceof NextResponse) return authResult;
+  const { supabase } = authResult;
 
   // Fetch campaign brief
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
