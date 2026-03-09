@@ -3,7 +3,7 @@
 import { useUser, useOrganization } from '@clerk/nextjs';
 import { useMemo } from 'react';
 
-export type OrgType = 'publisher' | 'government' | 'advertiser';
+export type OrgType = 'publisher' | 'government' | 'advertiser' | 'admin';
 export type UserRole = 'admin' | 'editor' | 'viewer';
 
 export interface CurrentUser {

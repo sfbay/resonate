@@ -19,7 +19,7 @@ export default function PendingPage() {
             your submission.
           </p>
           <div className="flex justify-center">
-            <UserButton afterSignOutUrl="/" />
+            <UserButton />
           </div>
         </div>
       </div>
