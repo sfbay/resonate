@@ -36,6 +36,7 @@ export function CreativeEditor({
   onPlatformChange,
   selectedPlacement,
   onPlacementChange,
+  campaignId,
   onTemplateSelect,
   selectedTemplateId,
 }: CreativeEditorProps) {
