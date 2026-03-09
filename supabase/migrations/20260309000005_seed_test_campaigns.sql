@@ -23,7 +23,8 @@ INSERT INTO campaigns (
   5000, 15000,
   '2026-04-15', '2026-05-15',
   'sf', 'government'
-);
+)
+ON CONFLICT (id) DO NOTHING;
 
 -- Campaign 2: Active with orders — Vaccination Outreach
 INSERT INTO campaigns (
@@ -46,7 +47,8 @@ INSERT INTO campaigns (
   8000, 20000,
   '2026-03-01', '2026-04-30',
   'sf', 'government'
-);
+)
+ON CONFLICT (id) DO NOTHING;
 
 -- Campaign 3: Delivered with performance data — Mental Health Awareness
 INSERT INTO campaigns (
@@ -69,7 +71,8 @@ INSERT INTO campaigns (
   10000, 25000,
   '2026-02-01', '2026-03-01',
   'sf', 'government'
-);
+)
+ON CONFLICT (id) DO NOTHING;
 
 -- Campaign 4: Completed — Nutrition Program Enrollment
 INSERT INTO campaigns (
@@ -92,7 +95,8 @@ INSERT INTO campaigns (
   6000, 12000,
   '2026-01-01', '2026-02-15',
   'sf', 'government'
-);
+)
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- Eric's Advertiser Campaigns (Hogan, Newton & Sosumi)
@@ -119,7 +123,8 @@ INSERT INTO campaigns (
   3000, 8000,
   '2026-04-01', '2026-06-30',
   'sf', 'advertise'
-);
+)
+ON CONFLICT (id) DO NOTHING;
 
 -- Campaign 6: Active — Tenant Rights Campaign
 INSERT INTO campaigns (
@@ -142,7 +147,8 @@ INSERT INTO campaigns (
   5000, 12000,
   '2026-03-01', '2026-04-30',
   'sf', 'advertise'
-);
+)
+ON CONFLICT (id) DO NOTHING;
 
 -- Campaign 7: Delivered — Immigration Legal Aid
 INSERT INTO campaigns (
@@ -165,4 +171,5 @@ INSERT INTO campaigns (
   4000, 10000,
   '2026-01-15', '2026-03-01',
   'sf', 'advertise'
-);
+)
+ON CONFLICT (id) DO NOTHING;
