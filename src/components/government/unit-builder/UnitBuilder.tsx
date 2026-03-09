@@ -39,7 +39,7 @@ function generateId(): string {
   return `draft-unit-${nextId++}`;
 }
 
-export function UnitBuilder({ citySlug, selectedPublishers, onUnitsReady }: UnitBuilderProps) {
+export function UnitBuilder({ campaignId, citySlug, selectedPublishers, onUnitsReady }: UnitBuilderProps) {
   const { groups, isLoading, error } = useChannelFormats(citySlug);
 
   // Builder state
@@ -50,6 +50,7 @@ export function UnitBuilder({ citySlug, selectedPublishers, onUnitsReady }: Unit
   const [currentPlacement, setCurrentPlacement] = useState('');
   const [currentPublisherIds, setCurrentPublisherIds] = useState<Set<string>>(new Set());
   const [editingUnitId, setEditingUnitId] = useState<string | null>(null);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
 
   // Completed units
   const [units, setUnits] = useState<DraftUnit[]>([]);
@@ -87,6 +88,7 @@ export function UnitBuilder({ citySlug, selectedPublishers, onUnitsReady }: Unit
     setCurrentAssets({});
     setCurrentPublisherIds(new Set(selectedPublishers.map(p => p.id)));
     setEditingUnitId(null);
+    setSelectedTemplateId(null);
     setMode('edit');
   }, [groups, selectedPublishers]);
 
@@ -118,6 +120,7 @@ export function UnitBuilder({ citySlug, selectedPublishers, onUnitsReady }: Unit
     setSelectedFormatKey(null);
     setCurrentAssets({});
     setEditingUnitId(null);
+    setSelectedTemplateId(null);
     setMode('pick');
   }, [selectedFormat, currentPlatform, currentPlacement, currentAssets, currentPublisherIds, editingUnitId]);
 
@@ -227,6 +230,9 @@ export function UnitBuilder({ citySlug, selectedPublishers, onUnitsReady }: Unit
               onPlatformChange={setCurrentPlatform}
               selectedPlacement={currentPlacement}
               onPlacementChange={setCurrentPlacement}
+              campaignId={campaignId}
+              selectedTemplateId={selectedTemplateId}
+              onTemplateSelect={setSelectedTemplateId}
             />
           </div>
 
