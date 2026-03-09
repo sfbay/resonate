@@ -466,6 +466,7 @@ function GovernmentOnboarding() {
                 setSelectedPublishers={setSelectedPublishers}
                 explanationPublisher={explanationPublisher}
                 setExplanationPublisher={setExplanationPublisher}
+                prefix={prefix}
               />
             )}
 
@@ -913,6 +914,7 @@ function StepMatch({
   setSelectedPublishers,
   explanationPublisher,
   setExplanationPublisher,
+  prefix,
 }: {
   form: CampaignFormData;
   matches: MatchedPublisher[];
@@ -924,6 +926,7 @@ function StepMatch({
   setSelectedPublishers: (s: Set<string>) => void;
   explanationPublisher: string | null;
   setExplanationPublisher: (id: string | null) => void;
+  prefix: string;
 }) {
   const explanationMatch = matches.find(m => m.publisher.id === explanationPublisher);
 

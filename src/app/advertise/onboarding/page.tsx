@@ -406,6 +406,7 @@ export default function AdvertiseOnboarding() {
                 isLoading={isLoading}
                 error={error}
                 campaignId={campaignId}
+                prefix={prefix}
               />
             )}
 
@@ -977,12 +978,14 @@ function StepMatches({
   isLoading,
   error,
   campaignId,
+  prefix,
 }: {
   form: FormData;
   matches: MatchedPublisher[];
   isLoading: boolean;
   error: string | null;
   campaignId: string | null;
+  prefix: string;
 }) {
   const formatReach = (n: number) => {
     if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
