@@ -203,9 +203,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch associated campaign units for each order's campaign+publisher pair
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const campaignIds = [...new Set((orders || []).map((o: any) => o.campaign_id))];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const publisherIds = [...new Set((orders || []).map((o: any) => o.publisher_id))];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let unitsData: any[] = [];
     if (campaignIds.length > 0) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -263,9 +266,10 @@ export async function GET(request: NextRequest) {
               approvedAt: d.approved_at,
             }))
           : [],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         units: unitsData
-          .filter((u: any) => u.campaign_id === o.campaign_id && u.publisher_id === o.publisher_id)
-          .map((u: any) => ({
+          .filter((u: any) => u.campaign_id === o.campaign_id && u.publisher_id === o.publisher_id) // eslint-disable-line @typescript-eslint/no-explicit-any
+          .map((u: any) => ({ // eslint-disable-line @typescript-eslint/no-explicit-any
             id: u.id,
             campaignId: u.campaign_id,
             publisherId: u.publisher_id,

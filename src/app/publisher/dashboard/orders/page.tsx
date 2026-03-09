@@ -16,6 +16,7 @@ import { formatCents, DELIVERABLE_TYPE_LABELS, PLATFORM_LABELS } from '@/lib/tra
 import { useCityOptional } from '@/lib/geo/city-context';
 import { UnitCard } from '@/components/publisher/orders/UnitCard';
 import { getFormatLabel } from '@/lib/channels/format-labels';
+import type { ChannelGroup, UnitStatus, CreativeAssets } from '@/lib/channels/types';
 import type { OrderStatus, SocialPlatform, DeliverableType } from '@/types';
 
 type FilterTab = 'all' | 'pending' | 'active' | 'completed';
@@ -342,11 +343,11 @@ export default function OrderInboxPage() {
                             campaignId={unit.campaignId}
                             formatKey={unit.formatKey}
                             formatLabel={getFormatLabel(unit.formatKey)}
-                            channelGroup={unit.channelGroup as any}
+                            channelGroup={unit.channelGroup as ChannelGroup}
                             platform={unit.platform}
                             placement={unit.placement}
-                            status={unit.status as any}
-                            creativeAssets={unit.creativeAssets as any}
+                            status={unit.status as UnitStatus}
+                            creativeAssets={unit.creativeAssets as CreativeAssets}
                             complianceNotes={unit.complianceNotes}
                             revisionFeedback={unit.revisionFeedback}
                             payoutCents={unit.payoutCents}
