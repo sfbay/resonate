@@ -496,7 +496,7 @@ export function Footer({ variant = 'default' }: FooterProps) {
       <footer className="bg-[var(--color-charcoal)] text-white py-8 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-sm text-white/60">
-            Resonate - A project of the San Francisco Independent Media Coalition
+            Resonate - Resonate &copy; 2025-26. All Rights Reserved.
           </div>
           <div className="flex gap-6 text-sm text-white/60">
             <span className="hover:text-white/80 transition-colors cursor-pointer" title="Coming soon">Privacy</span>
@@ -521,27 +521,31 @@ export function Footer({ variant = 'default' }: FooterProps) {
           <div>
             <div className="font-semibold mb-4">Publishers</div>
             <ul className="space-y-2 text-white/70">
-              <li><Link href={`${footerPrefix}/publisher`} className="hover:text-white transition-colors">Why Resonate</Link></li>
-              <li><Link href={`${footerPrefix}/publisher/onboarding`} className="hover:text-white transition-colors">Get Started</Link></li>
+              <li><Link href={`${footerPrefix}/publisher`} className="hover:text-white transition-colors">Publisher Portal</Link></li>
+              <li><Link href={`${footerPrefix}/publisher/onboarding`} className="hover:text-white transition-colors">Get Listed</Link></li>
+              <li><Link href={`${footerPrefix}/publisher/dashboard/rate-card`} className="hover:text-white transition-colors">Rate Cards</Link></li>
             </ul>
           </div>
           <div>
             <div className="font-semibold mb-4">Government</div>
             <ul className="space-y-2 text-white/70">
-              <li><Link href={`${footerPrefix}/government`} className="hover:text-white transition-colors">Why Resonate</Link></li>
+              <li><Link href={`${footerPrefix}/government/discover`} className="hover:text-white transition-colors">Discover Publishers</Link></li>
               <li><Link href={`${footerPrefix}/government/onboarding`} className="hover:text-white transition-colors">Create Campaign</Link></li>
+              <li><Link href={`${footerPrefix}/government/campaigns`} className="hover:text-white transition-colors">Manage Campaigns</Link></li>
             </ul>
           </div>
           <div>
             <div className="font-semibold mb-4">Advertise</div>
             <ul className="space-y-2 text-white/70">
-              <li><Link href={`${footerPrefix}/advertise`} className="hover:text-white transition-colors">Why Resonate</Link></li>
+              <li><Link href={`${footerPrefix}/advertise`} className="hover:text-white transition-colors">Buy an Ad</Link></li>
+              <li><Link href={`${footerPrefix}/advertise/create`} className="hover:text-white transition-colors">Ad Builder</Link></li>
+              <li><Link href={`${footerPrefix}/advertise/select`} className="hover:text-white transition-colors">Browse Publishers</Link></li>
             </ul>
           </div>
         </div>
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-sm text-white/50">
-            A project of the San Francisco Independent Media Coalition
+            Resonate &copy; 2025-26. All Rights Reserved.
           </div>
           <div className="flex gap-6 text-sm text-white/50">
             <span className="hover:text-white/70 transition-colors cursor-pointer" title="Coming soon">Privacy</span>

@@ -3,6 +3,7 @@
 import { Suspense, useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Nav, Footer } from '@/components/shared';
+import { StepProgress } from '@/components/advertise/StepProgress';
 import { useCityOptional } from '@/lib/geo/city-context';
 import { formatCents, PLATFORM_FEE_RATE } from '@/lib/transactions/pricing';
 import { getSupabaseClient } from '@/lib/db/supabase';
@@ -75,8 +76,8 @@ function AmplifyPageInner() {
 
       {/* Page header */}
       <div className="relative bg-radiance hero-texture overflow-hidden">
-        <div className="relative z-10 max-w-2xl mx-auto px-4 pt-24 pb-16 text-white">
-          <p className="label text-coral-400 mb-3">Step 03</p>
+        <div className="relative z-10 max-w-2xl mx-auto px-4 pt-28 pb-16 text-white">
+          <StepProgress current="amplify" />
           <h1 className="display-md mb-3">Review & Launch</h1>
           <p className="text-gray-400 text-lg max-w-lg">
             Confirm your selections and complete your purchase.

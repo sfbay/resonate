@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Nav, Footer } from '@/components/shared';
 import { TemplatePicker } from '@/components/advertise/TemplatePicker';
+import { StepProgress } from '@/components/advertise/StepProgress';
 import { useCityOptional } from '@/lib/geo/city-context';
 
 const FORMAT_LABELS: Record<string, string> = {
@@ -27,8 +28,8 @@ export default function CreatePage() {
 
       {/* Page header */}
       <div className="relative bg-radiance hero-texture overflow-hidden">
-        <div className="relative z-10 max-w-4xl mx-auto px-4 pt-24 pb-16 text-white">
-          <p className="label text-marigold-400 mb-3">Step 01</p>
+        <div className="relative z-10 max-w-4xl mx-auto px-4 pt-28 pb-16 text-white">
+          <StepProgress current="create" />
           <h1 className="display-md mb-3">Create Your Message</h1>
           <p className="text-gray-400 text-lg max-w-lg">
             Pick a template to get started, or build from scratch.
@@ -113,10 +114,10 @@ export default function CreatePage() {
             {hasContent && (
               <a
                 href={`${prefix}/advertise/select?template=${template}`}
-                className="mt-6 w-full inline-flex items-center justify-center gap-2 bg-marigold-500 text-white font-bold px-6 py-3.5 rounded-xl hover:bg-marigold-600 transition-all hover:shadow-lg hover:-translate-y-0.5 animate-fade-in-up"
+                className="mt-4 inline-flex items-center gap-2 bg-marigold-500 text-white font-semibold px-5 py-2.5 rounded-xl text-sm hover:bg-marigold-600 transition-all hover:shadow-md hover:-translate-y-0.5 animate-fade-in-up"
               >
                 Next: Choose Publishers
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
               </a>
             )}
           </div>

@@ -4,8 +4,15 @@ import { Suspense, useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Nav, Footer } from '@/components/shared';
 import { PublisherCard, PublisherCardData } from '@/components/advertise/PublisherCard';
+import { StepProgress } from '@/components/advertise/StepProgress';
 import { useCityOptional } from '@/lib/geo/city-context';
 import { getSupabaseClient } from '@/lib/db/supabase';
+
+// Seeded publisher UUID prefixes by city
+const CITY_ID_PREFIX: Record<string, string> = {
+  sf: '11111111-',
+  chicago: '22222222-',
+};
 
 export default function SelectPage() {
   return (
@@ -29,12 +36,16 @@ function SelectPageInner() {
 
   useEffect(() => {
     const supabase = getSupabaseClient();
-    supabase
+    const cityPrefix = cityCtx ? CITY_ID_PREFIX[cityCtx.slug] : null;
+    let query = supabase
       .from('publishers')
       .select('id, name')
       .eq('status', 'active')
-      .order('name')
-      .then(async ({ data: pubData }) => {
+      .order('name');
+    if (cityPrefix) {
+      query = query.like('id', `${cityPrefix}%`);
+    }
+    query.then(async ({ data: pubData }) => {
         if (!pubData) return;
 
         const { data: profiles } = await (supabase as any)
@@ -96,8 +107,8 @@ function SelectPageInner() {
 
       {/* Page header */}
       <div className="relative bg-radiance hero-texture overflow-hidden">
-        <div className="relative z-10 max-w-3xl mx-auto px-4 pt-24 pb-16 text-white">
-          <p className="label text-teal-400 mb-3">Step 02</p>
+        <div className="relative z-10 max-w-3xl mx-auto px-4 pt-28 pb-16 text-white">
+          <StepProgress current="select" />
           <h1 className="display-md mb-3">Choose Your Channels</h1>
           <p className="text-gray-400 text-lg max-w-lg">
             Browse publishers by neighborhood, language, and reach. Select the ones that fit your audience.

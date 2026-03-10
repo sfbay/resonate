@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Nav, Footer } from '@/components/shared';
+import { StepProgress } from '@/components/advertise/StepProgress';
 import { useCityOptional } from '@/lib/geo/city-context';
 import { useCurrentUserOptional } from '@/lib/auth';
 import { getSupabaseClient } from '@/lib/db/supabase';
@@ -55,8 +56,8 @@ export default function ValidatePage() {
 
       {/* Page header */}
       <div className="relative bg-radiance hero-texture overflow-hidden">
-        <div className="relative z-10 max-w-4xl mx-auto px-4 pt-24 pb-16 text-white">
-          <p className="label text-marigold-400 mb-3">Step 04</p>
+        <div className="relative z-10 max-w-4xl mx-auto px-4 pt-28 pb-16 text-white">
+          <StepProgress current="validate" />
           <h1 className="display-md mb-3">Campaign Performance</h1>
           <p className="text-gray-400 text-lg max-w-lg">
             Track what landed across all your campaigns.
