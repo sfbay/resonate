@@ -18,8 +18,14 @@ export default function AdvertiseLanding() {
         ctaLabel="Open the Builder \u2192" ctaPath="/advertise/create"
         variant="light"
       >
-        <div className="p-6 text-center text-gray-400 text-sm">
-          Creative builder preview
+        <div className="p-4">
+          <div className="grid grid-cols-2 gap-2">
+            {['📱 Social Post', '📰 Newsletter', '🖼️ Display', '✨ Blank'].map((t) => (
+              <div key={t} className="bg-gray-50 rounded-lg p-3 text-center text-xs font-medium text-gray-600">
+                {t}
+              </div>
+            ))}
+          </div>
         </div>
       </ModulePreview>
 
@@ -30,8 +36,21 @@ export default function AdvertiseLanding() {
         ctaLabel="Explore Publishers \u2192" ctaPath="/advertise/select"
         variant="dark" reverse
       >
-        <div className="p-6 text-center text-gray-400 text-sm">
-          Publisher marketplace preview
+        <div className="p-4 space-y-2">
+          {[
+            { initials: 'ET', name: 'El Tecolote', area: 'Mission · 12.4K reach', price: '$19' },
+            { initials: 'ML', name: 'Mission Local', area: 'Mission · 8.2K reach', price: '$25' },
+            { initials: 'BV', name: 'The Bay View', area: 'Bayview · 15.1K reach', price: '$22' },
+          ].map((p) => (
+            <div key={p.initials} className="flex items-center gap-3 p-2 rounded-lg bg-white/5">
+              <div className="w-8 h-8 rounded bg-teal-500 text-white flex items-center justify-center text-xs font-bold">{p.initials}</div>
+              <div className="flex-1">
+                <div className="text-sm font-semibold text-white">{p.name}</div>
+                <div className="text-xs text-gray-400">{p.area}</div>
+              </div>
+              <div className="text-sm font-bold text-teal-400">{p.price}</div>
+            </div>
+          ))}
         </div>
       </ModulePreview>
 
@@ -42,8 +61,11 @@ export default function AdvertiseLanding() {
         ctaLabel="Review & Pay \u2192" ctaPath="/advertise/amplify"
         variant="light"
       >
-        <div className="p-6 text-center text-gray-400 text-sm">
-          Checkout preview
+        <div className="p-4 space-y-2 text-sm">
+          <div className="flex justify-between"><span className="text-gray-500">El Tecolote · Social</span><span className="font-semibold">$19</span></div>
+          <div className="flex justify-between"><span className="text-gray-500">The Bay View · Social</span><span className="font-semibold">$22</span></div>
+          <div className="flex justify-between text-green-600"><span>Bulk discount</span><span>−$4.10</span></div>
+          <div className="border-t border-gray-100 pt-2 flex justify-between font-bold"><span>Total</span><span className="text-coral-600">$36.90</span></div>
         </div>
       </ModulePreview>
 
@@ -54,8 +76,20 @@ export default function AdvertiseLanding() {
         ctaLabel="View Dashboard \u2192" ctaPath="/advertise/validate"
         variant="dark" reverse
       >
-        <div className="p-6 text-center text-gray-400 text-sm">
-          Performance dashboard preview
+        <div className="p-4">
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { value: '47.2K', label: 'Impressions' },
+              { value: '1,842', label: 'Clicks' },
+              { value: '3.9%', label: 'Engagement' },
+              { value: '$1.87', label: 'Cost/Click' },
+            ].map((m) => (
+              <div key={m.label} className="bg-white/5 rounded-lg p-3 text-center">
+                <div className="font-heading text-lg font-bold text-white">{m.value}</div>
+                <div className="text-xs text-gray-400">{m.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </ModulePreview>
 
