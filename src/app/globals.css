@@ -447,6 +447,93 @@ h1, h2, h3, h4, h5, h6 {
   animation: marquee 30s linear infinite;
 }
 
+/* Marigold Gradient Text */
+.text-gradient-marigold {
+  background: linear-gradient(135deg, var(--color-marigold) 0%, var(--color-coral) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Radiance Hero — warm mesh gradient */
+.bg-radiance {
+  background:
+    radial-gradient(ellipse 60% 50% at 15% 80%, rgba(247,179,43,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 85% 20%, rgba(241,81,82,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 40% at 50% 50%, rgba(11,82,91,0.06) 0%, transparent 60%),
+    var(--color-charcoal);
+}
+
+/* Glow ring for selected/focused states */
+.ring-glow-marigold {
+  box-shadow: 0 0 0 3px rgba(247,179,43,0.25), 0 0 20px -4px rgba(247,179,43,0.2);
+}
+.ring-glow-teal {
+  box-shadow: 0 0 0 3px rgba(11,82,91,0.2), 0 0 20px -4px rgba(11,82,91,0.15);
+}
+
+/* Glass card effect */
+.glass-card {
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.glass-card:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.18);
+}
+
+/* Slide-in from left/right */
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-in-left { animation: slideInLeft 0.7s ease forwards; }
+.animate-slide-in-right { animation: slideInRight 0.7s ease forwards; }
+
+/* Scale-in entrance */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-scale-in { animation: scaleIn 0.5s ease forwards; }
+
+/* Subtle gradient border glow */
+.border-glow {
+  position: relative;
+}
+.border-glow::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(247,179,43,0.4), rgba(241,81,82,0.2), rgba(11,82,91,0.3));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Warm page gradient (replaces flat gray-50) */
+.bg-warm-page {
+  background: linear-gradient(180deg, var(--color-cream) 0%, #f5f0eb 40%, var(--color-cream) 100%);
+}
+
+/* Pulse glow on CTA */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(247,179,43,0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(247,179,43,0); }
+}
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s ease-in-out infinite;
+}
+
 /* Selection Color */
 ::selection {
   background: var(--color-marigold-light);
