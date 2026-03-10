@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { Suspense, useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Nav, Footer } from '@/components/shared';
 import { PublisherCard, PublisherCardData } from '@/components/advertise/PublisherCard';
@@ -8,6 +8,14 @@ import { useCityOptional } from '@/lib/geo/city-context';
 import { getSupabaseClient } from '@/lib/db/supabase';
 
 export default function SelectPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50"><Nav variant="advertise" /><main className="max-w-3xl mx-auto px-4 py-16 text-center text-gray-400">Loading...</main></div>}>
+      <SelectPageInner />
+    </Suspense>
+  );
+}
+
+function SelectPageInner() {
   const cityCtx = useCityOptional();
   const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   const searchParams = useSearchParams();

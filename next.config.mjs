@@ -27,6 +27,8 @@ const nextConfig = {
   webpack: (config) => {
     // Ensure @/ alias resolves correctly on all build environments
     config.resolve.alias['@'] = resolve(__dirname, 'src');
+    // Fix redux-thunk hoisting issue with recharts -> @reduxjs/toolkit
+    config.resolve.alias['redux-thunk'] = resolve(__dirname, 'node_modules/redux-thunk');
     return config;
   },
 };

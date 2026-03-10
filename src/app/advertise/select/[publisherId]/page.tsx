@@ -1,9 +1,18 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { Nav, Footer } from '@/components/shared';
 
 export default function PublisherDetailPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white"><Nav variant="advertise" /><main className="max-w-4xl mx-auto px-4 py-16 text-center text-gray-400">Loading...</main></div>}>
+      <PublisherDetailPageInner />
+    </Suspense>
+  );
+}
+
+function PublisherDetailPageInner() {
   const { publisherId } = useParams<{ publisherId: string }>();
   const searchParams = useSearchParams();
   const isQuickBuy = searchParams.get('quick') === 'true';
