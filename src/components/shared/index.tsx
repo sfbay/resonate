@@ -89,9 +89,17 @@ export function Nav({ variant = 'default' }: NavProps) {
                 </>
               )}
               {variant === 'advertise' && (
-                <Link href={`${prefix}/advertise/dashboard`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
-                  Dashboard
-                </Link>
+                <>
+                  <Link href={`${prefix}/advertise/create`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+                    Create
+                  </Link>
+                  <Link href={`${prefix}/advertise/select`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+                    Publishers
+                  </Link>
+                  <Link href={`${prefix}/advertise/validate`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+                    Campaigns
+                  </Link>
+                </>
               )}
               <Link
                 href={`${prefix}/${variant}/onboarding`}
