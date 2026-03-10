@@ -19,6 +19,10 @@
   --color-marigold-dark: #E09D0E;
   --color-marigold-light: #FFD166;
 
+  --color-violet: #7C3AED;
+  --color-violet-dark: #6D28D9;
+  --color-violet-light: #A78BFA;
+
   --color-navy: #1B2838;
   --color-navy-light: #2D3E50;
 
@@ -85,6 +89,10 @@
   --color-marigold-500: var(--color-marigold);
   --color-marigold-600: var(--color-marigold-dark);
   --color-marigold-400: var(--color-marigold-light);
+
+  --color-violet-500: var(--color-violet);
+  --color-violet-600: var(--color-violet-dark);
+  --color-violet-400: var(--color-violet-light);
 
   --color-navy-500: var(--color-navy);
   --color-navy-400: var(--color-navy-light);
@@ -470,6 +478,16 @@ h1, h2, h3, h4, h5, h6 {
 }
 .ring-glow-teal {
   box-shadow: 0 0 0 3px rgba(11,82,91,0.2), 0 0 20px -4px rgba(11,82,91,0.15);
+}
+.ring-glow-violet {
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.25), 0 0 20px -4px rgba(124,58,237,0.2);
+}
+
+.text-gradient-violet {
+  background: linear-gradient(135deg, var(--color-violet) 0%, var(--color-violet-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Glass card effect */
