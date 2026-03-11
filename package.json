@@ -32,6 +32,7 @@
     "recharts": "^3.6.0",
     "redux-thunk": "^3.1.0",
     "sharp": "^0.34.5",
+    "source-map-js": "^1.2.1",
     "svix": "^1.86.0",
     "tailwindcss": "^4",
     "tslib": "^2.8.1",

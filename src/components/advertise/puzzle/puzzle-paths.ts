@@ -1,17 +1,16 @@
 /**
  * SVG path data for four interlocking jigsaw puzzle pieces.
  *
- * Coordinate system: each piece occupies a ~200x200 box within a 260x260 viewBox.
- * Tabs bump outward ~30px, blanks indent ~30px.
+ * Each piece uses a 200x200 base square with ~25px circular tabs/blanks.
+ * ViewBox is 260x260 to accommodate protruding tabs (30px padding each side).
+ * The square body spans from (30,30) to (230,230).
+ *
  * Pieces tile in a 2x2 grid:
  *   [Create ] [Select  ]
  *   [Amplify] [Validate]
  *
- * Edge assignments:
- *   Create (TL):   top=flat, right=tab,   bottom=tab,  left=flat
- *   Select (TR):   top=flat, right=flat,  bottom=blank, left=blank
- *   Amplify (BL):  top=blank, right=blank, bottom=flat, left=flat
- *   Validate (BR): top=tab,  right=flat,  bottom=flat, left=tab
+ * Tab = circular bump protruding outward
+ * Blank = circular indent cut inward (receives adjacent piece's tab)
  */
 
 export interface PuzzlePieceDef {
@@ -28,17 +27,82 @@ export interface PuzzlePieceDef {
   href: string;
 }
 
+// ─── Path building helpers ───────────────────────────────────────────
+// Each edge goes from point A to point B. At the midpoint, a circular
+// tab (outward bump) or blank (inward notch) is drawn using cubic beziers.
+// The tab/blank is ~25px radius, centered on the edge midpoint.
+
+// Horizontal edge (left→right), tab bumps downward (+Y)
+function hTabDown(x1: number, x2: number, y: number): string {
+  const mx = (x1 + x2) / 2;
+  return `L ${mx - 20},${y} C ${mx - 20},${y} ${mx - 25},${y + 30} ${mx},${y + 30} C ${mx + 25},${y + 30} ${mx + 20},${y} ${mx + 20},${y} L ${x2},${y}`;
+}
+
+// Horizontal edge (left→right), blank notches upward (-Y)
+function hBlankUp(x1: number, x2: number, y: number): string {
+  const mx = (x1 + x2) / 2;
+  return `L ${mx - 20},${y} C ${mx - 20},${y} ${mx - 25},${y - 30} ${mx},${y - 30} C ${mx + 25},${y - 30} ${mx + 20},${y} ${mx + 20},${y} L ${x2},${y}`;
+}
+
+// Horizontal edge (left→right), tab bumps upward (-Y)
+function hTabUp(x1: number, x2: number, y: number): string {
+  const mx = (x1 + x2) / 2;
+  return `L ${mx - 20},${y} C ${mx - 20},${y} ${mx - 25},${y - 30} ${mx},${y - 30} C ${mx + 25},${y - 30} ${mx + 20},${y} ${mx + 20},${y} L ${x2},${y}`;
+}
+
+// Horizontal edge (left→right), blank notches downward (+Y)
+function hBlankDown(x1: number, x2: number, y: number): string {
+  const mx = (x1 + x2) / 2;
+  return `L ${mx - 20},${y} C ${mx - 20},${y} ${mx - 25},${y + 30} ${mx},${y + 30} C ${mx + 25},${y + 30} ${mx + 20},${y} ${mx + 20},${y} L ${x2},${y}`;
+}
+
+// Vertical edge (top→bottom), tab bumps rightward (+X)
+function vTabRight(x: number, y1: number, y2: number): string {
+  const my = (y1 + y2) / 2;
+  return `L ${x},${my - 20} C ${x},${my - 20} ${x + 30},${my - 25} ${x + 30},${my} C ${x + 30},${my + 25} ${x},${my + 20} ${x},${my + 20} L ${x},${y2}`;
+}
+
+// Vertical edge (top→bottom), blank notches leftward (-X)
+function vBlankLeft(x: number, y1: number, y2: number): string {
+  const my = (y1 + y2) / 2;
+  return `L ${x},${my - 20} C ${x},${my - 20} ${x - 30},${my - 25} ${x - 30},${my} C ${x - 30},${my + 25} ${x},${my + 20} ${x},${my + 20} L ${x},${y2}`;
+}
+
+// Vertical edge (bottom→top), tab bumps leftward (-X)
+function vTabLeft(x: number, y1: number, y2: number): string {
+  const my = (y1 + y2) / 2;
+  return `L ${x},${my + 20} C ${x},${my + 20} ${x - 30},${my + 25} ${x - 30},${my} C ${x - 30},${my - 25} ${x},${my - 20} ${x},${my - 20} L ${x},${y2}`;
+}
+
+// Vertical edge (bottom→top), blank notches rightward (+X)
+function vBlankRight(x: number, y1: number, y2: number): string {
+  const my = (y1 + y2) / 2;
+  return `L ${x},${my + 20} C ${x},${my + 20} ${x + 30},${my + 25} ${x + 30},${my} C ${x + 30},${my - 25} ${x},${my - 20} ${x},${my - 20} L ${x},${y2}`;
+}
+
+// Flat edge
+function flat(x1: number, y1: number, x2: number, y2: number): string {
+  return `L ${x2},${y2}`;
+}
+
+// ─── Piece definitions ───────────────────────────────────────────────
+// Square body: (30,30) to (230,230)
+// Each path drawn clockwise: start top-left → top edge → right edge → bottom edge → left edge
+
 export const PUZZLE_PIECES: PuzzlePieceDef[] = [
   {
     key: 'create',
     label: 'Create',
     sublabel: 'Build your message',
-    // flat top, tab right, tab bottom, flat left
-    path: `M 30,30
-      L 230,30
-      L 230,80 C 230,93 250,100 250,105 C 250,110 230,117 230,130 L 230,230
-      L 180,230 C 167,230 160,250 155,250 C 150,250 143,230 130,230 L 30,230
-      L 30,30 Z`,
+    // Top=flat, Right=tab(right), Bottom=tab(down), Left=flat
+    path: [
+      'M 30,30',
+      flat(30, 30, 230, 30),            // top: flat
+      vTabRight(230, 30, 230),           // right: tab bumps right
+      hTabDown(230, 30, 230),            // bottom (right→left reversed, so we go left): tab bumps down
+      flat(30, 230, 30, 30),             // left: flat
+      'Z',
+    ].join(' '),
     gradient: ['#F7B32B', '#E09D0E'],
     colorClass: 'marigold',
     href: '/advertise/create',
@@ -47,12 +111,15 @@ export const PUZZLE_PIECES: PuzzlePieceDef[] = [
     key: 'select',
     label: 'Select',
     sublabel: 'Choose your channels',
-    // flat top, flat right, blank bottom, blank left
-    path: `M 30,30
-      L 230,30
-      L 230,230
-      L 180,230 C 167,230 160,210 155,210 C 150,210 143,230 130,230 L 30,230
-      L 30,130 C 30,117 10,110 10,105 C 10,100 30,93 30,80 L 30,30 Z`,
+    // Top=flat, Right=flat, Bottom=blank(up), Left=blank(right — receives Create's right tab)
+    path: [
+      'M 30,30',
+      flat(30, 30, 230, 30),             // top: flat
+      flat(230, 30, 230, 230),           // right: flat
+      hBlankUp(230, 30, 230),            // bottom (right→left): blank notches up
+      vBlankRight(30, 230, 30),          // left (bottom→top): blank notches right (receives Create's tab)
+      'Z',
+    ].join(' '),
     gradient: ['#14919B', '#0B525B'],
     colorClass: 'teal',
     href: '/advertise/select',
@@ -61,12 +128,15 @@ export const PUZZLE_PIECES: PuzzlePieceDef[] = [
     key: 'amplify',
     label: 'Amplify',
     sublabel: 'Set budget & launch',
-    // blank top, blank right, flat bottom, flat left
-    path: `M 30,30
-      L 80,30 C 93,30 100,10 105,10 C 110,10 117,30 130,30 L 230,30
-      L 230,80 C 230,93 210,100 210,105 C 210,110 230,117 230,130 L 230,230
-      L 30,230
-      L 30,30 Z`,
+    // Top=blank(up — receives Create's bottom tab), Right=blank(left), Bottom=flat, Left=flat
+    path: [
+      'M 30,30',
+      hBlankUp(30, 230, 30),             // top: blank notches up (receives Create's bottom tab)
+      vBlankLeft(230, 30, 230),          // right: blank notches left (receives Validate's left tab)
+      flat(230, 230, 30, 230),           // bottom: flat
+      flat(30, 230, 30, 30),             // left: flat
+      'Z',
+    ].join(' '),
     gradient: ['#F15152', '#D93E3F'],
     colorClass: 'coral',
     href: '/advertise/amplify',
@@ -75,12 +145,15 @@ export const PUZZLE_PIECES: PuzzlePieceDef[] = [
     key: 'validate',
     label: 'Validate',
     sublabel: 'Track what landed',
-    // tab top, flat right, flat bottom, tab left
-    path: `M 30,30
-      L 130,30 C 143,30 150,50 155,50 C 160,50 167,30 180,30 L 230,30
-      L 230,230
-      L 30,230
-      L 30,130 C 30,117 50,110 50,105 C 50,100 30,93 30,80 L 30,30 Z`,
+    // Top=tab(up — matches Select's bottom blank), Right=flat, Bottom=flat, Left=tab(left)
+    path: [
+      'M 30,30',
+      hTabUp(30, 230, 30),              // top: tab bumps up (fills Select's bottom blank)
+      flat(230, 30, 230, 230),           // right: flat
+      flat(230, 230, 30, 230),           // bottom: flat
+      vTabLeft(30, 230, 30),             // left (bottom→top): tab bumps left (fills Amplify's right blank)
+      'Z',
+    ].join(' '),
     gradient: ['#7C3AED', '#6D28D9'],
     colorClass: 'violet',
     href: '/advertise/validate',
@@ -89,7 +162,6 @@ export const PUZZLE_PIECES: PuzzlePieceDef[] = [
 
 /**
  * Backdrop keyline pieces — simplified outlines for the scattered background.
- * Each has a position (% from left, % from top), rotation, and scale.
  */
 export const BACKDROP_PIECES: Array<{
   x: string; y: string; rotate: number; scale: number; pathIndex: number;
@@ -113,8 +185,11 @@ export const BACKDROP_PIECES: Array<{
 
 /**
  * S-curve SVG path for the hero bottom edge.
- * Inflection point at ~37% from left. Left side dips deeper.
+ * This fills the BOTTOM of the SVG with cream color, creating the
+ * transition from dark hero above to light content below.
+ * The wave top edge: deeper on left (cream starts lower), rises on right.
+ * Inflection point at ~37% from left.
  * ViewBox: 0 0 1440 120
  */
 export const S_CURVE_PATH =
-  'M0,0 L0,60 C180,100 360,110 530,80 C700,50 900,20 1100,35 C1300,50 1400,40 1440,30 L1440,0 Z';
+  'M0,90 C200,110 400,100 540,60 C700,15 950,5 1100,30 C1250,55 1380,45 1440,35 L1440,120 L0,120 Z';
