@@ -3,30 +3,31 @@
 import { motion } from 'framer-motion';
 import { useCityOptional } from '@/lib/geo/city-context';
 import { PuzzlePiece } from './PuzzlePiece';
-import { PUZZLE_PIECES, BACKDROP_PIECES, S_CURVE_PATH } from './puzzle-paths';
+import { PUZZLE_PIECES, BACKDROP_PIECES, S_CURVE_PATH, PUZZLE_VIEWBOX } from './puzzle-paths';
 
 // Entrance directions for each piece (spring in from different corners)
 const PIECE_ENTRANCES = [
-  { x: -120, y: -80, rotate: -25 },  // Create: from top-left
-  { x: 120, y: -80, rotate: 20 },    // Select: from top-right
-  { x: -120, y: 80, rotate: 15 },    // Amplify: from bottom-left
-  { x: 120, y: 80, rotate: -20 },    // Validate: from bottom-right
+  { x: -140, y: -100, rotate: -25 },  // Create: from top-left
+  { x: 140, y: -100, rotate: 20 },    // Select: from top-right
+  { x: -140, y: 100, rotate: 15 },    // Amplify: from bottom-left
+  { x: 140, y: 100, rotate: -20 },    // Validate: from bottom-right
 ];
 
-// Final resting rotations for each piece
-const PIECE_ROTATIONS = [-8, 5, -3, 10];
+// Final resting rotations — subtle tilts for organic feel
+const PIECE_ROTATIONS = [-6, 4, -3, 8];
 
 // Final positions (offset from center of the container)
-// Clustered slightly left-of-center for compositional balance with S-curve
 const PIECE_POSITIONS = [
-  { x: -130, y: -55 },   // Create: top-left
-  { x: 80, y: -45 },     // Select: top-right
-  { x: -90, y: 75 },     // Amplify: bottom-left
-  { x: 110, y: 65 },     // Validate: bottom-right
+  { x: -150, y: -85 },   // Create: top-left
+  { x: 95, y: -75 },     // Select: top-right
+  { x: -110, y: 85 },    // Amplify: bottom-left
+  { x: 130, y: 75 },     // Validate: bottom-right
 ];
 
-const PIECE_SIZE = 170;
+const PIECE_SIZE = 210;
 const HALF = PIECE_SIZE / 2;
+const VB = PUZZLE_VIEWBOX;
+const VB_CENTER = VB / 2;
 
 export function PuzzleHero() {
   const cityCtx = useCityOptional();
@@ -43,12 +44,12 @@ export function PuzzleHero() {
             style={{
               left: bp.x,
               top: bp.y,
-              width: 260 * bp.scale,
-              height: 260 * bp.scale,
+              width: VB * bp.scale,
+              height: VB * bp.scale,
             }}
-            viewBox="0 0 260 260"
+            viewBox={`0 0 ${VB} ${VB}`}
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.06 }}
+            animate={{ opacity: 0.07 }}
             transition={{ delay: 0.3 + i * 0.03, duration: 1.2 }}
           >
             <path
@@ -56,14 +57,14 @@ export function PuzzleHero() {
               fill="none"
               stroke="white"
               strokeWidth="1.5"
-              transform={`rotate(${bp.rotate} 130 130)`}
+              transform={`rotate(${bp.rotate} ${VB_CENTER} ${VB_CENTER})`}
             />
           </motion.svg>
         ))}
       </div>
 
       {/* ── Foreground content ── */}
-      <div className="relative z-10 pt-28 md:pt-36 pb-36 md:pb-44 px-4">
+      <div className="relative z-10 pt-28 md:pt-36 pb-36 md:pb-48 px-4">
         {/* Headline */}
         <motion.div
           className="max-w-3xl mx-auto text-center mb-16 md:mb-20"
@@ -71,20 +72,20 @@ export function PuzzleHero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: 'spring', damping: 25, stiffness: 100, delay: 0.1 }}
         >
-          <p className="label text-marigold-400 mb-5">Resonate Advertise</p>
+          <p className="label text-marigold-400 mb-5 tracking-widest">Resonate Advertise</p>
           <h1 className="display-xl mb-6">
             Reach your community.{' '}
             <br className="hidden md:block" />
             <em className="text-gradient-marigold not-italic">Your way.</em>
           </h1>
-          <p className="body-lg text-gray-400 max-w-xl mx-auto">
+          <p className="body-lg text-gray-400 max-w-xl mx-auto leading-relaxed">
             Four steps. One platform. Whether you&apos;re boosting a weekend market
             or launching a citywide campaign, start wherever makes sense.
           </p>
         </motion.div>
 
         {/* ── Four puzzle pieces ── */}
-        <div className="relative max-w-2xl mx-auto h-[320px] md:h-[360px]">
+        <div className="relative max-w-3xl mx-auto h-[400px] md:h-[460px]">
           {PUZZLE_PIECES.map((piece, i) => (
             <a
               key={piece.key}
@@ -124,7 +125,7 @@ export function PuzzleHero() {
 
         {/* Quick-start CTA */}
         <motion.div
-          className="max-w-md mx-auto text-center mt-12"
+          className="max-w-md mx-auto text-center mt-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.3, duration: 0.6 }}
