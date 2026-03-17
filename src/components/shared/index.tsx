@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import React from 'react';
+import { useUser, UserButton } from '@clerk/nextjs';
 import { useCityOptional } from '@/lib/geo/city-context';
 
 // =============================================================================
@@ -13,6 +14,7 @@ interface NavProps {
 }
 
 export function Nav({ variant = 'default' }: NavProps) {
+  const { isSignedIn } = useUser();
   const cityCtx = useCityOptional();
   const prefix = cityCtx ? `/${cityCtx.slug}` : '';
 
@@ -62,6 +64,13 @@ export function Nav({ variant = 'default' }: NavProps) {
               <Link href={`${prefix}/advertise`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
                 Advertise
               </Link>
+              {isSignedIn ? (
+                <UserButton appearance={{ elements: { avatarBox: 'w-8 h-8' } }} />
+              ) : (
+                <Link href="/sign-in" className="btn btn-coral text-sm py-2 px-4">
+                  Sign In
+                </Link>
+              )}
             </>
           ) : (
             <>
@@ -101,12 +110,16 @@ export function Nav({ variant = 'default' }: NavProps) {
                   </Link>
                 </>
               )}
-              <Link
-                href={`${prefix}/${variant}/onboarding`}
-                className={`btn ${btnClass} text-sm py-2 px-4`}
-              >
-                Get Started
-              </Link>
+              {isSignedIn ? (
+                <UserButton appearance={{ elements: { avatarBox: 'w-8 h-8' } }} />
+              ) : (
+                <Link
+                  href={`${prefix}/${variant}/onboarding`}
+                  className={`btn ${btnClass} text-sm py-2 px-4`}
+                >
+                  Get Started
+                </Link>
+              )}
             </>
           )}
         </div>
