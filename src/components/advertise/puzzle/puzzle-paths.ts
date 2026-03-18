@@ -1,13 +1,16 @@
 /**
  * SVG path data for four interlocking jigsaw puzzle pieces.
  *
- * ViewBox: 300×300
- * Body:    (50,50) to (250,250) — 200×200 square
- * Padding: 50px on each side for tab protrusion
+ * ViewBox: 380×380
+ * Body:    (90,90) to (290,290) — 200×200 square
+ * Padding: 90px on each side for large tab protrusion
  *
  * Tab anatomy (classic "mushroom" connector):
  *   narrow neck → shoulder → round bulbous head → shoulder → neck
  * Each tab uses 4 cubic bézier segments for smooth, realistic shapes.
+ *
+ * The tabs are deliberately LARGE (30% of body) to create the iconic
+ * jigsaw silhouette visible even at small sizes.
  *
  * Grid layout:
  *   [Create ] [Select  ]    marigold   teal
@@ -18,7 +21,7 @@ export interface PuzzlePieceDef {
   key: 'create' | 'select' | 'amplify' | 'validate';
   label: string;
   sublabel: string;
-  /** SVG path string for clipPath. ViewBox is 300×300. */
+  /** SVG path string for clipPath. ViewBox is 380×380. */
   path: string;
   /** Gradient colors [from, to] */
   gradient: [string, string];
@@ -30,16 +33,16 @@ export interface PuzzlePieceDef {
 
 // ─── Geometry constants ──────────────────────────────────────────────
 // Body edges
-const B0 = 50;   // body start (top / left)
-const B1 = 250;  // body end (bottom / right)
+const B0 = 90;   // body start (top / left)
+const B1 = 290;  // body end (bottom / right)
 
-// Tab proportions — tuned for the classic mushroom shape
-const HW = 20;   // head half-width  (head ⌀ = 40px, 20% of body)
-const NW = 7;    // neck half-width  (neck w = 14px, head:neck ≈ 2.9:1)
-const TD = 38;   // tab depth        (protrusion = 38px, 19% of body)
+// Tab proportions — large, bold mushroom connectors
+const HW = 30;   // head half-width  (head ⌀ = 60px, 30% of body)
+const NW = 10;   // neck half-width  (neck w = 20px, head:neck = 3:1)
+const TD = 60;   // tab depth        (protrusion = 60px, 30% of body)
 
 /** ViewBox size for all puzzle piece SVGs */
-export const PUZZLE_VIEWBOX = 300;
+export const PUZZLE_VIEWBOX = 380;
 
 // ─── Tab / blank path builders ───────────────────────────────────────
 // Each tab is 4 cubic béziers: neck→head shoulder, head left half,
@@ -54,8 +57,8 @@ function hTab(x1: number, x2: number, y: number, dir: number): string {
   const d = dir;
 
   // Key vertical stations along the tab
-  const yNeck = y + d * 10;           // end of neck / start of shoulder
-  const yWide = y + d * TD * 0.55;    // widest part of head
+  const yNeck = y + d * 14;           // end of neck / start of shoulder
+  const yWide = y + d * TD * 0.52;    // widest part of head
   const yTip  = y + d * TD;           // bottommost point of head
 
   return [
@@ -80,8 +83,8 @@ function vTab(x: number, y1: number, y2: number, dir: number): string {
   const my = (y1 + y2) / 2;
   const d = dir;
 
-  const xNeck = x + d * 10;
-  const xWide = x + d * TD * 0.55;
+  const xNeck = x + d * 14;
+  const xWide = x + d * TD * 0.52;
   const xTip  = x + d * TD;
 
   return [
@@ -115,7 +118,6 @@ function flat(_x1: number, _y1: number, x2: number, y2: number): string {
 
 // ─── Piece definitions ───────────────────────────────────────────────
 // Paths drawn clockwise: M top-left → top → right → bottom → left → Z
-// Edges are either flat (outer), tab (protrudes), or blank (receives).
 
 export const PUZZLE_PIECES: PuzzlePieceDef[] = [
   {
@@ -209,11 +211,18 @@ export const BACKDROP_PIECES: Array<{
   { x: '65%', y: '75%', rotate: 30,  scale: 0.28, pathIndex: 1 },
 ];
 
+// ─── Single puzzle piece path for small decorative use ───────────────
+// A standalone piece with tabs on all 4 sides, suitable for badges/icons.
+// ViewBox matches PUZZLE_VIEWBOX (380×380), body 90→290.
+export const SINGLE_PIECE_PATH = [
+  `M ${B0},${B0}`,
+  hTab(B0, B1, B0, -1),   // top: tab up
+  vTab(B1, B0, B1, +1),   // right: tab right
+  hTab(B1, B0, B1, +1),   // bottom: tab down
+  vTab(B0, B1, B0, -1),   // left: tab left
+  'Z',
+].join(' ');
+
 // ─── S-curve path ────────────────────────────────────────────────────
-/**
- * Hero bottom edge — fills the BOTTOM of the SVG with cream.
- * Wave deeper on left, inflection at ~37%, rises on right.
- * ViewBox: 0 0 1440 120
- */
 export const S_CURVE_PATH =
   'M0,90 C200,110 400,100 540,60 C700,15 950,5 1100,30 C1250,55 1380,45 1440,35 L1440,120 L0,120 Z';

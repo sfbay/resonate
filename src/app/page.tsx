@@ -110,7 +110,7 @@ export default function LandingPage() {
             <div className="flex items-center gap-2.5">
               <ResonanceLogo size={32} />
               <span className="text-xl font-bold font-serif text-white">Resonate</span>
-              <span className="hidden md:inline text-[10px] font-semibold tracking-[0.15em] uppercase text-white/30 ml-1">Community Media Marketplace</span>
+              <span className="hidden md:inline text-[10px] font-semibold tracking-[0.15em] uppercase text-white/30 ml-1 mt-[3px] self-end">Community Media Marketplace</span>
             </div>
             <nav className="hidden md:flex items-center gap-6">
               <Link

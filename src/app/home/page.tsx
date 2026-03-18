@@ -3,6 +3,7 @@ import { Footer } from "@/components/shared";
 import { SFMapTexture } from "@/components/SFMapTexture";
 import { ResonanceBeacon } from "@/components/ResonanceBeacon";
 import { ResonanceLogo } from "@/components/ResonanceLogo";
+import { SINGLE_PIECE_PATH, PUZZLE_VIEWBOX } from "@/components/advertise/puzzle/puzzle-paths";
 
 export default function Home() {
   return (
@@ -18,7 +19,7 @@ export default function Home() {
             <span className="text-xl font-bold font-serif text-white tracking-tight">
               Resonate
             </span>
-            <span className="hidden md:inline text-[10px] font-semibold tracking-[0.15em] uppercase text-white/30 ml-1">Community Media Marketplace</span>
+            <span className="hidden md:inline text-[10px] font-semibold tracking-[0.15em] uppercase text-white/30 ml-1 mt-[3px] self-end">Community Media Marketplace</span>
           </Link>
           <div className="flex items-center gap-1">
             <Link href="/publisher" className="px-3.5 py-1.5 text-sm font-medium text-white/70 hover:text-white rounded-full hover:bg-white/10 transition-all">
@@ -37,7 +38,7 @@ export default function Home() {
       {/* ============================================================
           HERO — Bright teal gradient, editorial serif, cleaner
           ============================================================ */}
-      <section className="relative min-h-[70vh] pt-20 pb-16 overflow-hidden bg-gradient-to-br from-[var(--color-teal)] via-[#0d5c66] to-[var(--color-charcoal)]">
+      <section className="relative min-h-[48vh] pt-16 pb-12 overflow-hidden bg-gradient-to-br from-[var(--color-teal)] via-[#0d5c66] to-[var(--color-charcoal)]">
         <SFMapTexture variant="teal" />
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-charcoal)]/60 via-transparent to-transparent z-[1]" />
 
@@ -121,7 +122,7 @@ export default function Home() {
               Three paths, one mission
             </h2>
             <p className="text-[var(--color-slate)] max-w-2xl mx-auto text-lg leading-relaxed">
-              Whether you&apos;re a community voice, a government agency, or a business — Resonate connects you with the communities that matter.
+              Whether you&apos;re a community publisher, a government agency, or a local business — Resonate helps deliver your message to communities that matter.
             </p>
           </div>
 
@@ -252,7 +253,7 @@ export default function Home() {
       <section className="py-20 px-6 bg-[var(--color-cream)] bg-dots">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
-            <div className="text-xs font-bold tracking-[0.2em] uppercase text-[var(--color-teal)] mb-3">Simple Process</div>
+            <div className="text-xs font-bold tracking-[0.2em] uppercase text-[var(--color-teal)] mb-3">Our Process</div>
             <h2 className="font-serif text-[var(--color-charcoal)]" style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: 600 }}>
               How Resonate Works
             </h2>
@@ -264,24 +265,49 @@ export default function Home() {
                 num: 1,
                 title: 'Match',
                 desc: 'Publishers define their audiences. Advertisers define who they need to reach. Our algorithm connects the dots.',
-                color: 'bg-[var(--color-coral)]',
+                gradient: ['var(--color-coral)', 'var(--color-coral-dark)'],
               },
               {
                 num: 2,
                 title: 'Scope',
                 desc: 'Define campaign parameters, agree on deliverables and pricing. Everything stays procurement-compliant.',
-                color: 'bg-[var(--color-marigold)]',
+                gradient: ['var(--color-marigold)', 'var(--color-marigold-dark)'],
               },
               {
                 num: 3,
                 title: 'Resonate',
                 desc: 'Campaigns run through trusted community voices. Track delivery and measure real community impact.',
-                color: 'bg-[var(--color-teal)]',
+                gradient: ['var(--color-teal)', 'var(--color-teal-dark)'],
               },
             ].map((step) => (
               <div key={step.num}>
-                <div className={`w-14 h-14 ${step.color} rounded-2xl flex items-center justify-center mb-5`}>
-                  <span className="text-white text-xl font-bold font-serif">{step.num}</span>
+                {/* Puzzle piece badge with number */}
+                <div className="relative w-16 h-16 mb-5">
+                  <svg viewBox={`0 0 ${PUZZLE_VIEWBOX} ${PUZZLE_VIEWBOX}`} className="w-full h-full drop-shadow-md">
+                    <defs>
+                      <clipPath id={`step-piece-${step.num}`}>
+                        <path d={SINGLE_PIECE_PATH} />
+                      </clipPath>
+                      <linearGradient id={`step-grad-${step.num}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor={step.gradient[0]} />
+                        <stop offset="100%" stopColor={step.gradient[1]} />
+                      </linearGradient>
+                    </defs>
+                    <g clipPath={`url(#step-piece-${step.num})`}>
+                      <rect x="0" y="0" width={PUZZLE_VIEWBOX} height={PUZZLE_VIEWBOX} fill={`url(#step-grad-${step.num})`} />
+                    </g>
+                    <text
+                      x={PUZZLE_VIEWBOX / 2}
+                      y={PUZZLE_VIEWBOX / 2 + 12}
+                      textAnchor="middle"
+                      fill="white"
+                      fontSize="80"
+                      fontWeight="700"
+                      fontFamily="var(--font-fraunces), serif"
+                    >
+                      {step.num}
+                    </text>
+                  </svg>
                 </div>
                 <h3 className="font-serif text-xl font-semibold text-[var(--color-charcoal)] mb-2">
                   {step.title}
