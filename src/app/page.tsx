@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import { ResonanceLogo } from '@/components/ResonanceLogo';
 
 /**
  * Resonate Landing
@@ -106,13 +107,10 @@ export default function LandingPage() {
         {/* Nav */}
         <header className="relative z-20 px-6 py-6">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--color-coral)] to-[var(--color-marigold)] flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
+            <div className="flex items-center gap-2.5">
+              <ResonanceLogo size={32} />
               <span className="text-xl font-bold font-serif text-white">Resonate</span>
+              <span className="hidden md:inline text-[10px] font-semibold tracking-[0.15em] uppercase text-white/30 ml-1">Community Media Marketplace</span>
             </div>
             <nav className="hidden md:flex items-center gap-6">
               <Link

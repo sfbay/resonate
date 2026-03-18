@@ -18,6 +18,7 @@ export default function Home() {
             <span className="text-xl font-bold font-serif text-white tracking-tight">
               Resonate
             </span>
+            <span className="hidden md:inline text-[10px] font-semibold tracking-[0.15em] uppercase text-white/30 ml-1">Community Media Marketplace</span>
           </Link>
           <div className="flex items-center gap-1">
             <Link href="/publisher" className="px-3.5 py-1.5 text-sm font-medium text-white/70 hover:text-white rounded-full hover:bg-white/10 transition-all">
@@ -56,7 +57,7 @@ export default function Home() {
               <span className="block" style={{ color: 'var(--color-marigold)' }}>Resonate</span>
             </h1>
             <p className="text-xl text-white/75 max-w-lg mb-10 animate-fade-in-up stagger-2 leading-relaxed">
-              Resonate connects community and ethnic publishers with institutions and businesses seeking to reach their audiences — starting in San Francisco.
+              Resonate connects the dots with our five-dimension matching algorithm — scoring geographic, demographic, economic, cultural, and reach alignment to pair every campaign with the right community voices.
             </p>
             <div className="flex flex-wrap gap-3 animate-fade-in-up stagger-3">
               <Link href="/publisher" className="group px-6 py-3 rounded-full bg-[var(--color-coral)] text-white font-semibold text-sm transition-all duration-300 hover:bg-[var(--color-coral-dark)] hover:scale-105 hover:shadow-lg hover:shadow-[rgba(241,81,82,0.3)]">

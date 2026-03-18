@@ -15,6 +15,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { SFMapTexture } from '@/components/SFMapTexture';
 import { ResonanceBeacon } from '@/components/ResonanceBeacon';
+import { ResonanceLogo } from '@/components/ResonanceLogo';
 
 // Animated counter hook
 function useCountUp(end: number, duration: number = 1800, start: boolean = true) {
@@ -68,16 +69,12 @@ export default function CityPage() {
           ============================================================ */}
       <div className="relative z-50 bg-[var(--color-charcoal)] border-b border-white/10">
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            {/* Resonance mark — three concentric arcs */}
-            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
-              <circle cx="13" cy="13" r="4" fill="var(--color-coral)" />
-              <path d="M13 5a8 8 0 010 16" stroke="var(--color-teal-light)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-              <path d="M13 2a11 11 0 010 22" stroke="var(--color-marigold)" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.7" />
-            </svg>
+          <Link href="/" className="flex items-center gap-2">
+            <ResonanceLogo size={28} />
             <span className="text-xl font-bold font-serif text-white tracking-tight">
               Resonate
             </span>
+            <span className="hidden md:inline text-[10px] font-semibold tracking-[0.15em] uppercase text-white/30 ml-1">Community Media Marketplace</span>
           </Link>
           <div className="flex items-center gap-1">
             <Link
@@ -681,11 +678,7 @@ function ClosingSection({ data, cityName, getPath }: { data: CityLandingData; ci
           className="mt-14 flex items-center justify-center gap-2 text-white/35 text-sm transition-all duration-1000 delay-500"
           style={{ opacity: inView ? 1 : 0 }}
         >
-          <svg width="18" height="18" viewBox="0 0 26 26" fill="none" aria-hidden="true">
-            <circle cx="13" cy="13" r="4" fill="var(--color-coral)" opacity="0.6" />
-            <path d="M13 5a8 8 0 010 16" stroke="var(--color-teal-light)" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.4" />
-            <path d="M13 2a11 11 0 010 22" stroke="var(--color-marigold)" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.3" />
-          </svg>
+          <ResonanceLogo size={18} />
           <span>Resonate &middot; {cityName}</span>
         </div>
       </div>

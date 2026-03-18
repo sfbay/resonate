@@ -4,6 +4,7 @@ import Link from 'next/link';
 import React from 'react';
 import { useUser, UserButton } from '@clerk/nextjs';
 import { useCityOptional } from '@/lib/geo/city-context';
+import { ResonanceLogo } from '@/components/ResonanceLogo';
 
 // =============================================================================
 // NAVIGATION
@@ -39,7 +40,8 @@ export function Nav({ variant = 'default' }: NavProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 px-6 py-4">
       <nav className="max-w-7xl mx-auto flex items-center justify-between bg-white/80 backdrop-blur-md rounded-full px-6 py-3 shadow-sm border border-[var(--color-mist)]">
-        <Link href={prefix || '/'} className="flex items-center gap-3">
+        <Link href={prefix || '/'} className="flex items-center gap-2.5">
+          <ResonanceLogo size={24} />
           <span className="text-2xl font-bold font-[family-name:var(--font-fraunces)] text-[var(--color-charcoal)]">
             Resonate
           </span>
