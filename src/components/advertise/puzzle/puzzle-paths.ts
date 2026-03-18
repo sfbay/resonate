@@ -1,15 +1,15 @@
 /**
  * SVG path data for four interlocking jigsaw puzzle pieces.
  *
- * ViewBox: 440×440
- * Body:    (120,120) to (320,320) — 200×200 square
- * Padding: 120px on each side for large tab protrusion
+ * ViewBox: 500×500
+ * Body:    (150,150) to (350,350) — 200×200 square
+ * Padding: 150px on each side for large tab protrusion
  *
- * Tab anatomy (classic "mushroom" connector):
- *   narrow neck → shoulder → round bulbous head → shoulder → neck
- * Each tab uses 4 cubic bézier segments for smooth, realistic shapes.
- *
- * Tabs are 35% of body width — bold, unmistakable jigsaw silhouette.
+ * Tab proportions modeled from raster-pieces.jpg reference:
+ *   - Bulb is ~42% of body width (nearly half!)
+ *   - Neck is ~28% of bulb width (very narrow pinch)
+ *   - Bulb is nearly circular
+ *   - Total protrusion is ~42% of body width
  *
  * Grid layout:
  *   [Create ] [Select  ]    marigold   teal
@@ -20,29 +20,28 @@ export interface PuzzlePieceDef {
   key: 'create' | 'select' | 'amplify' | 'validate';
   label: string;
   sublabel: string;
-  /** SVG path string for clipPath. ViewBox is 440×440. */
   path: string;
-  /** Gradient colors [from, to] */
   gradient: [string, string];
-  /** CSS color class prefix */
   colorClass: string;
-  /** Link path */
   href: string;
 }
 
 // ─── Geometry constants ──────────────────────────────────────────────
-const B0 = 120;  // body start (top / left)
-const B1 = 320;  // body end (bottom / right)
+const B0 = 150;  // body start (top / left)
+const B1 = 350;  // body end (bottom / right)
 
-// Tab proportions — BIG, bold mushroom connectors
-const HW = 38;   // head half-width  (head ⌀ = 76px, 38% of body)
-const NW = 13;   // neck half-width  (neck w = 26px, head:neck = 2.9:1)
-const TD = 76;   // tab depth        (protrusion = 76px, 38% of body)
+// Tab proportions — matched to raster-pieces.jpg reference
+const HW = 42;   // head half-width  (head ⌀ = 84px, 42% of body)
+const NW = 12;   // neck half-width  (neck w = 24px, neck:head = 0.29)
+const TD = 84;   // tab depth        (protrusion = 84px, 42% of body)
 
 /** ViewBox size for all puzzle piece SVGs */
-export const PUZZLE_VIEWBOX = 440;
+export const PUZZLE_VIEWBOX = 500;
 
 // ─── Tab / blank path builders ───────────────────────────────────────
+// Each tab uses 4 cubic béziers: neck→shoulder, head-left, head-right,
+// shoulder→neck. The neck is narrow with a slight concave pinch before
+// flaring out to the round bulb.
 
 /**
  * Horizontal tab along edge y, from x1 toward x2.
@@ -52,19 +51,20 @@ function hTab(x1: number, x2: number, y: number, dir: number): string {
   const mx = (x1 + x2) / 2;
   const d = dir;
 
-  const yNeck = y + d * 16;           // end of neck / start of shoulder
-  const yWide = y + d * TD * 0.50;    // widest part of head
-  const yTip  = y + d * TD;           // bottommost point of head
+  // Vertical stations
+  const yNeck = y + d * 18;            // neck-to-shoulder junction
+  const yWide = y + d * TD * 0.46;     // head widest point
+  const yTip  = y + d * TD;            // tip of bulb
 
   return [
     `L ${mx - NW},${y}`,
-    // 1. Neck left → head left  (S-curve: narrow → wide)
+    // 1. Neck → head shoulder (narrow pinch widens to bulb)
     `C ${mx - NW},${yNeck} ${mx - HW},${yNeck} ${mx - HW},${yWide}`,
-    // 2. Head left → head bottom center (quarter-circle)
-    `C ${mx - HW},${y + d * TD * 0.80} ${mx - HW * 0.5},${yTip} ${mx},${yTip}`,
-    // 3. Head bottom center → head right (quarter-circle)
-    `C ${mx + HW * 0.5},${yTip} ${mx + HW},${y + d * TD * 0.80} ${mx + HW},${yWide}`,
-    // 4. Head right → neck right (S-curve: wide → narrow)
+    // 2. Head left → tip (quarter-circle, round bulb)
+    `C ${mx - HW},${y + d * TD * 0.78} ${mx - HW * 0.55},${yTip} ${mx},${yTip}`,
+    // 3. Tip → head right (quarter-circle)
+    `C ${mx + HW * 0.55},${yTip} ${mx + HW},${y + d * TD * 0.78} ${mx + HW},${yWide}`,
+    // 4. Head shoulder → neck (bulb narrows to pinch)
     `C ${mx + HW},${yNeck} ${mx + NW},${yNeck} ${mx + NW},${y}`,
     `L ${x2},${y}`,
   ].join(' ');
@@ -78,35 +78,27 @@ function vTab(x: number, y1: number, y2: number, dir: number): string {
   const my = (y1 + y2) / 2;
   const d = dir;
 
-  const xNeck = x + d * 16;
-  const xWide = x + d * TD * 0.50;
+  const xNeck = x + d * 18;
+  const xWide = x + d * TD * 0.46;
   const xTip  = x + d * TD;
 
   return [
     `L ${x},${my - NW}`,
     `C ${xNeck},${my - NW} ${xNeck},${my - HW} ${xWide},${my - HW}`,
-    `C ${x + d * TD * 0.80},${my - HW} ${xTip},${my - HW * 0.5} ${xTip},${my}`,
-    `C ${xTip},${my + HW * 0.5} ${x + d * TD * 0.80},${my + HW} ${xWide},${my + HW}`,
+    `C ${x + d * TD * 0.78},${my - HW} ${xTip},${my - HW * 0.55} ${xTip},${my}`,
+    `C ${xTip},${my + HW * 0.55} ${x + d * TD * 0.78},${my + HW} ${xWide},${my + HW}`,
     `C ${xNeck},${my + HW} ${xNeck},${my + NW} ${x},${my + NW}`,
     `L ${x},${y2}`,
   ].join(' ');
 }
 
 /**
- * Horizontal blank (concavity) — indentation receiving a neighbor's tab.
- *
- * Direction is NEGATED: the caller passes the "away from body" direction
- * (e.g., -1 = up for a top edge), but the blank needs to dip INTO the body
- * (downward) to create the concavity. Negating achieves this.
+ * Blank (concavity) — direction is NEGATED so the indent cuts INTO
+ * the piece body, creating a notch that receives a neighbor's tab.
  */
 function hBlank(x1: number, x2: number, y: number, dir: number): string {
   return hTab(x1, x2, y, -dir);
 }
-
-/**
- * Vertical blank (concavity) — indentation receiving a neighbor's tab.
- * Direction is negated so the indent goes INTO the piece body.
- */
 function vBlank(x: number, y1: number, y2: number, dir: number): string {
   return vTab(x, y1, y2, -dir);
 }
@@ -117,28 +109,27 @@ function flat(_x1: number, _y1: number, x2: number, y2: number): string {
 }
 
 // ─── Piece definitions ───────────────────────────────────────────────
-// Paths drawn clockwise: M top-left → top → right → bottom → left → Z
+// Tab = outward protrusion (away from body)
+// Blank = inward notch (into body, receives neighbor's tab)
 //
-// Tab directions (away from body):
-//   top edge:    -1 (up)      bottom edge: +1 (down)
-//   left edge:   -1 (left)    right edge:  +1 (right)
-//
-// Blank directions (also away from body — same as the tab they receive):
-//   top blank:   -1 (up)      bottom blank: +1 (down)
-//   left blank:  -1 (left)    right blank:  +1 (right)
+// Interlocking pattern:
+//   Create's right tab  ↔  Select's left blank
+//   Create's bottom tab ↔  Amplify's top blank
+//   Select's bottom tab ↔  Validate's top blank
+//   Amplify's right tab ↔  Validate's left blank
 
 export const PUZZLE_PIECES: PuzzlePieceDef[] = [
   {
-    // CREATE: top-left — flat top, tab→right, tab→down, flat left
+    // CREATE: top-left corner — 2 flat edges, 2 tabs
     key: 'create',
     label: 'Create',
     sublabel: 'Build your message',
     path: [
       `M ${B0},${B0}`,
-      flat(B0, B0, B1, B0),           // top: flat
-      vTab(B1, B0, B1, +1),           // right: tab protrudes right
-      hTab(B1, B0, B1, +1),           // bottom: tab protrudes down (drawn R→L)
-      flat(B0, B1, B0, B0),           // left: flat
+      flat(B0, B0, B1, B0),           // top: flat (outer edge)
+      vTab(B1, B0, B1, +1),           // right: TAB protrudes right →
+      hTab(B1, B0, B1, +1),           // bottom: TAB protrudes down ↓ (drawn R→L)
+      flat(B0, B1, B0, B0),           // left: flat (outer edge)
       'Z',
     ].join(' '),
     gradient: ['#F7B32B', '#E09D0E'],
@@ -146,16 +137,16 @@ export const PUZZLE_PIECES: PuzzlePieceDef[] = [
     href: '/advertise/create',
   },
   {
-    // SELECT: top-right — flat top, flat right, tab→down, blank←left
+    // SELECT: top-right corner — 2 flat, 1 tab, 1 blank
     key: 'select',
     label: 'Select',
     sublabel: 'Choose your channels',
     path: [
       `M ${B0},${B0}`,
-      flat(B0, B0, B1, B0),           // top: flat
-      flat(B1, B0, B1, B1),           // right: flat
-      hTab(B1, B0, B1, +1),           // bottom: tab protrudes down (R→L)
-      vBlank(B0, B1, B0, -1),         // left: blank indents LEFT (away from body)
+      flat(B0, B0, B1, B0),           // top: flat (outer edge)
+      flat(B1, B0, B1, B1),           // right: flat (outer edge)
+      hTab(B1, B0, B1, +1),           // bottom: TAB protrudes down ↓ (R→L)
+      vBlank(B0, B1, B0, -1),         // left: BLANK notch ← (receives Create's right tab)
       'Z',
     ].join(' '),
     gradient: ['#14919B', '#0B525B'],
@@ -163,16 +154,16 @@ export const PUZZLE_PIECES: PuzzlePieceDef[] = [
     href: '/advertise/select',
   },
   {
-    // AMPLIFY: bottom-left — blank↑top, tab→right, flat bottom, flat left
+    // AMPLIFY: bottom-left corner — 2 flat, 1 tab, 1 blank
     key: 'amplify',
     label: 'Amplify',
     sublabel: 'Set budget & launch',
     path: [
       `M ${B0},${B0}`,
-      hBlank(B0, B1, B0, -1),         // top: blank indents UP (away from body)
-      vTab(B1, B0, B1, +1),           // right: tab protrudes right
-      flat(B1, B1, B0, B1),           // bottom: flat
-      flat(B0, B1, B0, B0),           // left: flat
+      hBlank(B0, B1, B0, -1),         // top: BLANK notch ↑ (receives Create's bottom tab)
+      vTab(B1, B0, B1, +1),           // right: TAB protrudes right →
+      flat(B1, B1, B0, B1),           // bottom: flat (outer edge)
+      flat(B0, B1, B0, B0),           // left: flat (outer edge)
       'Z',
     ].join(' '),
     gradient: ['#F15152', '#D93E3F'],
@@ -180,16 +171,16 @@ export const PUZZLE_PIECES: PuzzlePieceDef[] = [
     href: '/advertise/amplify',
   },
   {
-    // VALIDATE: bottom-right — blank↑top, flat right, flat bottom, blank←left
+    // VALIDATE: bottom-right corner — 2 flat, 0 tabs, 2 blanks
     key: 'validate',
     label: 'Validate',
     sublabel: 'Track what landed',
     path: [
       `M ${B0},${B0}`,
-      hBlank(B0, B1, B0, -1),         // top: blank indents UP (away from body)
-      flat(B1, B0, B1, B1),           // right: flat
-      flat(B1, B1, B0, B1),           // bottom: flat
-      vBlank(B0, B1, B0, -1),         // left: blank indents LEFT (away from body)
+      hBlank(B0, B1, B0, -1),         // top: BLANK notch ↑ (receives Select's bottom tab)
+      flat(B1, B0, B1, B1),           // right: flat (outer edge)
+      flat(B1, B1, B0, B1),           // bottom: flat (outer edge)
+      vBlank(B0, B1, B0, -1),         // left: BLANK notch ← (receives Amplify's right tab)
       'Z',
     ].join(' '),
     gradient: ['#7C3AED', '#6D28D9'],
@@ -219,7 +210,7 @@ export const BACKDROP_PIECES: Array<{
   { x: '65%', y: '75%', rotate: 30,  scale: 0.28, pathIndex: 1 },
 ];
 
-// ─── Single puzzle piece path for small decorative use ───────────────
+// ─── Single puzzle piece path for decorative use ─────────────────────
 // Standalone piece with tabs on all 4 sides, for badges/icons.
 export const SINGLE_PIECE_PATH = [
   `M ${B0},${B0}`,
