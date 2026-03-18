@@ -1,15 +1,19 @@
 import { SignUp } from '@clerk/nextjs';
+import { ResonanceLogo } from '@/components/ResonanceLogo';
 
 export default function SignUpPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--color-charcoal)]">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="font-[family-name:var(--font-fraunces)] text-3xl font-bold text-white">
-            Resonate
-          </h1>
-          <p className="text-white/60 text-sm mt-2">
-            Community media marketplace
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <ResonanceLogo size={36} />
+            <h1 className="font-[family-name:var(--font-fraunces)] text-3xl font-bold text-white">
+              Resonate
+            </h1>
+          </div>
+          <p className="text-white/50 text-sm max-w-xs mx-auto leading-relaxed">
+            Connecting community publishers with the institutions and businesses that need to reach their audiences.
           </p>
         </div>
         <SignUp

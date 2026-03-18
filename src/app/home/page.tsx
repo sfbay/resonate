@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Footer } from "@/components/shared";
 import { SFMapTexture } from "@/components/SFMapTexture";
 import { ResonanceBeacon } from "@/components/ResonanceBeacon";
+import { ResonanceLogo } from "@/components/ResonanceLogo";
 
 export default function Home() {
   return (
@@ -12,12 +13,8 @@ export default function Home() {
           ============================================================ */}
       <header className="sticky top-0 z-50 bg-[var(--color-charcoal)] border-b border-white/10">
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
-              <circle cx="13" cy="13" r="4" fill="var(--color-coral)" />
-              <path d="M13 5a8 8 0 010 16" stroke="var(--color-teal-light)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-              <path d="M13 2a11 11 0 010 22" stroke="var(--color-marigold)" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.7" />
-            </svg>
+          <Link href="/" className="flex items-center gap-2">
+            <ResonanceLogo size={28} />
             <span className="text-xl font-bold font-serif text-white tracking-tight">
               Resonate
             </span>
@@ -59,7 +56,7 @@ export default function Home() {
               <span className="block" style={{ color: 'var(--color-marigold)' }}>Resonate</span>
             </h1>
             <p className="text-xl text-white/75 max-w-lg mb-10 animate-fade-in-up stagger-2 leading-relaxed">
-              Amplify your message through community publishers. Reach real audiences through voices they know and trust.
+              Resonate connects community and ethnic publishers with institutions and businesses seeking to reach their audiences — starting in San Francisco.
             </p>
             <div className="flex flex-wrap gap-3 animate-fade-in-up stagger-3">
               <Link href="/publisher" className="group px-6 py-3 rounded-full bg-[var(--color-coral)] text-white font-semibold text-sm transition-all duration-300 hover:bg-[var(--color-coral-dark)] hover:scale-105 hover:shadow-lg hover:shadow-[rgba(241,81,82,0.3)]">
@@ -337,11 +334,7 @@ export default function Home() {
           </div>
 
           <div className="mt-12 flex items-center justify-center gap-2 text-white/35 text-sm">
-            <svg width="18" height="18" viewBox="0 0 26 26" fill="none" aria-hidden="true">
-              <circle cx="13" cy="13" r="4" fill="var(--color-coral)" opacity="0.6" />
-              <path d="M13 5a8 8 0 010 16" stroke="var(--color-teal-light)" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.4" />
-              <path d="M13 2a11 11 0 010 22" stroke="var(--color-marigold)" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.3" />
-            </svg>
+            <ResonanceLogo size={18} />
             <span>Resonate &middot; Community Media Marketplace</span>
           </div>
         </div>
