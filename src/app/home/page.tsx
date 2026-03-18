@@ -19,7 +19,7 @@ export default function Home() {
             <span className="text-xl font-bold font-serif text-white tracking-tight">
               Resonate
             </span>
-            <span className="hidden md:inline text-[10px] font-semibold tracking-[0.15em] uppercase text-white/30 ml-1 mt-[3px] self-end">Community Media Marketplace</span>
+            <span className="hidden md:inline text-[10px] font-semibold tracking-[0.15em] uppercase text-white/30 ml-1 mt-[1px] self-end">Community Media Marketplace</span>
           </Link>
           <div className="flex items-center gap-1">
             <Link href="/publisher" className="px-3.5 py-1.5 text-sm font-medium text-white/70 hover:text-white rounded-full hover:bg-white/10 transition-all">
