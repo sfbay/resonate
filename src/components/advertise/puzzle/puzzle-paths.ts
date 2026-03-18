@@ -35,9 +35,9 @@ const B0 = 120;  // body start (top / left)
 const B1 = 320;  // body end (bottom / right)
 
 // Tab proportions — BIG, bold mushroom connectors
-const HW = 34;   // head half-width  (head ⌀ = 68px, 34% of body)
-const NW = 12;   // neck half-width  (neck w = 24px, head:neck = 2.8:1)
-const TD = 70;   // tab depth        (protrusion = 70px, 35% of body)
+const HW = 38;   // head half-width  (head ⌀ = 76px, 38% of body)
+const NW = 13;   // neck half-width  (neck w = 26px, head:neck = 2.9:1)
+const TD = 76;   // tab depth        (protrusion = 76px, 38% of body)
 
 /** ViewBox size for all puzzle piece SVGs */
 export const PUZZLE_VIEWBOX = 440;
@@ -95,22 +95,20 @@ function vTab(x: number, y1: number, y2: number, dir: number): string {
 /**
  * Horizontal blank (concavity) — indentation receiving a neighbor's tab.
  *
- * IMPORTANT: dir is passed through directly (NOT negated).
- * The caller specifies the indent direction:
- *   -1 = indent upward (for top-edge blanks)
- *   +1 = indent downward (for bottom-edge blanks)
- * This creates a concavity going AWAY from the piece body.
+ * Direction is NEGATED: the caller passes the "away from body" direction
+ * (e.g., -1 = up for a top edge), but the blank needs to dip INTO the body
+ * (downward) to create the concavity. Negating achieves this.
  */
 function hBlank(x1: number, x2: number, y: number, dir: number): string {
-  return hTab(x1, x2, y, dir);
+  return hTab(x1, x2, y, -dir);
 }
 
 /**
  * Vertical blank (concavity) — indentation receiving a neighbor's tab.
- * dir is passed through directly (NOT negated).
+ * Direction is negated so the indent goes INTO the piece body.
  */
 function vBlank(x: number, y1: number, y2: number, dir: number): string {
-  return vTab(x, y1, y2, dir);
+  return vTab(x, y1, y2, -dir);
 }
 
 /** Straight edge segment */
