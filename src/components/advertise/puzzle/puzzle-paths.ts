@@ -27,16 +27,17 @@ export interface PuzzlePieceDef {
 }
 
 // ─── Geometry constants ──────────────────────────────────────────────
-const B0 = 150;  // body start (top / left)
-const B1 = 350;  // body end (bottom / right)
+const B0 = 100;  // body start (top / left)
+const B1 = 300;  // body end (bottom / right)
 
-// Tab proportions — LARGE, ~50% of body for unmistakable jigsaw shape
-const HW = 48;   // head half-width  (head ⌀ = 96px, 48% of body)
-const NW = 13;   // neck half-width  (neck w = 26px, neck:head = 0.27)
-const TD = 92;   // tab depth        (protrusion = 92px, 46% of body)
+// Tab proportions — matched to svg-pieces.svg reference geometry
+// Reference: 148px body, 42px bulb ⌀, 24px neck, 55px depth
+const HW = 28;   // head half-width  (head ⌀ = 56px, 28% of body)
+const NW = 16;   // neck half-width  (neck w = 32px, neck:head = 0.57)
+const TD = 74;   // tab depth        (protrusion = 74px, 37% of body)
 
 /** ViewBox size for all puzzle piece SVGs */
-export const PUZZLE_VIEWBOX = 550;
+export const PUZZLE_VIEWBOX = 500;
 
 // ─── Tab / blank path builders ───────────────────────────────────────
 // Each tab uses 4 cubic béziers: neck→shoulder, head-left, head-right,
