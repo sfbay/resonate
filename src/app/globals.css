@@ -263,6 +263,16 @@ h1, h2, h3, h4, h5, h6 {
   to { transform: rotate(-360deg); }
 }
 
+/* Floating gallery bubbles — drift left to right across the viewport */
+@keyframes float-across {
+  0% {
+    transform: translateX(-120px);
+  }
+  100% {
+    transform: translateX(calc(100vw + 120px));
+  }
+}
+
 /* Card Hover Effects */
 .card-hover {
   transition: transform 0.3s ease, box-shadow 0.3s ease;

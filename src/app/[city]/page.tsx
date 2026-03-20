@@ -16,6 +16,7 @@ import Image from 'next/image';
 import { SFMapTexture } from '@/components/SFMapTexture';
 import { ResonanceBeacon } from '@/components/ResonanceBeacon';
 import { ResonanceLogo } from '@/components/ResonanceLogo';
+import { FloatingGallery } from '@/components/FloatingGallery';
 
 // Animated counter hook
 function useCountUp(end: number, duration: number = 1800, start: boolean = true) {
@@ -109,6 +110,9 @@ export default function CityPage() {
         <ResonanceBeacon color="coral" size="lg" intensity="subtle" className="top-[10%] left-[8%] z-[2]" />
         <ResonanceBeacon color="marigold" size="md" intensity="subtle" className="top-[15%] right-[12%] z-[2]" delay={2000} />
 
+        {/* Floating photo bubbles — reads from public/images/gallery/{city}/ */}
+        <FloatingGallery city={city.slug} count={5} className="z-[3]" />
+
         <div className="relative z-10 max-w-6xl mx-auto px-6 pb-16 pt-12 w-full">
           <div
             className="flex items-center gap-3 mb-5 transition-all duration-1000"
@@ -116,7 +120,7 @@ export default function CityPage() {
           >
             <div className="h-px w-12 bg-[var(--color-coral)]" />
             <span className="text-[var(--color-coral-light)] text-sm font-semibold tracking-[0.2em] uppercase">
-              {city.state} &middot; Live Now
+              {city.state} &middot; Launching Soon
             </span>
           </div>
 
