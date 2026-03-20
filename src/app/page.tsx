@@ -131,7 +131,7 @@ export default function LandingPage() {
             style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(15px)' }}
           >
             <span className="w-2 h-2 rounded-full bg-[var(--color-coral)] animate-pulse" />
-            <span className="text-[var(--color-coral)] text-sm font-semibold tracking-wide">Live in San Francisco</span>
+            <span className="text-[var(--color-coral)] text-sm font-semibold tracking-wide">Launching in San Francisco</span>
           </div>
 
           {/* Headline */}
