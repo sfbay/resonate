@@ -10,8 +10,17 @@ const isPublicRoute = createRouteMatcher([
   '/media-kit(.*)',
   '/demo(.*)',
   '/api/webhooks(.*)',
-  // Advertise landing page is public (prospect-facing)
+  // City landing pages are public
+  '/:city',
+  // Portal landing pages are public (prospect-facing)
+  '/:city/publisher',
+  '/:city/government',
   '/:city/advertise',
+  // Onboarding flows are public (registration)
+  '/:city/publisher/onboarding',
+  '/:city/government/onboarding',
+  '/:city/advertise/onboarding',
+  '/:city/government/discover',
 ]);
 
 // Portal routes that need city-scoping redirect
