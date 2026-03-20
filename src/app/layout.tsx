@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, Fraunces } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import { BetaLayer } from "@/components/beta/BetaLayer";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -30,6 +31,7 @@ export default function RootLayout({
       <html lang="en">
         <body className={`${dmSans.variable} ${fraunces.variable}`}>
           {children}
+          <BetaLayer />
         </body>
       </html>
     </ClerkProvider>

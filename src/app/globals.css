@@ -41,6 +41,12 @@
   --accent-government: var(--color-teal);
   --accent-advertise: var(--color-marigold);
 
+  /* Beta layer (used by beta testing components) */
+  --color-accent: var(--color-teal);
+  --color-bg-page: var(--color-cream);
+  --color-text-primary: var(--color-charcoal);
+  --color-text-muted: var(--color-slate);
+
   /* Typography */
   --font-display: 'Fraunces', Georgia, serif;
   --font-body: 'DM Sans', system-ui, sans-serif;

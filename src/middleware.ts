@@ -21,6 +21,9 @@ const isPublicRoute = createRouteMatcher([
   '/:city/government/onboarding',
   '/:city/advertise/onboarding',
   '/:city/government/discover',
+  // Beta layer
+  '/api/beta(.*)',
+  '/beta-admin(.*)',
 ]);
 
 // Portal routes that need city-scoping redirect
