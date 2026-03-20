@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { ORDER_STATUS_DISPLAY } from '@/lib/transactions/order-state';
 import { formatCents, DELIVERABLE_TYPE_LABELS, PLATFORM_LABELS } from '@/lib/transactions/pricing';
 import { useCityOptional } from '@/lib/geo/city-context';
+import { useRecordVisit } from '@/lib/navigation/use-record-visit';
 import { UnitCard } from '@/components/publisher/orders/UnitCard';
 import { getFormatLabel } from '@/lib/channels/format-labels';
 import type { ChannelGroup, UnitStatus, CreativeAssets } from '@/lib/channels/types';
@@ -81,6 +82,7 @@ interface OrderRow {
 }
 
 export default function OrderInboxPage() {
+  useRecordVisit();
   const cityCtx = useCityOptional();
   const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   const [orders, setOrders] = useState<OrderRow[]>([]);

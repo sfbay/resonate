@@ -14,6 +14,7 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { getDemoRateCard } from '@/lib/demo/publisher-data';
 import { useCityOptional } from '@/lib/geo/city-context';
+import { useRecordVisit } from '@/lib/navigation/use-record-visit';
 import {
   DELIVERABLE_TYPE_LABELS,
   PLATFORM_LABELS,
@@ -25,6 +26,7 @@ import {
 import type { RateCard, Rate, DeliverableType, SocialPlatform } from '@/types';
 
 export default function RateCardPage() {
+  useRecordVisit();
   const cityCtx = useCityOptional();
   const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   const [rateCard, setRateCard] = useState<RateCard>(getDemoRateCard());

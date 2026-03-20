@@ -6,6 +6,7 @@ import { Nav, Footer } from '@/components/shared';
 import { PublisherCard, PublisherCardData } from '@/components/advertise/PublisherCard';
 import { StepProgress } from '@/components/advertise/StepProgress';
 import { useCityOptional } from '@/lib/geo/city-context';
+import { useRecordVisit } from '@/lib/navigation/use-record-visit';
 import { getSupabaseClient } from '@/lib/db/supabase';
 
 // Seeded publisher UUID prefixes by city
@@ -23,6 +24,7 @@ export default function SelectPage() {
 }
 
 function SelectPageInner() {
+  useRecordVisit();
   const cityCtx = useCityOptional();
   const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   const searchParams = useSearchParams();

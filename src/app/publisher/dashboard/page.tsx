@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { AnalyticsDashboard } from '@/components/publisher/analytics';
 import { usePublisherData } from '@/lib/db/use-publisher-data';
 import { useCityOptional } from '@/lib/geo/city-context';
+import { useRecordVisit } from '@/lib/navigation/use-record-visit';
 
 /**
  * Loading fallback for the dashboard while search params are resolved
@@ -33,6 +34,7 @@ function DashboardLoading() {
  * Wrapped in Suspense boundary for static generation compatibility
  */
 function DashboardContent() {
+  useRecordVisit();
   const searchParams = useSearchParams();
   const cityCtx = useCityOptional();
   const prefix = cityCtx ? `/${cityCtx.slug}` : '';

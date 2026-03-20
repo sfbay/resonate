@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Nav, Footer } from '@/components/shared';
 import { StepProgress } from '@/components/advertise/StepProgress';
 import { useCityOptional } from '@/lib/geo/city-context';
+import { useRecordVisit } from '@/lib/navigation/use-record-visit';
 import { useCurrentUserOptional } from '@/lib/auth';
 import { getSupabaseClient } from '@/lib/db/supabase';
 
@@ -24,6 +25,7 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default function ValidatePage() {
+  useRecordVisit();
   const cityCtx = useCityOptional();
   const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   const user = useCurrentUserOptional();

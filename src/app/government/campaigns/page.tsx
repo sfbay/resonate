@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { formatCents } from '@/lib/transactions/pricing';
 import { MANDATES, type MandateType } from '@/lib/transactions/procurement';
 import { useCityOptional } from '@/lib/geo/city-context';
+import { useRecordVisit } from '@/lib/navigation/use-record-visit';
 import type { CampaignStatus } from '@/types';
 
 type FilterTab = 'all' | 'draft' | 'active' | 'completed';
@@ -55,6 +56,7 @@ const STATUS_DISPLAY: Record<CampaignStatus, { label: string; color: string; bg:
 };
 
 export default function CampaignManagementPage() {
+  useRecordVisit();
   const cityCtx = useCityOptional();
   const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   const [campaigns, setCampaigns] = useState<CampaignRow[]>([]);

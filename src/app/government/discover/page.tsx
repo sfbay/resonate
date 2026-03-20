@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Nav, Footer } from "@/components/shared";
 import { PublisherDiscoveryMap } from "@/components/government/PublisherDiscoveryMap";
 import { useCityOptional } from "@/lib/geo/city-context";
+import { useRecordVisit } from "@/lib/navigation/use-record-visit";
 import type { Publisher } from "@/types";
 
 // Extended publisher type with logo
@@ -407,6 +408,7 @@ const SAMPLE_PUBLISHERS: PublisherWithLogo[] = [
 ];
 
 export default function DiscoverPublishersPage() {
+  useRecordVisit();
   const router = useRouter();
   const cityCtx = useCityOptional();
   const [cart, setCart] = useState<Set<string>>(new Set());

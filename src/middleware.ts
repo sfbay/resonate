@@ -55,15 +55,27 @@ export default clerkMiddleware(async (auth, request) => {
     }
   }
 
-  // 2. Public routes — no auth required
+  // 2. Authenticated users on portal landing pages → redirect to /city
+  //    (their personalized QuickAccess is on the city page)
+  const portalLandingMatch = pathname.match(/^\/([^/]+)\/(publisher|government|advertise)$/);
+  if (portalLandingMatch) {
+    const { userId } = await auth();
+    if (userId) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/${portalLandingMatch[1]}`;
+      return NextResponse.redirect(url, 307);
+    }
+  }
+
+  // 3. Public routes — no auth required
   if (isPublicRoute(request)) {
     return NextResponse.next();
   }
 
-  // 3. Protected routes — require auth
+  // 4. Protected routes — require auth
   const { userId, sessionClaims } = await auth.protect();
 
-  // 4. Portal access control (only for city-scoped portal routes)
+  // 5. Portal access control (only for city-scoped portal routes)
   // Match pattern: /[city]/[portal]/...
   const cityPortalMatch = pathname.match(/^\/[^/]+\/(publisher|government|advertise)(\/|$)/);
   if (cityPortalMatch && userId) {
