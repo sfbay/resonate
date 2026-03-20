@@ -15,7 +15,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
  * at full brightness on top via z-20 stacking.
  */
 
-const MAPBOX_TOKEN = 'pk.eyJ1Ijoiamdhcm5pZXIiLCJhIjoiY21qem1kbnJuMDE0cjNlcHZ6em1tZGNneCJ9.rkWafIhT1k4RHXVRJWoEBw';
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
 
 // City coordinates — SF only (live market)
 const CITIES = [
@@ -38,6 +38,21 @@ export default function HeroMapBackground() {
   const [projected, setProjected] = useState<{ x: number; y: number }[]>([]);
 
   const handleLoad = useCallback(() => {
+    const map = mapRef.current?.getMap();
+    if (map) {
+      // Paint the ocean a deep blue that complements the dark theme.
+      // The color darkens at lower zoom (open ocean) and brightens at
+      // higher zoom (coastline), simulating depth.
+      map.setPaintProperty('water', 'fill-color', [
+        'interpolate',
+        ['linear'],
+        ['zoom'],
+        2, '#050d18',     // deep ocean — nearly black
+        4, '#0a1a2e',     // mid ocean — very dark navy
+        6, '#0f2940',     // approaching shore — rich dark blue
+        8, '#143352',     // coastal waters — visible blue
+      ]);
+    }
     setLoaded(true);
     projectCities();
   }, []);
@@ -74,6 +89,16 @@ export default function HeroMapBackground() {
 
         {/* Subtle overlay to soften the map tiles — beacons render above this */}
         <div className="absolute inset-0 bg-[#0d1b1e]/[0.18]" />
+
+        {/* Ocean depth vignette — darkens edges where water meets the viewport border,
+            simulating deeper ocean fading to black. The radial gradient is centered
+            roughly on the US landmass so coastlines stay brighter. */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse 70% 65% at 48% 45%, transparent 30%, rgba(5,13,24,0.4) 60%, rgba(2,6,12,0.85) 100%)',
+          }}
+        />
       </div>
 
       {/* City beacons — rendered OUTSIDE the map at projected screen coords.
