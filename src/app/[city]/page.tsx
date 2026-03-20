@@ -17,6 +17,7 @@ import { SFMapTexture } from '@/components/SFMapTexture';
 import { ResonanceBeacon } from '@/components/ResonanceBeacon';
 import { ResonanceLogo } from '@/components/ResonanceLogo';
 import { FloatingGallery } from '@/components/FloatingGallery';
+import { CityDashboardSection } from '@/components/city/CityDashboardSection';
 
 // Animated counter hook
 function useCountUp(end: number, duration: number = 1800, start: boolean = true) {
@@ -203,27 +204,20 @@ export default function CityPage() {
       </header>
 
       {/* ============================================================
-          PUBLISHER PORTAL TEASER — Coral diagonal, left-anchored
-          Echoes: publisher/page.tsx hero (coral clip-path left)
+          ROLE-AWARE CONTENT SECTION
+          Anonymous: 3 diagonal marketing panels + closing
+          Authenticated: QuickAccess modules for user's portal(s)
           ============================================================ */}
-      <CoralPublisherPanel getPath={getPath} data={landingData} hasSFMapTexture={hasSFMapTexture} />
-
-      {/* ============================================================
-          GOVERNMENT PORTAL TEASER — Teal diagonal, right-anchored
-          Echoes: government/page.tsx hero (teal clip-path right)
-          ============================================================ */}
-      <TealGovernmentPanel getPath={getPath} data={landingData} hasSFMapTexture={hasSFMapTexture} />
-
-      {/* ============================================================
-          ADVERTISE PORTAL TEASER — Marigold diagonal, left-anchored
-          Echoes: advertise/page.tsx hero (marigold clip-path right)
-          ============================================================ */}
-      <MarigoldAdvertisePanel getPath={getPath} data={landingData} hasSFMapTexture={hasSFMapTexture} />
-
-      {/* ============================================================
-          CLOSING: Mission statement (dark bookend)
-          ============================================================ */}
-      <ClosingSection data={landingData} cityName={city.name} getPath={getPath} />
+      <CityDashboardSection
+        anonymousContent={
+          <>
+            <CoralPublisherPanel getPath={getPath} data={landingData} hasSFMapTexture={hasSFMapTexture} />
+            <TealGovernmentPanel getPath={getPath} data={landingData} hasSFMapTexture={hasSFMapTexture} />
+            <MarigoldAdvertisePanel getPath={getPath} data={landingData} hasSFMapTexture={hasSFMapTexture} />
+            <ClosingSection data={landingData} cityName={city.name} getPath={getPath} />
+          </>
+        }
+      />
     </div>
   );
 }
