@@ -17,7 +17,8 @@ import { SFMapTexture } from '@/components/SFMapTexture';
 import { ResonanceBeacon } from '@/components/ResonanceBeacon';
 import { ResonanceLogo } from '@/components/ResonanceLogo';
 import { FloatingGallery } from '@/components/FloatingGallery';
-import { CityDashboardSection } from '@/components/city/CityDashboardSection';
+import { useCityRole } from '@/components/city/CityDashboardSection';
+import { ContinueWhereYouLeftOff } from '@/components/city/ContinueWhereYouLeftOff';
 
 // Animated counter hook
 function useCountUp(end: number, duration: number = 1800, start: boolean = true) {
@@ -58,6 +59,7 @@ export default function CityPage() {
   const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
   const landingData = useMemo(() => getCityLandingData(city.slug), [city.slug]);
   const hasSFMapTexture = city.slug === 'sf';
+  const { orgType, userName, isAdmin } = useCityRole();
 
   if (isComingSoon) {
     return <ComingSoonPage />;
@@ -204,20 +206,38 @@ export default function CityPage() {
       </header>
 
       {/* ============================================================
-          ROLE-AWARE CONTENT SECTION
-          Anonymous: 3 diagonal marketing panels + closing
-          Authenticated: QuickAccess modules for user's portal(s)
+          ROLE-AWARE CONTENT — Diagonal panels adapt to auth state:
+          - Anonymous: all 3 panels with marketing content
+          - Single-role: only their panel (with quick-access links)
+          - Admin/demo: all 3 panels (with quick-access links)
           ============================================================ */}
-      <CityDashboardSection
-        anonymousContent={
-          <>
-            <CoralPublisherPanel getPath={getPath} data={landingData} hasSFMapTexture={hasSFMapTexture} />
-            <TealGovernmentPanel getPath={getPath} data={landingData} hasSFMapTexture={hasSFMapTexture} />
-            <MarigoldAdvertisePanel getPath={getPath} data={landingData} hasSFMapTexture={hasSFMapTexture} />
-            <ClosingSection data={landingData} cityName={city.name} getPath={getPath} />
-          </>
-        }
-      />
+
+      {/* "Continue where you left off" banner for auth'd users */}
+      {orgType && (
+        <div className="pt-6">
+          <ContinueWhereYouLeftOff />
+        </div>
+      )}
+
+      {/* Publisher panel: visible if anonymous, publisher, or admin */}
+      {(!orgType || orgType === 'publisher' || isAdmin) && (
+        <CoralPublisherPanel getPath={getPath} data={landingData} hasSFMapTexture={hasSFMapTexture} isOwner={orgType === 'publisher' || isAdmin} userName={orgType === 'publisher' ? userName : null} />
+      )}
+
+      {/* Government panel: visible if anonymous, government, or admin */}
+      {(!orgType || orgType === 'government' || isAdmin) && (
+        <TealGovernmentPanel getPath={getPath} data={landingData} hasSFMapTexture={hasSFMapTexture} isOwner={orgType === 'government' || isAdmin} userName={orgType === 'government' ? userName : null} />
+      )}
+
+      {/* Advertise panel: visible if anonymous, advertiser, or admin */}
+      {(!orgType || orgType === 'advertiser' || isAdmin) && (
+        <MarigoldAdvertisePanel getPath={getPath} data={landingData} hasSFMapTexture={hasSFMapTexture} isOwner={orgType === 'advertiser' || isAdmin} userName={orgType === 'advertiser' ? userName : null} />
+      )}
+
+      {/* Closing section: shown for anonymous and admin */}
+      {(!orgType || isAdmin) && (
+        <ClosingSection data={landingData} cityName={city.name} getPath={getPath} />
+      )}
     </div>
   );
 }
@@ -227,7 +247,7 @@ export default function CityPage() {
 // PUBLISHER TEASER — Coral block on left, cream on right
 // =============================================================================
 
-function CoralPublisherPanel({ getPath, data, hasSFMapTexture }: { getPath: (p: string) => string; data: CityLandingData; hasSFMapTexture: boolean }) {
+function CoralPublisherPanel({ getPath, data, hasSFMapTexture, isOwner, userName }: { getPath: (p: string) => string; data: CityLandingData; hasSFMapTexture: boolean; isOwner?: boolean; userName?: string | null }) {
   const { ref, inView } = useInView(0.15);
 
   return (
@@ -257,37 +277,65 @@ function CoralPublisherPanel({ getPath, data, hasSFMapTexture }: { getPath: (p: 
             <div className="flex items-center gap-3 mb-5">
               <div className="h-px w-10 bg-white/50" />
               <span className="text-white/80 text-xs font-bold tracking-[0.25em] uppercase">
-                For Publishers
+                {isOwner ? 'Your Publisher Portal' : 'For Publishers'}
               </span>
             </div>
 
-            <h2
-              className="font-serif text-white leading-[1.05] tracking-tight mb-5"
-              style={{ fontSize: 'clamp(2rem, 4.5vw, 3.2rem)' }}
-            >
-              Transform reach<br />
-              <span className="text-[var(--color-marigold)]">into revenue</span>
-            </h2>
-
-            <p className="text-lg text-white/85 leading-relaxed mb-8 max-w-md">
-              Connect your platforms. Track your reach. Get matched with campaigns that amplify what you already do.
-            </p>
-
-            <div className="flex gap-8 mb-8">
-              <StatCounter value={data.publisherStats.publisherCount} label="Publishers" color="white" inView={inView} delay={0} />
-              <StatCounter value={data.publisherStats.languageCount} label="Languages" color="var(--color-marigold)" inView={inView} delay={150} />
-              <StatCounter value={data.publisherStats.neighborhoodCount} label="Neighborhoods" color="white" inView={inView} delay={300} />
-            </div>
-
-            <Link
-              href={getPath('/publisher')}
-              className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full bg-white text-[var(--color-coral)] font-semibold transition-all duration-300 hover:bg-[var(--color-cream)] hover:scale-[1.02] shadow-lg"
-            >
-              Publisher Portal
-              <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
+            {isOwner ? (
+              <>
+                <h2
+                  className="font-serif text-white leading-[1.05] tracking-tight mb-5"
+                  style={{ fontSize: 'clamp(2rem, 4.5vw, 3.2rem)' }}
+                >
+                  Welcome back{userName ? `,` : ''}<br />
+                  <span className="text-[var(--color-marigold)]">{userName || 'Publisher'}</span>
+                </h2>
+                <div className="space-y-3 mb-8">
+                  {[
+                    { label: 'Analytics Dashboard', href: getPath('/publisher/dashboard'), desc: 'Track reach & engagement' },
+                    { label: 'Orders', href: getPath('/publisher/dashboard/orders'), desc: 'Review incoming campaigns' },
+                    { label: 'Rate Card', href: getPath('/publisher/dashboard/rate-card'), desc: 'Set your pricing' },
+                  ].map(link => (
+                    <Link key={link.href} href={link.href} className="group flex items-center gap-3 bg-white/10 hover:bg-white/20 rounded-xl px-5 py-3 transition-all">
+                      <div className="flex-1">
+                        <span className="text-white font-semibold text-sm block">{link.label}</span>
+                        <span className="text-white/50 text-xs">{link.desc}</span>
+                      </div>
+                      <svg className="w-4 h-4 text-white/40 group-hover:text-white/80 group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                      </svg>
+                    </Link>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <h2
+                  className="font-serif text-white leading-[1.05] tracking-tight mb-5"
+                  style={{ fontSize: 'clamp(2rem, 4.5vw, 3.2rem)' }}
+                >
+                  Transform reach<br />
+                  <span className="text-[var(--color-marigold)]">into revenue</span>
+                </h2>
+                <p className="text-lg text-white/85 leading-relaxed mb-8 max-w-md">
+                  Connect your platforms. Track your reach. Get matched with campaigns that amplify what you already do.
+                </p>
+                <div className="flex gap-8 mb-8">
+                  <StatCounter value={data.publisherStats.publisherCount} label="Publishers" color="white" inView={inView} delay={0} />
+                  <StatCounter value={data.publisherStats.languageCount} label="Languages" color="var(--color-marigold)" inView={inView} delay={150} />
+                  <StatCounter value={data.publisherStats.neighborhoodCount} label="Neighborhoods" color="white" inView={inView} delay={300} />
+                </div>
+                <Link
+                  href={getPath('/publisher')}
+                  className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full bg-white text-[var(--color-coral)] font-semibold transition-all duration-300 hover:bg-[var(--color-cream)] hover:scale-[1.02] shadow-lg"
+                >
+                  Publisher Portal
+                  <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Right: Floating preview card on cream background */}
@@ -341,7 +389,7 @@ function CoralPublisherPanel({ getPath, data, hasSFMapTexture }: { getPath: (p: 
 // GOVERNMENT TEASER — Teal block on right, cream on left
 // =============================================================================
 
-function TealGovernmentPanel({ getPath, data, hasSFMapTexture }: { getPath: (p: string) => string; data: CityLandingData; hasSFMapTexture: boolean }) {
+function TealGovernmentPanel({ getPath, data, hasSFMapTexture, isOwner, userName }: { getPath: (p: string) => string; data: CityLandingData; hasSFMapTexture: boolean; isOwner?: boolean; userName?: string | null }) {
   const { ref, inView } = useInView(0.15);
 
   return (
@@ -403,40 +451,68 @@ function TealGovernmentPanel({ getPath, data, hasSFMapTexture }: { getPath: (p: 
           >
             <div className="flex items-center gap-3 mb-5 lg:justify-end">
               <span className="text-white/80 text-xs font-bold tracking-[0.25em] uppercase">
-                For Government
+                {isOwner ? 'Your Government Portal' : 'For Government'}
               </span>
               <div className="h-px w-10 bg-white/50" />
             </div>
 
-            <h2
-              className="font-serif text-white leading-[1.05] tracking-tight mb-5 lg:text-right"
-              style={{ fontSize: 'clamp(2rem, 4.5vw, 3.2rem)' }}
-            >
-              Meet communities<br />
-              <span className="text-[var(--color-marigold)]">where they are</span>
-            </h2>
-
-            <p className="text-lg text-white/85 leading-relaxed mb-8 max-w-md lg:ml-auto lg:text-right">
-              Discover which trusted local voices already serve the neighborhoods you need to reach — by language, ethnicity, income, and more.
-            </p>
-
-            <div className="flex gap-8 mb-8 lg:justify-end">
-              <StatCounter value={data.governmentStats.districtCount} label="Districts" color="white" inView={inView} delay={0} />
-              <StatCounter value={data.governmentStats.profileCount} label="Profiles" color="var(--color-marigold)" inView={inView} delay={150} />
-              <StatCounter value={data.governmentStats.overlayCount} label="Overlays" color="white" inView={inView} delay={300} />
-            </div>
-
-            <div className="lg:text-right">
-              <Link
-                href={getPath('/government')}
-                className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full bg-white text-[var(--color-teal)] font-semibold transition-all duration-300 hover:bg-[var(--color-cream)] hover:scale-[1.02] shadow-lg"
-              >
-                Government Portal
-                <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
-            </div>
+            {isOwner ? (
+              <>
+                <h2
+                  className="font-serif text-white leading-[1.05] tracking-tight mb-5 lg:text-right"
+                  style={{ fontSize: 'clamp(2rem, 4.5vw, 3.2rem)' }}
+                >
+                  Welcome back{userName ? `,` : ''}<br />
+                  <span className="text-[var(--color-marigold)]">{userName || 'Government'}</span>
+                </h2>
+                <div className="space-y-3 mb-8">
+                  {[
+                    { label: 'Discover Publishers', href: getPath('/government/discover'), desc: 'Browse by neighborhood & language' },
+                    { label: 'Campaigns', href: getPath('/government/campaigns'), desc: 'Manage active campaigns' },
+                    { label: 'Create Campaign', href: getPath('/government/onboarding'), desc: 'Launch new outreach' },
+                  ].map(link => (
+                    <Link key={link.href} href={link.href} className="group flex items-center gap-3 bg-white/10 hover:bg-white/20 rounded-xl px-5 py-3 transition-all">
+                      <div className="flex-1">
+                        <span className="text-white font-semibold text-sm block">{link.label}</span>
+                        <span className="text-white/50 text-xs">{link.desc}</span>
+                      </div>
+                      <svg className="w-4 h-4 text-white/40 group-hover:text-white/80 group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                      </svg>
+                    </Link>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <h2
+                  className="font-serif text-white leading-[1.05] tracking-tight mb-5 lg:text-right"
+                  style={{ fontSize: 'clamp(2rem, 4.5vw, 3.2rem)' }}
+                >
+                  Meet communities<br />
+                  <span className="text-[var(--color-marigold)]">where they are</span>
+                </h2>
+                <p className="text-lg text-white/85 leading-relaxed mb-8 max-w-md lg:ml-auto lg:text-right">
+                  Discover which trusted local voices already serve the neighborhoods you need to reach — by language, ethnicity, income, and more.
+                </p>
+                <div className="flex gap-8 mb-8 lg:justify-end">
+                  <StatCounter value={data.governmentStats.districtCount} label="Districts" color="white" inView={inView} delay={0} />
+                  <StatCounter value={data.governmentStats.profileCount} label="Profiles" color="var(--color-marigold)" inView={inView} delay={150} />
+                  <StatCounter value={data.governmentStats.overlayCount} label="Overlays" color="white" inView={inView} delay={300} />
+                </div>
+                <div className="lg:text-right">
+                  <Link
+                    href={getPath('/government')}
+                    className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full bg-white text-[var(--color-teal)] font-semibold transition-all duration-300 hover:bg-[var(--color-cream)] hover:scale-[1.02] shadow-lg"
+                  >
+                    Government Portal
+                    <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -449,7 +525,7 @@ function TealGovernmentPanel({ getPath, data, hasSFMapTexture }: { getPath: (p: 
 // ADVERTISE TEASER — Marigold block on left, navy on right
 // =============================================================================
 
-function MarigoldAdvertisePanel({ getPath, data, hasSFMapTexture }: { getPath: (p: string) => string; data: CityLandingData; hasSFMapTexture: boolean }) {
+function MarigoldAdvertisePanel({ getPath, data, hasSFMapTexture, isOwner, userName }: { getPath: (p: string) => string; data: CityLandingData; hasSFMapTexture: boolean; isOwner?: boolean; userName?: string | null }) {
   const { ref, inView } = useInView(0.15);
 
   return (
@@ -482,37 +558,65 @@ function MarigoldAdvertisePanel({ getPath, data, hasSFMapTexture }: { getPath: (
             <div className="flex items-center gap-3 mb-5">
               <div className="h-px w-10 bg-[var(--color-charcoal)]/30" />
               <span className="text-[var(--color-charcoal)]/70 text-xs font-bold tracking-[0.25em] uppercase">
-                For Businesses &amp; Nonprofits
+                {isOwner ? 'Your Advertise Portal' : 'For Businesses & Nonprofits'}
               </span>
             </div>
 
-            <h2
-              className="font-serif text-[var(--color-charcoal)] leading-[1.05] tracking-tight mb-5"
-              style={{ fontSize: 'clamp(2rem, 4.5vw, 3.2rem)' }}
-            >
-              Amplify your message.<br />
-              <span className="text-[var(--color-teal)]">Strengthen communities.</span>
-            </h2>
-
-            <p className="text-lg text-[var(--color-charcoal)]/80 leading-relaxed mb-8 max-w-md">
-              Every ad dollar placed through Resonate sustains the community journalism that keeps neighborhoods informed and connected.
-            </p>
-
-            <div className="flex gap-8 mb-8">
-              <StatCounter value={850} label="Avg. CPM" color="var(--color-charcoal)" inView={inView} delay={0} prefix="$" />
-              <StatCounter value={3} label="Campaign types" color="var(--color-teal)" inView={inView} delay={150} />
-              <StatCounter value={100} label="To publishers" color="var(--color-charcoal)" inView={inView} delay={300} suffix="%" />
-            </div>
-
-            <Link
-              href={getPath('/advertise')}
-              className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full bg-[var(--color-charcoal)] text-white font-semibold transition-all duration-300 hover:bg-[var(--color-navy)] hover:scale-[1.02] shadow-lg"
-            >
-              Advertise Portal
-              <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
+            {isOwner ? (
+              <>
+                <h2
+                  className="font-serif text-[var(--color-charcoal)] leading-[1.05] tracking-tight mb-5"
+                  style={{ fontSize: 'clamp(2rem, 4.5vw, 3.2rem)' }}
+                >
+                  Welcome back{userName ? `,` : ''}<br />
+                  <span className="text-[var(--color-teal)]">{userName || 'Advertiser'}</span>
+                </h2>
+                <div className="space-y-3 mb-8">
+                  {[
+                    { label: 'Create an Ad', href: getPath('/advertise/create'), desc: 'Build your message' },
+                    { label: 'Select Publishers', href: getPath('/advertise/select'), desc: 'Browse by audience & reach' },
+                    { label: 'Your Campaigns', href: getPath('/advertise/validate'), desc: 'Track performance' },
+                  ].map(link => (
+                    <Link key={link.href} href={link.href} className="group flex items-center gap-3 bg-[var(--color-charcoal)]/10 hover:bg-[var(--color-charcoal)]/20 rounded-xl px-5 py-3 transition-all">
+                      <div className="flex-1">
+                        <span className="text-[var(--color-charcoal)] font-semibold text-sm block">{link.label}</span>
+                        <span className="text-[var(--color-charcoal)]/50 text-xs">{link.desc}</span>
+                      </div>
+                      <svg className="w-4 h-4 text-[var(--color-charcoal)]/30 group-hover:text-[var(--color-charcoal)]/60 group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                      </svg>
+                    </Link>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <h2
+                  className="font-serif text-[var(--color-charcoal)] leading-[1.05] tracking-tight mb-5"
+                  style={{ fontSize: 'clamp(2rem, 4.5vw, 3.2rem)' }}
+                >
+                  Amplify your message.<br />
+                  <span className="text-[var(--color-teal)]">Strengthen communities.</span>
+                </h2>
+                <p className="text-lg text-[var(--color-charcoal)]/80 leading-relaxed mb-8 max-w-md">
+                  Every ad dollar placed through Resonate sustains the community journalism that keeps neighborhoods informed and connected.
+                </p>
+                <div className="flex gap-8 mb-8">
+                  <StatCounter value={850} label="Avg. CPM" color="var(--color-charcoal)" inView={inView} delay={0} prefix="$" />
+                  <StatCounter value={3} label="Campaign types" color="var(--color-teal)" inView={inView} delay={150} />
+                  <StatCounter value={100} label="To publishers" color="var(--color-charcoal)" inView={inView} delay={300} suffix="%" />
+                </div>
+                <Link
+                  href={getPath('/advertise')}
+                  className="group inline-flex items-center gap-3 px-7 py-3.5 rounded-full bg-[var(--color-charcoal)] text-white font-semibold transition-all duration-300 hover:bg-[var(--color-navy)] hover:scale-[1.02] shadow-lg"
+                >
+                  Advertise Portal
+                  <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Right: Floating impact card on navy */}

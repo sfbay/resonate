@@ -1,70 +1,39 @@
 'use client';
 
-import { type ReactNode } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useCurrentUserOptional, type OrgType } from '@/lib/auth';
-import { ContinueWhereYouLeftOff } from './ContinueWhereYouLeftOff';
-import { PublisherQuickAccess } from './PublisherQuickAccess';
-import { GovernmentQuickAccess } from './GovernmentQuickAccess';
-import { AdvertiserQuickAccess } from './AdvertiserQuickAccess';
-
-interface CityDashboardSectionProps {
-  /** The anonymous fallback content (existing diagonal panels + closing) */
-  anonymousContent: ReactNode;
-}
 
 /**
- * Orchestrator: renders role-specific QuickAccess modules for authenticated
- * users, or the anonymous marketing panels for visitors.
+ * Hook that provides the authenticated user's orgType for the city page.
+ * Returns null while loading or for anonymous users.
  *
- * Auth states:
- *   - Clerk loading → show anonymous content (avoids layout shift)
- *   - Not signed in → show anonymous content
- *   - Signed in as publisher → PublisherQuickAccess
- *   - Signed in as government → GovernmentQuickAccess
- *   - Signed in as advertiser → AdvertiserQuickAccess
- *   - Signed in as admin → All three stacked
+ * Used by the city page to pass role context to the diagonal panels,
+ * which adapt their content accordingly:
+ *   - Panel matches user's role → show quick-access links
+ *   - Panel doesn't match → hidden (single-role) or marketing (admin)
+ *   - No user → all panels show marketing content
  */
-export function CityDashboardSection({ anonymousContent }: CityDashboardSectionProps) {
+export function useCityRole(): {
+  orgType: OrgType | null;
+  userName: string | null;
+  isAdmin: boolean;
+  isLoading: boolean;
+} {
   const { isLoaded, isSignedIn } = useUser();
   const user = useCurrentUserOptional();
 
-  // While Clerk loads, show anonymous content to avoid flash
-  if (!isLoaded || !isSignedIn || !user) {
-    return <>{anonymousContent}</>;
+  if (!isLoaded) {
+    return { orgType: null, userName: null, isAdmin: false, isLoading: true };
   }
 
-  const orgType = user.orgType;
+  if (!isSignedIn || !user) {
+    return { orgType: null, userName: null, isAdmin: false, isLoading: false };
+  }
 
-  return (
-    <>
-      {/* "Continue where you left off" banner */}
-      <div className="pt-8">
-        <ContinueWhereYouLeftOff />
-      </div>
-
-      {/* Welcome message */}
-      <div className="max-w-6xl mx-auto px-6 pb-4">
-        <p className="text-[var(--color-slate)] text-sm">
-          Welcome back, <span className="font-semibold text-[var(--color-charcoal)]">{user.name || user.email}</span>
-        </p>
-      </div>
-
-      {/* Role-specific modules */}
-      {orgType === 'admin' ? (
-        // Admin sees all three portals
-        <>
-          <PublisherQuickAccess />
-          <GovernmentQuickAccess />
-          <AdvertiserQuickAccess />
-        </>
-      ) : orgType === 'publisher' ? (
-        <PublisherQuickAccess />
-      ) : orgType === 'government' ? (
-        <GovernmentQuickAccess />
-      ) : (
-        <AdvertiserQuickAccess />
-      )}
-    </>
-  );
+  return {
+    orgType: user.orgType,
+    userName: user.name || user.email,
+    isAdmin: user.orgType === 'admin',
+    isLoading: false,
+  };
 }
