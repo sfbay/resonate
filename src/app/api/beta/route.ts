@@ -7,6 +7,26 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// ─── snake_case → camelCase mapping ──────────────────────────────────
+// Supabase returns snake_case columns; frontend expects camelCase.
+// This recursively converts all keys in objects and arrays.
+
+function snakeToCamel(s: string): string {
+  return s.replace(/_([a-z])/g, (_, c) => c.toUpperCase())
+}
+
+function mapKeys(obj: unknown): unknown {
+  if (Array.isArray(obj)) return obj.map(mapKeys)
+  if (obj !== null && typeof obj === 'object') {
+    const mapped: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+      mapped[snakeToCamel(k)] = mapKeys(v)
+    }
+    return mapped
+  }
+  return obj
+}
+
 // Points per feedback type
 const POINTS_MAP: Record<string, number> = {
   bug: 5, idea: 3, general: 2, task_completion: 0,
@@ -99,7 +119,7 @@ export async function GET(request: NextRequest) {
       ])
       const completedIds = new Set((completions || []).map(c => c.task_id))
       return NextResponse.json({
-        tasks: (tasks || []).map(t => ({ ...t, completed: completedIds.has(t.id) })),
+        tasks: (tasks || []).map(t => mapKeys({ ...t, completed: completedIds.has(t.id) })),
       })
     }
 
@@ -111,7 +131,7 @@ export async function GET(request: NextRequest) {
         .eq('clerk_user_id', userId)
         .order('created_at', { ascending: false })
         .limit(50)
-      return NextResponse.json({ feedback: data || [] })
+      return NextResponse.json({ feedback: mapKeys(data || []) })
     }
 
     // STATS
@@ -175,7 +195,7 @@ export async function GET(request: NextRequest) {
 
       const { data, count } = await query
       return NextResponse.json({
-        feedback: data || [],
+        feedback: mapKeys(data || []),
         totalDocs: count || 0,
         totalPages: Math.ceil((count || 0) / limit),
         page,
@@ -217,10 +237,7 @@ export async function GET(request: NextRequest) {
         .select('id, display_name, email, clerk_id, is_beta_tester, created_at')
         .eq('is_beta_tester', true)
       return NextResponse.json({
-        testers: (data || []).map(t => ({
-          id: t.id, displayName: t.display_name, email: t.email,
-          clerkId: t.clerk_id, isBetaTester: t.is_beta_tester, createdAt: t.created_at,
-        })),
+        testers: mapKeys(data || []),
       })
     }
 
@@ -276,7 +293,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) throw error
-    return NextResponse.json({ feedback, success: true })
+    return NextResponse.json({ feedback: mapKeys(feedback), success: true })
   } catch (error) {
     console.error('[Beta API] POST error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -318,7 +335,7 @@ export async function PATCH(request: NextRequest) {
       .select()
       .single()
 
-    return NextResponse.json({ feedback: data })
+    return NextResponse.json({ feedback: mapKeys(data) })
   } catch (error) {
     console.error('[Beta API] PATCH error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
