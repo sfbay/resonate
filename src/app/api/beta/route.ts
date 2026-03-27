@@ -2,10 +2,24 @@ import { auth } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// Lazy init — avoids crashing at build time when env vars aren't set
+let _supabase: ReturnType<typeof createClient> | null = null
+function getSupabaseClient() {
+  if (!_supabase) {
+    _supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+  }
+  return _supabase
+}
+
+// Proxy so existing `supabase.from(...)` calls keep working
+const supabase = new Proxy({} as ReturnType<typeof createClient>, {
+  get(_target, prop) {
+    return (getSupabaseClient() as Record<string, unknown>)[prop as string]
+  },
+})
 
 // ─── snake_case → camelCase mapping ──────────────────────────────────
 // Supabase returns snake_case columns; frontend expects camelCase.
