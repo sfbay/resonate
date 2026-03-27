@@ -306,3 +306,84 @@ export const DEMO_CAMPAIGN_NAMES: Record<string, string> = {
   'cmp-demo-004': 'Small Business Grants Q2',
   'cmp-demo-005': 'Youth Mentorship Program',
 };
+
+// ─── Offerings (bespoke ad menu for El Tecolote) ──────────────────────
+
+import type { Offering } from '@/components/publisher/offerings/OfferingCard';
+
+export function getDemoOfferings(): Offering[] {
+  return [
+    {
+      deliverableType: 'sponsored_post',
+      platform: 'instagram',
+      price: 15000,
+      description: 'Feed post with bilingual caption (EN/ES). Includes 1 round of revisions and performance report.',
+      reachEstimate: '5,200 followers',
+      turnaround: '3-5 business days',
+      specs: '1080x1080 or 1080x1350, bilingual EN/ES',
+    },
+    {
+      deliverableType: 'story',
+      platform: 'instagram',
+      price: 7500,
+      description: '3-5 story slides with swipe-up link. 24-hour visibility with screenshot analytics.',
+      reachEstimate: '3,800 avg views',
+      turnaround: '2-3 business days',
+      specs: '1080x1920, up to 5 slides',
+    },
+    {
+      deliverableType: 'reel',
+      platform: 'instagram',
+      price: 25000,
+      description: '15-60 second video with bilingual captions and community context.',
+      reachEstimate: '8,000+ avg views',
+      turnaround: '5-7 business days',
+      specs: '1080x1920, 15-60s, bilingual captions',
+    },
+    {
+      deliverableType: 'sponsored_post',
+      platform: 'facebook',
+      price: 12000,
+      description: 'Page post cross-posted from Instagram or original. Reaches older community demographic.',
+      reachEstimate: '4,100 followers',
+      turnaround: '3-5 business days',
+      specs: 'Image or link post, bilingual',
+    },
+    {
+      deliverableType: 'newsletter_feature',
+      platform: 'newsletter',
+      price: 30000,
+      description: 'Featured placement in weekly newsletter. Dedicated section with custom copy and CTA.',
+      reachEstimate: '8,400 subscribers',
+      turnaround: 'Next newsletter cycle',
+      specs: '150 words max, 1 image, 1 CTA link',
+    },
+    {
+      deliverableType: 'newsletter_dedicated',
+      platform: 'newsletter',
+      price: 55000,
+      description: 'Full dedicated send to entire subscriber list. Publisher writes culturally adapted copy.',
+      reachEstimate: '8,400 subscribers',
+      turnaround: '5-7 business days',
+      specs: 'Full email, publisher-written, bilingual option',
+    },
+    {
+      deliverableType: 'sponsored_post',
+      platform: 'website',
+      price: 20000,
+      description: 'Sponsored article or display ad on eltecolote.org. SEO-optimized, bilingual.',
+      reachEstimate: '12,000 monthly visitors',
+      turnaround: '5-7 business days',
+      specs: '300-500 words or 728x90/300x250 display',
+    },
+    {
+      deliverableType: 'custom',
+      platform: 'other',
+      price: 10000,
+      description: 'WhatsApp community broadcast. Direct reach into Mission District Latino community.',
+      reachEstimate: '1,200 community members',
+      turnaround: '1-2 business days',
+      specs: 'Text + image, Spanish primary',
+    },
+  ];
+}

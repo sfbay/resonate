@@ -79,13 +79,16 @@ export function Nav({ variant = 'default' }: NavProps) {
               {variant === 'publisher' && (
                 <>
                   <Link href={`${prefix}/publisher/dashboard`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
-                    Dashboard
+                    Audience
+                  </Link>
+                  <Link href={`${prefix}/publisher/dashboard/rate-card`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+                    Our Offerings
                   </Link>
                   <Link href={`${prefix}/publisher/dashboard/orders`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
                     Orders
                   </Link>
-                  <Link href={`${prefix}/publisher/dashboard/rate-card`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
-                    Rate Card
+                  <Link href={`${prefix}/publisher/dashboard/city-history`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
+                    City History
                   </Link>
                 </>
               )}

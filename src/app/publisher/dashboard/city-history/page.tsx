@@ -1,15 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { OfferingsEditor } from '@/components/publisher/offerings/OfferingsEditor';
-import { getDemoOfferings } from '@/lib/demo/publisher-data';
+import { CityHistoryViewer } from '@/components/publisher/city-history/CityHistoryViewer';
 import { useCityOptional } from '@/lib/geo/city-context';
 import { useRecordVisit } from '@/lib/navigation/use-record-visit';
 
 // TODO: Replace with real publisher context from auth
+const DEMO_PUBLISHER_ID = '11111111-1111-1111-1111-111111111101';
 const DEMO_PUBLISHER_NAME = 'El Tecolote';
 
-export default function OfferingsPage() {
+export default function CityHistoryPage() {
   useRecordVisit();
   const cityCtx = useCityOptional();
   const prefix = cityCtx ? `/${cityCtx.slug}` : '';
@@ -24,16 +24,16 @@ export default function OfferingsPage() {
           >
             &larr; Back to Dashboard
           </Link>
-          <h1 className="text-2xl font-bold font-display">Our Offerings</h1>
+          <h1 className="text-2xl font-bold font-display">City History</h1>
           <p className="text-slate-300 mt-1 text-sm">
-            What advertisers see when they choose you. Your menu of ad placements across every channel.
+            Your complete transaction record with the City &amp; County of San Francisco.
           </p>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-6 py-8">
-        <OfferingsEditor
-          initialOfferings={getDemoOfferings()}
+        <CityHistoryViewer
+          publisherId={DEMO_PUBLISHER_ID}
           publisherName={DEMO_PUBLISHER_NAME}
         />
       </div>
