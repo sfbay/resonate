@@ -17,7 +17,7 @@ function getSupabaseClient() {
 // Proxy so existing `supabase.from(...)` calls keep working
 const supabase = new Proxy({} as ReturnType<typeof createClient>, {
   get(_target, prop) {
-    return (getSupabaseClient() as Record<string, unknown>)[prop as string]
+    return (getSupabaseClient() as unknown as Record<string, unknown>)[prop as string]
   },
 })
 
