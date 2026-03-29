@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     const authResult = await authenticateRequest();
     if (authResult instanceof NextResponse) return authResult;
-    const { supabase } = authResult;
+    const { userId, supabase } = authResult;
 
     // Insert campaign
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -73,6 +73,7 @@ export async function POST(request: NextRequest) {
         weight_cultural: body.weightCultural ?? 20,
         weight_reach: body.weightReach ?? 15,
         source: body.source ?? 'government',
+        clerk_user_id: userId,
         goal: body.goal ?? null,
         advertiser_profile: body.advertiserProfile ?? {},
         status: 'draft',
@@ -115,7 +116,7 @@ export async function GET(request: NextRequest) {
 
     const authResult = await authenticateRequest();
     if (authResult instanceof NextResponse) return authResult;
-    const { orgType, supabase } = authResult;
+    const { userId, orgType, supabase } = authResult;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let query = (supabase as any)
@@ -132,9 +133,9 @@ export async function GET(request: NextRequest) {
     if (sources.length > 0) {
       query = query.in('source', sources);
     } else if (orgType === 'government') {
-      query = query.eq('source', 'government');
+      query = query.eq('source', 'government').or(`clerk_user_id.eq.${userId},clerk_user_id.is.null`);
     } else if (orgType === 'advertiser') {
-      query = query.eq('source', 'advertise');
+      query = query.eq('source', 'advertise').or(`clerk_user_id.eq.${userId},clerk_user_id.is.null`);
     }
 
     const { data: campaigns, error } = await query;

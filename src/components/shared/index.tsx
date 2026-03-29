@@ -100,6 +100,11 @@ export function Nav({ variant = 'default' }: NavProps) {
                   <Link href={`${prefix}/government/campaigns`} className="text-sm font-medium text-[var(--color-slate)] hover:text-[var(--color-charcoal)] transition-colors">
                     Campaigns
                   </Link>
+                  {isSignedIn && (
+                    <Link href={`${prefix}/government/onboarding`} className="btn btn-teal text-sm py-1.5 px-4">
+                      + New Campaign
+                    </Link>
+                  )}
                 </>
               )}
               {variant === 'advertise' && (

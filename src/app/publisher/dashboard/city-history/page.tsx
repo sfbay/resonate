@@ -4,15 +4,13 @@ import Link from 'next/link';
 import { CityHistoryViewer } from '@/components/publisher/city-history/CityHistoryViewer';
 import { useCityOptional } from '@/lib/geo/city-context';
 import { useRecordVisit } from '@/lib/navigation/use-record-visit';
-
-// TODO: Replace with real publisher context from auth
-const DEMO_PUBLISHER_ID = '11111111-1111-1111-1111-111111111101';
-const DEMO_PUBLISHER_NAME = 'El Tecolote';
+import { usePublisherIdentity } from '@/hooks/use-publisher-identity';
 
 export default function CityHistoryPage() {
   useRecordVisit();
   const cityCtx = useCityOptional();
   const prefix = cityCtx ? `/${cityCtx.slug}` : '';
+  const { publisherId, publisherName, isLoading } = usePublisherIdentity();
 
   return (
     <div className="min-h-screen bg-cream">
@@ -32,10 +30,16 @@ export default function CityHistoryPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-6 py-8">
-        <CityHistoryViewer
-          publisherId={DEMO_PUBLISHER_ID}
-          publisherName={DEMO_PUBLISHER_NAME}
-        />
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <div className="w-8 h-8 border-4 border-coral-200 border-t-coral-500 rounded-full animate-spin" />
+          </div>
+        ) : (
+          <CityHistoryViewer
+            publisherId={publisherId ?? ''}
+            publisherName={publisherName ?? 'Your Publication'}
+          />
+        )}
       </div>
     </div>
   );

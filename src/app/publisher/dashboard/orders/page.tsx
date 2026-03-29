@@ -15,6 +15,7 @@ import { ORDER_STATUS_DISPLAY } from '@/lib/transactions/order-state';
 import { formatCents, DELIVERABLE_TYPE_LABELS, PLATFORM_LABELS } from '@/lib/transactions/pricing';
 import { useCityOptional } from '@/lib/geo/city-context';
 import { useRecordVisit } from '@/lib/navigation/use-record-visit';
+import { usePublisherIdentity } from '@/hooks/use-publisher-identity';
 import { UnitCard } from '@/components/publisher/orders/UnitCard';
 import { getFormatLabel } from '@/lib/channels/format-labels';
 import type { ChannelGroup, UnitStatus, CreativeAssets } from '@/lib/channels/types';
@@ -22,8 +23,7 @@ import type { OrderStatus, SocialPlatform, DeliverableType } from '@/types';
 
 type FilterTab = 'all' | 'pending' | 'active' | 'completed';
 
-// Demo publisher — swap with auth lookup when auth is built
-const CURRENT_PUBLISHER_ID = '11111111-1111-1111-1111-111111111103'; // The Bay View
+// Publisher identity resolved from auth — see usePublisherIdentity hook
 
 interface OrderRow {
   id: string;
@@ -85,14 +85,16 @@ export default function OrderInboxPage() {
   useRecordVisit();
   const cityCtx = useCityOptional();
   const prefix = cityCtx ? `/${cityCtx.slug}` : '';
+  const { publisherId } = usePublisherIdentity();
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
   const fetchOrders = useCallback(async () => {
+    if (!publisherId) { setLoading(false); return; }
     try {
-      const res = await fetch(`/api/orders?publisherId=${CURRENT_PUBLISHER_ID}`);
+      const res = await fetch(`/api/orders?publisherId=${publisherId}`);
       const data = await res.json();
       setOrders(data.orders || []);
     } catch (err) {
@@ -100,7 +102,7 @@ export default function OrderInboxPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [publisherId]);
 
   useEffect(() => { fetchOrders(); }, [fetchOrders]);
 

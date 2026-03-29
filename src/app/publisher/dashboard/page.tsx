@@ -14,6 +14,7 @@ import { AnalyticsDashboard } from '@/components/publisher/analytics';
 import { usePublisherData } from '@/lib/db/use-publisher-data';
 import { useCityOptional } from '@/lib/geo/city-context';
 import { useRecordVisit } from '@/lib/navigation/use-record-visit';
+import { usePublisherIdentity } from '@/hooks/use-publisher-identity';
 
 /**
  * Loading fallback for the dashboard while search params are resolved
@@ -39,9 +40,10 @@ function DashboardContent() {
   const cityCtx = useCityOptional();
   const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const { publisherId } = usePublisherIdentity();
 
-  // Fetch real publisher data from Supabase
-  const { data, isLoading, error, refetch } = usePublisherData();
+  // Fetch publisher data — scoped to authenticated publisher, or first active (demo fallback)
+  const { data, isLoading, error, refetch } = usePublisherData(publisherId ?? undefined);
 
   // Check for OAuth callback parameters
   useEffect(() => {

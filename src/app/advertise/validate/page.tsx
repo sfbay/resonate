@@ -6,7 +6,7 @@ import { StepProgress } from '@/components/advertise/StepProgress';
 import { useCityOptional } from '@/lib/geo/city-context';
 import { useRecordVisit } from '@/lib/navigation/use-record-visit';
 import { useCurrentUserOptional } from '@/lib/auth';
-import { getSupabaseClient } from '@/lib/db/supabase';
+import { useSupabaseClient } from '@/lib/db/supabase';
 
 interface CampaignSummary {
   id: string;
@@ -29,6 +29,7 @@ export default function ValidatePage() {
   const cityCtx = useCityOptional();
   const prefix = cityCtx ? `/${cityCtx.slug}` : '';
   const user = useCurrentUserOptional();
+  const supabase = useSupabaseClient();
   const [campaigns, setCampaigns] = useState<CampaignSummary[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -38,16 +39,17 @@ export default function ValidatePage() {
       return;
     }
 
-    const supabase = getSupabaseClient();
     supabase
       .from('campaigns')
       .select('id, name, status, source, budget_min, budget_max, created_at')
+      .eq('source', 'advertise')
+      .or(`clerk_user_id.eq.${user.userId},clerk_user_id.is.null`)
       .order('created_at', { ascending: false })
       .then(({ data }) => {
-        setCampaigns(data || []);
+        setCampaigns((data as CampaignSummary[]) || []);
         setLoading(false);
       });
-  }, [user]);
+  }, [user, supabase]);
 
   const activeCampaigns = campaigns.filter((c) => c.status === 'active');
   const completedCampaigns = campaigns.filter((c) => c.status === 'completed');

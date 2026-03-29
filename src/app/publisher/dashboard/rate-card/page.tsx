@@ -5,14 +5,13 @@ import { OfferingsEditor } from '@/components/publisher/offerings/OfferingsEdito
 import { getDemoOfferings } from '@/lib/demo/publisher-data';
 import { useCityOptional } from '@/lib/geo/city-context';
 import { useRecordVisit } from '@/lib/navigation/use-record-visit';
-
-// TODO: Replace with real publisher context from auth
-const DEMO_PUBLISHER_NAME = 'El Tecolote';
+import { usePublisherIdentity } from '@/hooks/use-publisher-identity';
 
 export default function OfferingsPage() {
   useRecordVisit();
   const cityCtx = useCityOptional();
   const prefix = cityCtx ? `/${cityCtx.slug}` : '';
+  const { publisherName } = usePublisherIdentity();
 
   return (
     <div className="min-h-screen bg-cream">
@@ -34,7 +33,7 @@ export default function OfferingsPage() {
       <div className="max-w-4xl mx-auto px-6 py-8">
         <OfferingsEditor
           initialOfferings={getDemoOfferings()}
-          publisherName={DEMO_PUBLISHER_NAME}
+          publisherName={publisherName ?? 'Your Publication'}
         />
       </div>
     </div>
