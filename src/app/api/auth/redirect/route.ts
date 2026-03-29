@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth, clerkClient } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -27,7 +27,7 @@ export async function GET() {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const { data: mapping, error } = await supabase
       .from('user_org_mapping')
-      .select('org_type, city_slug, status')
+      .select('org_type, clerk_org_id, city_slug, status')
       .eq('clerk_user_id', userId)
       .order('created_at', { ascending: false })
       .limit(1)
