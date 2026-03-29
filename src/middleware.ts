@@ -83,15 +83,20 @@ export default clerkMiddleware(async (auth, request) => {
   const cityPortalMatch = pathname.match(/^\/[^/]+\/(publisher|government|advertise)(\/|$)/);
   if (cityPortalMatch && userId) {
     const portal = cityPortalMatch[1];
-    const orgType = (sessionClaims?.metadata as Record<string, string>)?.orgType || 'advertiser';
-    const allowedPortals = PORTAL_ACCESS[orgType] || [];
+    const orgType = (sessionClaims?.metadata as Record<string, string>)?.orgType;
 
-    if (!allowedPortals.includes(portal)) {
-      // Redirect to user's home portal
-      const homePath = PORTAL_HOME[orgType] || '/advertise/dashboard';
-      const url = request.nextUrl.clone();
-      url.pathname = `/${DEFAULT_CITY}${homePath}`;
-      return NextResponse.redirect(url, 307);
+    // Only enforce portal access when orgType is known.
+    // When orgType is missing (org not yet activated in session),
+    // allow access — the OrgAutoActivator client component will
+    // activate the org on the next page load.
+    if (orgType) {
+      const allowedPortals = PORTAL_ACCESS[orgType] || [];
+      if (!allowedPortals.includes(portal)) {
+        const homePath = PORTAL_HOME[orgType] || '/advertise/dashboard';
+        const url = request.nextUrl.clone();
+        url.pathname = `/${DEFAULT_CITY}${homePath}`;
+        return NextResponse.redirect(url, 307);
+      }
     }
   }
 
