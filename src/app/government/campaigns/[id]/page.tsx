@@ -29,6 +29,7 @@ import { BudgetOptimizerPanel } from '@/components/government/BudgetOptimizerPan
 import { CampaignMetricsSummary } from '@/components/government/CampaignMetricsSummary';
 import { OrderTimeline } from '@/components/government/OrderTimeline';
 import { DeliverablesView } from '@/components/government/DeliverablesView';
+import { ProcurementStatus } from '@/components/government/ProcurementStatus';
 import type { MatchDetails } from '@/components/government/MatchExplanationModal';
 import type { MatchPublisherData } from '@/lib/matching/mix-analysis';
 import type { SocialPlatform, DeliverableType, OrderStatus, SFNeighborhood } from '@/types';
@@ -61,9 +62,10 @@ interface OrderData {
   id: string;
   publisherId: string;
   status: OrderStatus;
+  procurementStatus?: string;
   total: number;
   lineItems: { id: string; deliverableType: string; platform: string; quantity: number; unitPrice: number; totalPrice: number }[];
-  deliverables: { id: string; status: string }[];
+  deliverables: { id: string; status: string; url?: string; metrics?: { impressions?: number; reach?: number; engagement?: number; clicks?: number } }[];
   publisher?: { id: string; name: string };
 }
 
@@ -104,6 +106,37 @@ export default function CampaignDetailPage() {
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
+  }, []);
+
+  const handleDeliverableUpdate = useCallback(async (orderId: string, deliverableId: string, newStatus: string) => {
+    try {
+      const res = await fetch(`/api/orders/${orderId}/deliverables`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deliverableId, status: newStatus }),
+      });
+      if (!res.ok) throw new Error('Failed to update deliverable');
+      fetchData();
+    } catch (err) {
+      console.error('Deliverable update failed:', err);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleOrderAction = useCallback(async (orderId: string, newStatus: string) => {
+    try {
+      const res = await fetch(`/api/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) throw new Error('Failed to update order');
+      // Refresh data after status change
+      fetchData();
+    } catch (err) {
+      console.error('Order action failed:', err);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchData = useCallback(async () => {
@@ -484,9 +517,39 @@ export default function CampaignDetailPage() {
                       {order.deliverables && order.deliverables.length > 0 && (
                         <div className="mt-4 pt-4 border-t border-gray-100">
                           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Deliverables</p>
-                          <DeliverablesView deliverables={order.deliverables} />
+                          <DeliverablesView
+                            deliverables={order.deliverables}
+                            onUpdateDeliverable={(deliverableId, status) => handleDeliverableUpdate(order.id, deliverableId, status)}
+                          />
                         </div>
                       )}
+
+                      {/* Government action buttons */}
+                      <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                        <div className="flex gap-3">
+                          {order.status === 'delivered' && (
+                            <button
+                              onClick={() => handleOrderAction(order.id, 'completed')}
+                              className="btn btn-teal text-sm px-5 py-2"
+                            >
+                              Confirm Delivery
+                            </button>
+                          )}
+                          {order.status === 'completed' && (
+                            <span className="text-sm text-emerald-600 font-medium py-2 flex items-center gap-1.5">
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                              Order complete
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Procurement status */}
+                        {order.procurementStatus && (
+                          <ProcurementStatus currentStatus={order.procurementStatus} />
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

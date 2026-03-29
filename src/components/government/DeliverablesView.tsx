@@ -23,6 +23,8 @@ interface Deliverable {
 
 interface DeliverablesViewProps {
   deliverables: Deliverable[];
+  /** Optional callback for government users to approve/request revision */
+  onUpdateDeliverable?: (deliverableId: string, status: string) => Promise<void>;
 }
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
@@ -54,7 +56,7 @@ function formatTypeName(s: string): string {
   return s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
-export function DeliverablesView({ deliverables }: DeliverablesViewProps) {
+export function DeliverablesView({ deliverables, onUpdateDeliverable }: DeliverablesViewProps) {
   if (deliverables.length === 0) {
     return (
       <div className="text-center py-6">
@@ -135,6 +137,24 @@ export function DeliverablesView({ deliverables }: DeliverablesViewProps) {
                   {d.metrics.clicks !== undefined && d.metrics.clicks > 0 && (
                     <span>{formatNumber(d.metrics.clicks)} clicks</span>
                   )}
+                </div>
+              )}
+
+              {/* Approve / Request Revision buttons for submitted deliverables */}
+              {onUpdateDeliverable && d.status === 'submitted' && (
+                <div className="flex gap-2 mt-2 pt-2 border-t border-gray-100">
+                  <button
+                    onClick={() => onUpdateDeliverable(d.id, 'approved')}
+                    className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded transition-colors"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => onUpdateDeliverable(d.id, 'revision_requested')}
+                    className="text-[10px] font-semibold text-amber-600 bg-amber-50 hover:bg-amber-100 px-2.5 py-1 rounded transition-colors"
+                  >
+                    Request Revision
+                  </button>
                 </div>
               )}
             </div>

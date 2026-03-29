@@ -128,3 +128,60 @@ export async function POST(
     );
   }
 }
+
+/**
+ * PATCH — Update a deliverable's status (approve, request revision).
+ * Used by government users to review submitted deliverables.
+ */
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) return authResult;
+    const { supabase } = authResult;
+
+    const { deliverableId, status, notes } = await request.json();
+    if (!deliverableId || !status) {
+      return NextResponse.json(
+        { error: 'deliverableId and status are required' },
+        { status: 400 }
+      );
+    }
+
+    const validStatuses = ['approved', 'revision_requested', 'rejected'];
+    if (!validStatuses.includes(status)) {
+      return NextResponse.json(
+        { error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` },
+        { status: 400 }
+      );
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const updates: Record<string, unknown> = {
+      status,
+      updated_at: new Date().toISOString(),
+    };
+    if (notes) updates.notes = notes;
+    if (status === 'approved') updates.approved_at = new Date().toISOString();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: deliverable, error } = await (supabase as any)
+      .from('deliverables')
+      .update(updates)
+      .eq('id', deliverableId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, deliverable });
+  } catch (error) {
+    console.error('Deliverable PATCH error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  }
+}
